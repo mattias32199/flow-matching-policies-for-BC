@@ -12,9 +12,9 @@ import torch.nn.functional as F
 import torch.nn as nn
 
 from src.config import FlowPolicyConfig
-from src.flow_matching.mlp import VelocityMLP
-from src.flow_matching.normalizer import Normalizer
-
+from src.policy.mlp import VelocityMLP
+from src.policy.normalizer import Normalizer
+t
 
 class FlowPolicy(nn.Module):
     """
@@ -104,15 +104,7 @@ class FlowPolicy(nn.Module):
                    generator: torch.Generator | None = None) -> torch.Tensor:
         """
         Sample a chunk and compare to the demo chunk, in normalized space (so every
-        joint counts equally). Park's Mystery 1 finds this tracks success better
-        than flow loss.
-
-        Caveat: if the demos contain several valid options, picking a *different*
-        valid option still counts as error, so this number stays high even for a
-        correct policy.
-
-        Reuse for the test-time-state extension: pass obs from policy rollouts and
-        actions = the ScriptedExpert's labels at those obs.
+        joint counts equally).
         """
         predicted = self.sample(obs, steps, generator)
         target = self.normalizer.normalize_actions(actions)

@@ -13,7 +13,8 @@ def matrix():
     for seed in range(4):
         for task, episodes in [('double', 10000), ('single', 10000), ('single', 50000)]:
             jobs.append(dict(run=f'm1-{task}-n{episodes}-s{seed}', mode='fixed', features='handcrafted',
-                             env=f'block-{task}-task1-v0', seed=seed, episodes=episodes))
+                             env=f'block-{task}-task1-v0', seed=seed, episodes=episodes,
+                             data_seed=seed + (10000 if episodes == 50000 else 0)))
     # Start both mysteries immediately, then continue the balanced queue.
     first = next(job for job in jobs if job['run'] == 'm1-double-n10000-s0')
     jobs.remove(first)

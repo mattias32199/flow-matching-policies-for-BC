@@ -68,7 +68,7 @@ def emit(path, record):
 def collect(args, index, episodes, val_episodes):
     print(f'COLLECTION_START index={index} episodes={episodes}', flush=True)
     train, val, metrics = generate_mjwarp_datasets(
-        args.env, episodes, val_episodes, args.seed, index,
+        args.env, episodes, val_episodes, args.data_seed, index,
         max_parallel_episodes=args.parallel,
     )
     # Simulator state is not needed for BC; retain dense observations and actions.
@@ -90,6 +90,7 @@ def main():
     parser.add_argument('--mode', choices=['fixed', 'streaming'], default='streaming')
     parser.add_argument('--features', choices=['handcrafted', 'standardized', 'xyz0.1', 'xyz10'], default='handcrafted')
     parser.add_argument('--seed', type=int, default=0)
+    parser.add_argument('--data-seed', type=int)
     parser.add_argument('--episodes', type=int, default=1000)
     parser.add_argument('--val-episodes', type=int, default=128)
     parser.add_argument('--parallel', type=int, default=512)
@@ -105,6 +106,8 @@ def main():
     parser.add_argument('--run', required=True)
     args = parser.parse_args()
     faulthandler.register(signal.SIGUSR1)
+    if args.data_seed is None:
+        args.data_seed = args.seed
     run = ROOT / 'runs' / args.run
     run.mkdir(parents=True, exist_ok=True)
     (run / 'checkpoints').mkdir(exist_ok=True)
@@ -122,7 +125,7 @@ def main():
     np.random.seed(args.seed)
     start = time.monotonic()
     index = 0
-    data_dir = ROOT / 'data' / f'{args.env}-n{args.episodes}-s{args.seed}'
+    data_dir = ROOT / 'data' / f'{args.env}-n{args.episodes}-d{args.data_seed}'
     train_file, val_file = data_dir / 'train.npz', data_dir / 'val.npz'
     if args.mode == 'fixed' and train_file.exists() and val_file.exists():
         raw_train, raw_val = dict(np.load(train_file)), dict(np.load(val_file))
@@ -137,6 +140,9 @@ def main():
     normalizer = ActionNormalizer.fit(raw_train['actions'], 1., 5.)
     train, val = dataset(raw_train, normalizer), dataset(raw_val, normalizer)
     del raw_train, raw_val
+    emit(run / 'dataset.jsonl', {'train_episodes': int(train['terminals'].sum()),
+                               'val_episodes': int(val['terminals'].sum()),
+                               'train_transitions': train.size, 'val_transitions': val.size})
     features = Features(train['observations'], args.features)
     np.savez(run / 'preprocessing.npz', center=features.center, scale=features.scale,
              q_low=normalizer.q_low, q_high=normalizer.q_high, clip=normalizer.clip,

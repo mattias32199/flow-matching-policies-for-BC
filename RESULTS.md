@@ -15,3 +15,5 @@ Reference defaults: eight 4096-wide residual MLP layers, action chunks of 25, ba
 - Three preprocessing tests pass: xyz index mapping, constant-feature stability, and identical frozen training/evaluation transforms.
 - Full reference FBC model has 136,179,887 parameters. Three synthetic GPU updates at batch size 1024 produced finite flow losses: 2.92764, 3.65450, 2.35684. This validates execution and memory capacity, not task learning.
 - Checkpoints remain local; the latest two per run are retained.
+
+Dataset-size comparisons use independent generation seeds (0–3 for 10K, 10000–10003 for 50K), with training seeds 0–3 in both groups. Feature variants share generation and training seeds. Requested episode counts are before upstream success filtering; actual retained episodes/transitions are logged locally in each run.

@@ -5,7 +5,8 @@
     "features": "handcrafted",
     "env": "block-double-task1-v0",
     "seed": 0,
-    "episodes": 10000
+    "episodes": 10000,
+    "data_seed": 0
   },
   {
     "run": "m4-handcrafted-s0",
@@ -141,7 +142,8 @@
     "features": "handcrafted",
     "env": "block-single-task1-v0",
     "seed": 0,
-    "episodes": 10000
+    "episodes": 10000,
+    "data_seed": 0
   },
   {
     "run": "m1-single-n50000-s0",
@@ -149,7 +151,8 @@
     "features": "handcrafted",
     "env": "block-single-task1-v0",
     "seed": 0,
-    "episodes": 50000
+    "episodes": 50000,
+    "data_seed": 10000
   },
   {
     "run": "m1-double-n10000-s1",
@@ -157,7 +160,8 @@
     "features": "handcrafted",
     "env": "block-double-task1-v0",
     "seed": 1,
-    "episodes": 10000
+    "episodes": 10000,
+    "data_seed": 1
   },
   {
     "run": "m1-single-n10000-s1",
@@ -165,7 +169,8 @@
     "features": "handcrafted",
     "env": "block-single-task1-v0",
     "seed": 1,
-    "episodes": 10000
+    "episodes": 10000,
+    "data_seed": 1
   },
   {
     "run": "m1-single-n50000-s1",
@@ -173,7 +178,8 @@
     "features": "handcrafted",
     "env": "block-single-task1-v0",
     "seed": 1,
-    "episodes": 50000
+    "episodes": 50000,
+    "data_seed": 10001
   },
   {
     "run": "m1-double-n10000-s2",
@@ -181,7 +187,8 @@
     "features": "handcrafted",
     "env": "block-double-task1-v0",
     "seed": 2,
-    "episodes": 10000
+    "episodes": 10000,
+    "data_seed": 2
   },
   {
     "run": "m1-single-n10000-s2",
@@ -189,7 +196,8 @@
     "features": "handcrafted",
     "env": "block-single-task1-v0",
     "seed": 2,
-    "episodes": 10000
+    "episodes": 10000,
+    "data_seed": 2
   },
   {
     "run": "m1-single-n50000-s2",
@@ -197,7 +205,8 @@
     "features": "handcrafted",
     "env": "block-single-task1-v0",
     "seed": 2,
-    "episodes": 50000
+    "episodes": 50000,
+    "data_seed": 10002
   },
   {
     "run": "m1-double-n10000-s3",
@@ -205,7 +214,8 @@
     "features": "handcrafted",
     "env": "block-double-task1-v0",
     "seed": 3,
-    "episodes": 10000
+    "episodes": 10000,
+    "data_seed": 3
   },
   {
     "run": "m1-single-n10000-s3",
@@ -213,7 +223,8 @@
     "features": "handcrafted",
     "env": "block-single-task1-v0",
     "seed": 3,
-    "episodes": 10000
+    "episodes": 10000,
+    "data_seed": 3
   },
   {
     "run": "m1-single-n50000-s3",
@@ -221,6 +232,7 @@
     "features": "handcrafted",
     "env": "block-single-task1-v0",
     "seed": 3,
-    "episodes": 50000
+    "episodes": 50000,
+    "data_seed": 10003
   }
 ]

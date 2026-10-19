@@ -22,7 +22,7 @@ Run the full four-GPU matrix in a persistent session:
 
 ```bash
 tmux new-session -d -s ocbench-reproduction \
-  'bash -c "source scripts/env.sh; exec .venv/bin/python -u scripts/supervise.py > .local/supervisor.log 2>&1"'
+  'bash -c "source scripts/env.sh; exec .venv/bin/python -u scripts/supervise.py --pilot-first > .local/supervisor.log 2>&1"'
 ```
 
 `results/matrix.json` records all 28 conditions/seeds. The supervisor uses one GPU per run, exports scalar metrics every 30 minutes, and commits/pushes only `results/curves.csv`. Configure Git author identity and remote credentials before starting. It stops assigning a GPU if its job fails and preserves incomplete runs for inspection. Inspect `.local/queue-status.json` and `.local/*.log`; run `scripts/summarize.py` to refresh curves manually.
@@ -30,3 +30,5 @@ tmux new-session -d -s ocbench-reproduction \
 Mystery 4 uses freshly generated collections without reusing training start indices. Scaling statistics and action normalization are fitted on the initial training collection and frozen; the initial validation set is held out throughout. Standardization here is z-score with a minimum standard deviation of 0.001; exact blog normalization details are not published in the reference commands. Input xyz indices follow the pinned block environment observation layout. This is a documented reproduction choice.
 
 The latest two checkpoints per run are retained locally to bound disk usage. `results/environment.txt` pins the installed package versions and is reused by setup. Long runs may take days; a completed first training step establishes launch health, while reproduction conclusions require full curves and rollout evaluations.
+
+`--pilot-first` adds four 100-step full-model task-learning pilots (64 generated episodes each) before the full queue. Pilot metrics are labeled with `pilot-` and do not support the blog conclusions.

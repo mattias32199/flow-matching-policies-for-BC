@@ -36,9 +36,17 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--gpus', default='0,1,2,3')
     parser.add_argument('--steps', type=int, default=2000000)
+    parser.add_argument('--pilot-first', action='store_true')
     parser.add_argument('--sync-seconds', type=int, default=1800)
     args = parser.parse_args()
     pending = matrix()
+    if args.pilot_first:
+        pilots = []
+        for job in pending[:4]:
+            pilots.append(dict(job, run='pilot-' + job['run'], episodes=64,
+                               steps=100, eval_interval=100, eval_episodes=16,
+                               parallel=64, log_interval=10, save_interval=100))
+        pending = pilots + pending
     active = {}
     handles = []
     failures = []

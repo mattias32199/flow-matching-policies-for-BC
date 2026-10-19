@@ -5,7 +5,7 @@ from pathlib import Path
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
-from train import EvalAgent, Features
+from train import EvalAgent, Features, evaluation_record
 
 
 class PreprocessingTest(unittest.TestCase):
@@ -24,6 +24,13 @@ class PreprocessingTest(unittest.TestCase):
         observations = np.ones((10, 37), dtype=np.float32)
         np.testing.assert_array_equal(Features(observations, 'handcrafted')(observations), observations)
         self.assertTrue(np.isfinite(Features(observations, 'standardized')(observations)).all())
+
+    def test_zero_success_evaluation_serializes_undefined_duration(self):
+        import json
+        record = evaluation_record(1, {'success': 0., 'mean_success_steps': np.nan})
+        self.assertIsNone(record['mean_success_steps'])
+        self.assertEqual(record['success'], 0.)
+        json.dumps(record, allow_nan=False)
 
     def test_eval_uses_frozen_training_transform(self):
         train = np.random.default_rng(5).normal(size=(100, 37)).astype(np.float32)

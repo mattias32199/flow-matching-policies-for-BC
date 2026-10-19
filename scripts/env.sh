@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+umask 0002
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 export UV_CACHE_DIR="$REPO_ROOT/.local/cache/uv"
 export UV_PYTHON_INSTALL_DIR="$REPO_ROOT/.local/python"
@@ -20,3 +21,4 @@ done
 export WARP_CACHE_PATH="$REPO_ROOT/.local/cache/warp"
 export CUDA_CACHE_PATH="$REPO_ROOT/.local/cache/cuda"
 export JAX_COMPILATION_CACHE_DIR="$REPO_ROOT/.local/cache/jax"
+mkdir -p "$CUDA_CACHE_PATH" "$WARP_CACHE_PATH" "$JAX_COMPILATION_CACHE_DIR/xla_gpu_per_fusion_autotune_cache_dir"

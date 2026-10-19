@@ -59,6 +59,11 @@ class EvalAgent:
         return self.agent.sample_actions(self.features(observations), seed=seed)
 
 
+def evaluation_record(step, metrics):
+    # Upstream mean_success_steps is undefined when every rollout fails.
+    return {'step': step, **{k: float(v) if np.isfinite(v) else None for k, v in metrics.items()}}
+
+
 def emit(path, record):
     with path.open('a') as file:
         file.write(json.dumps(record, allow_nan=False) + '\n')
@@ -199,7 +204,7 @@ def main():
                 action_normalizer=normalizer, num_eval_episodes=args.eval_episodes,
                 action_chunk_length=25,
             )
-            emit(run / 'eval.jsonl', {'step': step, **{k: float(v) for k, v in metrics.items()}})
+            emit(run / 'eval.jsonl', evaluation_record(step, metrics))
         if step % args.save_interval == 0 or step == args.steps:
             save_agent(agent, str(run / 'checkpoints'), step)
             saved = sorted((run / 'checkpoints').glob('params_*.pkl'),

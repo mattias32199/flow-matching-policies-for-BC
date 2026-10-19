@@ -21,7 +21,7 @@ CUDA_VISIBLE_DEVICES=0 .venv/bin/python scripts/train.py --run smoke-example \
 Run the full four-GPU matrix in a persistent session:
 
 ```bash
-tmux new-session -d -s ocbench-reproduction \
+tmux -S "$REPO_ROOT/.local/tmux.sock" new-session -d -s ocbench-reproduction \
   'bash -c "source scripts/env.sh; exec .venv/bin/python -u scripts/supervise.py --pilot-first > .local/supervisor.log 2>&1"'
 ```
 

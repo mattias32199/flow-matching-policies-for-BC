@@ -99,7 +99,10 @@ def main():
             progress('All GPU workers stopped after errors. Queue remains incomplete.')
             break
         time.sleep(30)
-    sync()
+    try:
+        sync()
+    except subprocess.CalledProcessError as error:
+        progress(f'Final Git sync failed with exit {error.returncode}; local results retained.')
     progress(f'Supervisor stopped. Failed runs: {failures}; pending jobs: {len(pending)}.')
 
 

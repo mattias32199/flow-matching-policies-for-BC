@@ -108,9 +108,12 @@ def main():
     parser.add_argument('--eval-episodes', type=int, default=500)
     parser.add_argument('--save-interval', type=int, default=100000)
     parser.add_argument('--keep-checkpoints', type=int, default=2)
+    parser.add_argument('--solver-iteration-warnings', action='store_true')
     parser.add_argument('--run', required=True)
     args = parser.parse_args()
     faulthandler.register(signal.SIGUSR1)
+    from simulation import configure_iteration_warnings
+    configure_iteration_warnings(args.solver_iteration_warnings)
     if args.data_seed is None:
         args.data_seed = args.seed
     run = ROOT / 'runs' / args.run

@@ -34,7 +34,7 @@ def summarize():
     output = ROOT / 'results' / 'curves.csv'
     keys = ['run', 'step'] + sorted({key for row in rows for key in row} - {'run', 'step'})
     with output.open('w', newline='') as file:
-        writer = csv.DictWriter(file, keys)
+        writer = csv.DictWriter(file, keys, lineterminator='\n')
         writer.writeheader()
         writer.writerows(rows)
     return len(rows)

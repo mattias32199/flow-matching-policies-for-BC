@@ -81,7 +81,6 @@ def notification(events):
         'Continue this existing reproduction task. Inspect the queue and exact run logs. '
         'For completed experiments, analyze evaluations/checkpoints, update RESULTS and run evidence, '
         'and commit/push completed results using Haoran Huan <yzhhr@outlook.com>. '
-        'For failures/stalls, diagnose and recover within the existing authorized scope. '
         'Preserve unaffected GPU jobs and PROGRESS history. Do not create timed metric commits '
         'or another watcher. Report material findings to the user.'
     )
@@ -96,10 +95,13 @@ def deliver(root, thread, events, queue_command='codex'):
     return result.stdout.strip()
 
 
-def poll(root, thread, state_path, queue_command='codex', sender=deliver):
+def poll(root, thread, state_path, queue_command='codex', sender=deliver, completion_only=True):
     state = json.loads(state_path.read_text()) if state_path.exists() else {}
     observation = observe(root)
     events = collect_events(observation, state)
+    if completion_only:
+        state['pending'] = [event for event in state['pending']
+                            if event['kind'] == 'completed' and event['run'].startswith(('m1-', 'm4-'))]
     # Persist pending events before delivery; failed queue calls are retried next poll.
     write_json(state_path, state)
     if state['pending']:
@@ -115,6 +117,7 @@ def poll(root, thread, state_path, queue_command='codex', sender=deliver):
         checked_at=timestamp(), active=observation['active'], pending_jobs=observation['pending'],
         delivered_events=state['delivered'], pending_notifications=len(state['pending']),
         notification_method='codex queue to existing thread',
+        wake_on='full experiment completion only' if completion_only else 'all events',
     ))
     return events
 
@@ -122,14 +125,14 @@ def poll(root, thread, state_path, queue_command='codex', sender=deliver):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--thread', default=os.environ.get('CODEX_THREAD_ID'))
-    parser.add_argument('--interval', type=int, default=60)
+    parser.add_argument('--interval', type=int, default=600)
     parser.add_argument('--queue-command', default='codex')
     args = parser.parse_args()
     if not args.thread:
         parser.error('Specify --thread or set CODEX_THREAD_ID.')
     state_path = ROOT / '.local' / 'watcher-state.json'
     last_error = None
-    progress(ROOT, 'Started persistent event watcher; completion/failure/stall events queue this thread.')
+    progress(ROOT, 'Started completion-only watcher; local checks every 10 minutes, no timed model wake-ups.')
     while True:
         try:
             events = poll(ROOT, args.thread, state_path, args.queue_command)

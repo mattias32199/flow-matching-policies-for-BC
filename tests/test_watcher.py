@@ -38,12 +38,21 @@ class WatcherTest(unittest.TestCase):
             poll(root,'thread',path)
             (root/'.local/queue-status.json').write_text(json.dumps(dict(active={},pending=1,failures=['m4'])))
             def fail(*args):raise RuntimeError('daemon unavailable')
-            with self.assertRaises(RuntimeError):poll(root,'thread',path,sender=fail)
+            with self.assertRaises(RuntimeError):poll(root,'thread',path,sender=fail,completion_only=False)
             self.assertEqual(len(json.loads(path.read_text())['pending']),1)
             delivered=[]
             def success(root,thread,events,command):delivered.extend(events);return 'queued'
-            poll(root,'thread',path,sender=success)
+            poll(root,'thread',path,sender=success,completion_only=False)
             self.assertEqual(delivered[0]['kind'],'failed')
+            self.assertEqual(json.loads(path.read_text())['pending'],[])
+
+    def test_default_does_not_wake_on_failure_or_stall(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=self.setup_root(directory);path=root/'.local/watcher-state.json'
+            poll(root,'thread',path)
+            (root/'.local/queue-status.json').write_text(json.dumps(dict(active={},pending=1,failures=['m4'])))
+            def unexpected(*args):self.fail('Non-completion must not invoke Codex')
+            poll(root,'thread',path,sender=unexpected)
             self.assertEqual(json.loads(path.read_text())['pending'],[])
 
     def test_stall_alert_can_recur_after_recovery(self):

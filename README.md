@@ -25,7 +25,7 @@ tmux -S "$REPO_ROOT/.local/tmux.sock" new-session -d -s ocbench-reproduction \
   'bash -c "source scripts/env.sh; exec .venv/bin/python -u scripts/supervise.py --pilot-first > .local/supervisor.log 2>&1"'
 ```
 
-`results/matrix.json` records all 28 conditions/seeds. The supervisor uses one GPU per run, exports scalar metrics every 30 minutes, and commits/pushes only `results/curves.csv`. Configure Git author identity and remote credentials before starting. It stops assigning a GPU if its job fails and preserves incomplete runs for inspection. Inspect `.local/queue-status.json` and `.local/*.log`; run `scripts/summarize.py` to refresh curves manually.
+`results/matrix.json` records all 28 conditions/seeds. The supervisor uses one GPU per run, exports scalar metrics every 30 minutes, and commits/pushes `results/curves.csv` and the live table in `RESULTS.md`. Configure Git author identity and remote credentials before starting. It stops assigning a GPU if its job fails and preserves incomplete runs for inspection. Inspect `.local/queue-status.json` and `.local/*.log`; run `scripts/summarize.py` to refresh curves manually.
 
 Mystery 4 uses freshly generated collections without reusing training start indices. Scaling statistics and action normalization are fitted on the initial training collection and frozen; the initial validation set is held out throughout. Standardization here is z-score with a minimum standard deviation of 0.001; exact blog normalization details are not published in the reference commands. Input xyz indices follow the pinned block environment observation layout. This is a documented reproduction choice.
 

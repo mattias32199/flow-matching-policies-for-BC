@@ -19,6 +19,7 @@ def read_jsonl(path):
 
 def summarize():
     rows = []
+    status = []
     for config_file in sorted((ROOT / 'runs').glob('*/config.json')):
         config = json.loads(config_file.read_text())
         if config['run'].startswith('smoke'):
@@ -26,6 +27,12 @@ def summarize():
         run = config_file.parent
         records = read_jsonl(run / 'metrics.jsonl')
         evaluations = read_jsonl(run / 'eval.jsonl')
+        latest = records[-1] if records else {}
+        evaluation = evaluations[-1] if evaluations else {}
+        status.append(dict(run=config['run'], step=latest.get('step', 0),
+                           train=latest.get('training/flow_loss'), val=latest.get('validation/flow_loss'),
+                           mse=latest.get('validation/action_mse'), success=evaluation.get('success'),
+                           eval_step=evaluation.get('step'), done=(run / 'DONE').exists()))
         for record in records:
             rows.append(dict(run=config['run'], **record))
         for record in evaluations:
@@ -37,6 +44,32 @@ def summarize():
         writer = csv.DictWriter(file, keys, lineterminator='\n')
         writer.writeheader()
         writer.writerows(rows)
+    def number(value):
+        return '—' if value is None else f'{value:.4f}'
+    report = ['<!-- LIVE_RESULTS_START -->', '## Live experiment status', '',
+              'Pilot runs validate execution only. Reproduction runs target 2,000,000 updates; '
+              'partial curves do not establish either mystery.', '',
+              '| Run | Updates | Train flow | Val flow | Val action MSE | Success | Eval update | Finished |',
+              '| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |']
+    for row in status:
+        report.append(f"| {row['run']} | {row['step']} | {number(row['train'])} | {number(row['val'])} | "
+                      f"{number(row['mse'])} | {number(row['success'])} | {row['eval_step'] or '—'} | "
+                      f"{'yes' if row['done'] else 'no'} |")
+    report += ['', 'Blank evaluation cells mean no recorded evaluation yet. Undefined duration '
+               'aggregates at zero success are stored as null; success itself remains zero.',
+               '<!-- LIVE_RESULTS_END -->']
+    target = ROOT / 'RESULTS.md'
+    text = target.read_text()
+    begin = '<!-- LIVE_RESULTS_START -->'
+    end = '<!-- LIVE_RESULTS_END -->'
+    block = '\n'.join(report)
+    if begin in text:
+        before, rest = text.split(begin, 1)
+        _, after = rest.split(end, 1)
+        text = before + block + after
+    else:
+        text += '\n' + block + '\n'
+    target.write_text(text)
     return len(rows)
 
 

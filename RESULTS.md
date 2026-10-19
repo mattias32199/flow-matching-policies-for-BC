@@ -1,6 +1,6 @@
 # Results
 
-Status: setup and validation in progress; no reproduction claims yet.
+Status: GPU integration validated; long-run reproduction in progress. No reproduction claims yet.
 
 ## Planned comparisons
 
@@ -12,8 +12,24 @@ Reference defaults: eight 4096-wide residual MLP layers, action chunks of 25, ba
 ## Validation
 
 - Local Python 3.11 environment installed from the pinned submodule; exact resolved versions are in `results/environment.txt`.
-- Three preprocessing tests pass: xyz index mapping, constant-feature stability, and identical frozen training/evaluation transforms.
+- Four preprocessing/metric tests pass (including zero-success serialization): xyz index mapping, constant-feature stability, and identical frozen training/evaluation transforms.
 - Full reference FBC model has 136,179,887 parameters. Three synthetic GPU updates at batch size 1024 produced finite flow losses: 2.92764, 3.65450, 2.35684. This validates execution and memory capacity, not task learning.
+- End-to-end GPU smoke test completed demonstration collection, two updates, four rollout evaluations, and checkpoint saving. Four full reference-model workers each reached 100 real updates with finite training and validation losses.
 - Checkpoints remain local; the latest two per run are retained.
 
-Dataset-size comparisons use independent generation seeds (0–3 for 10K, 10000–10003 for 50K), with training seeds 0–3 in both groups. Feature variants share generation and training seeds. Requested episode counts are before upstream success filtering; actual retained episodes/transitions are logged locally in each run.
+Dataset-size comparisons use independent generation seeds (0–3 for 10K, 10000–10003 for 50K), with training seeds 0–3 in both groups. Feature variants share generation and training seeds; GPU simulation is not bitwise deterministic, so separately generated streams can differ slightly despite paired seeds. Requested episode counts are before upstream success filtering; actual retained episodes/transitions are logged locally in each run.
+
+<!-- LIVE_RESULTS_START -->
+## Live experiment status
+
+Pilot runs validate execution only. Reproduction runs target 2,000,000 updates; partial curves do not establish either mystery.
+
+| Run | Updates | Train flow | Val flow | Val action MSE | Success | Eval update | Finished |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| pilot-m1-double-n10000-s0 | 100 | 0.2445 | 0.2911 | 0.1626 | — | — | no |
+| pilot-m4-handcrafted-s0 | 100 | 0.2729 | 0.3451 | 0.2120 | — | — | no |
+| pilot-m4-standardized-s0 | 100 | 0.3114 | 0.3221 | 0.1346 | — | — | no |
+| pilot-m4-xyz0.1-s0 | 100 | 0.3143 | 0.3025 | 0.1196 | — | — | no |
+
+Blank evaluation cells mean no recorded evaluation yet. Undefined duration aggregates at zero success are stored as null; success itself remains zero.
+<!-- LIVE_RESULTS_END -->

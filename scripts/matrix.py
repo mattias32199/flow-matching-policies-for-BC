@@ -5,7 +5,7 @@ from pathlib import Path
 
 def matrix():
     jobs = []
-    # First compare all four feature settings under identical seeds and data.
+    # First compare all four feature settings under paired generation seeds.
     for seed in range(4):
         for feature in ['handcrafted', 'standardized', 'xyz0.1', 'xyz10']:
             jobs.append(dict(run=f'm4-{feature}-s{seed}', mode='streaming', features=feature,

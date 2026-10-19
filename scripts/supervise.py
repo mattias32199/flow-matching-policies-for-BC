@@ -25,7 +25,7 @@ def progress(message):
 def sync():
     summarize()
     # Explicit allowlist excludes local logs, paths, data, environments and checkpoints.
-    subprocess.run(['git', 'add', 'results/curves.csv'], cwd=ROOT, check=True)
+    subprocess.run(['git', 'add', 'results/curves.csv', 'RESULTS.md'], cwd=ROOT, check=True)
     changes = subprocess.run(['git', 'diff', '--cached', '--quiet'], cwd=ROOT)
     if changes.returncode == 1:
         subprocess.run(['git', 'commit', '-m', 'Record experiment metrics'], cwd=ROOT, check=True)

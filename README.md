@@ -32,3 +32,7 @@ Mystery 4 uses freshly generated collections without reusing training start indi
 The latest two checkpoints per run are retained locally to bound disk usage. `results/environment.txt` pins the installed package versions and is reused by setup. Long runs may take days; a completed first training step establishes launch health, while reproduction conclusions require full curves and rollout evaluations.
 
 `--pilot-first` adds four 100-step full-model task-learning pilots (64 generated episodes each) before the full queue. Pilot metrics are labeled with `pilot-` and do not support the blog conclusions.
+
+`results/curves.csv` contains portable scalar curves; `scripts/plot.py` generates `results/curves.png` with success, validation flow loss, and validation action MSE, excluding pilots. Shading is sample standard deviation across available seeds, not a significance claim.
+
+The [paper implementation details](https://arxiv.org/html/2610.07056v1#A4.SS1) refresh 25K streaming episodes every 100K updates. This implementation instead collects 1K episodes at a time and uses each retained transition start once, matching the blog's conceptual fresh-data description. This and the explicitly chosen z-score scaling prevent a claim of exact numerical reproduction. The requested blog uses 10K block-double episodes; the later paper's corresponding figure uses 30K.

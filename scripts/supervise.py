@@ -24,8 +24,11 @@ def progress(message):
 
 def sync():
     summarize()
+    subprocess.run([sys.executable, 'scripts/plot.py'], cwd=ROOT, check=True)
     # Explicit allowlist excludes local logs, paths, data, environments and checkpoints.
     subprocess.run(['git', 'add', 'results/curves.csv', 'RESULTS.md'], cwd=ROOT, check=True)
+    if (ROOT / 'results/curves.png').exists():
+        subprocess.run(['git', 'add', 'results/curves.png'], cwd=ROOT, check=True)
     changes = subprocess.run(['git', 'diff', '--cached', '--quiet'], cwd=ROOT)
     if changes.returncode == 1:
         subprocess.run(['git', 'commit', '-m', 'Record experiment metrics'], cwd=ROOT, check=True)

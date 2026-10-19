@@ -27,9 +27,9 @@ Pilot runs validate execution only. Reproduction runs target 2,000,000 updates; 
 | Run | Updates | Train flow | Val flow | Val action MSE | Success | Eval update | Finished |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
 | m1-double-n10000-s0 | 0 | — | — | — | — | — | no |
-| m4-handcrafted-s0 | 0 | — | — | — | — | — | no |
-| m4-standardized-s0 | 0 | — | — | — | — | — | no |
-| m4-xyz0.1-s0 | 0 | — | — | — | — | — | no |
+| m4-handcrafted-s0 | 1000 | 0.0886 | 0.0820 | 0.0539 | — | — | no |
+| m4-standardized-s0 | 1000 | 0.0850 | 0.0788 | 0.0502 | — | — | no |
+| m4-xyz0.1-s0 | 1000 | 0.0863 | 0.0810 | 0.0503 | — | — | no |
 | pilot-m1-double-n10000-s0 | 100 | 0.2445 | 0.2911 | 0.1626 | — | — | no |
 | pilot-m4-handcrafted-s0 | 100 | 0.2729 | 0.3451 | 0.2120 | — | — | no |
 | pilot-m4-standardized-s0 | 100 | 0.3114 | 0.3221 | 0.1346 | — | — | no |

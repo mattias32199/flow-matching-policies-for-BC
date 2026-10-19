@@ -51,6 +51,10 @@ def plot():
             ax.grid(alpha=.2)
             if ax.lines:
                 ax.legend(fontsize=7)
+            else:
+                ax.text(.5, .5, 'Awaiting metrics', ha='center', va='center', transform=ax.transAxes)
+                ax.set_xticks([])
+                ax.set_yticks([])
     figure.suptitle('Partial OCBench reproduction curves (mean ± sample SD across available seeds)')
     figure.savefig(ROOT / 'results/curves.png', dpi=160)
     plt.close(figure)

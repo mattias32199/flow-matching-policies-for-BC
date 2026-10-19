@@ -1,0 +1,13 @@
+.local/
+.venv/
+data/
+checkpoints/
+runs/
+wandb/
+__pycache__/
+*.pyc
+*.npz
+*.pkl
+*.pt
+*.ckpt
+PROGRESS.md

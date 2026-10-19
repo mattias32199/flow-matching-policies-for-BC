@@ -1,4 +1,4 @@
-"""Durable four-GPU queue with periodic metric export and Git synchronization."""
+"""Durable four-GPU queue with local metric exports; Git commits are manual."""
 import argparse
 import datetime
 import json
@@ -9,7 +9,6 @@ import sys
 import time
 
 from matrix import matrix
-from summarize import summarize
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -23,16 +22,9 @@ def progress(message):
 
 
 def sync():
-    summarize()
+    subprocess.run([sys.executable, 'scripts/summarize.py'], cwd=ROOT, check=True)
     subprocess.run([sys.executable, 'scripts/plot.py'], cwd=ROOT, check=True)
-    # Explicit allowlist excludes local logs, paths, data, environments and checkpoints.
-    subprocess.run(['git', 'add', 'results/curves.csv', 'RESULTS.md'], cwd=ROOT, check=True)
-    if (ROOT / 'results/curves.png').exists():
-        subprocess.run(['git', 'add', 'results/curves.png'], cwd=ROOT, check=True)
-    changes = subprocess.run(['git', 'diff', '--cached', '--quiet'], cwd=ROOT)
-    if changes.returncode == 1:
-        subprocess.run(['git', 'commit', '-m', 'Record experiment metrics'], cwd=ROOT, check=True)
-    subprocess.run(['git', 'push', 'origin', 'HEAD'], cwd=ROOT, check=True)
+
 
 
 def main():
@@ -51,7 +43,6 @@ def main():
                                parallel=64, log_interval=10, save_interval=100))
         pending = pilots + pending
     active = {}
-    handles = []
     failures = []
     last_sync = time.monotonic()
     for gpu in args.gpus.split(','):
@@ -93,7 +84,7 @@ def main():
             try:
                 sync()
             except subprocess.CalledProcessError as error:
-                progress(f'Periodic Git sync failed with exit {error.returncode}; retry next interval.')
+                progress(f'Periodic export failed with exit {error.returncode}; retry next interval.')
             last_sync = time.monotonic()
         state = {gpu: entry[1]['run'] if entry else None for gpu, entry in active.items()}
         (ROOT / '.local' / 'queue-status.json').write_text(json.dumps(
@@ -105,7 +96,7 @@ def main():
     try:
         sync()
     except subprocess.CalledProcessError as error:
-        progress(f'Final Git sync failed with exit {error.returncode}; local results retained.')
+        progress(f'Final export failed with exit {error.returncode}; local results retained.')
     progress(f'Supervisor stopped. Failed runs: {failures}; pending jobs: {len(pending)}.')
 
 

@@ -1,0 +1,21 @@
+{
+  "env": "block-double-task1-v0",
+  "mode": "fixed",
+  "features": "handcrafted",
+  "seed": 0,
+  "data_seed": 0,
+  "episodes": 64,
+  "val_episodes": 128,
+  "parallel": 64,
+  "steps": 100,
+  "batch_size": 1024,
+  "width": 4096,
+  "depth": 8,
+  "log_interval": 10,
+  "eval_interval": 100,
+  "eval_episodes": 16,
+  "save_interval": 100,
+  "keep_checkpoints": 2,
+  "run": "pilot-m1-double-n10000-s0",
+  "upstream_commit": "ab6a2c2602b9ac2196e786aea7b7fab2fe779d98"
+}

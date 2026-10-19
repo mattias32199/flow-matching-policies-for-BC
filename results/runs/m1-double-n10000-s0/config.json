@@ -1,0 +1,22 @@
+{
+  "env": "block-double-task1-v0",
+  "mode": "fixed",
+  "features": "handcrafted",
+  "seed": 0,
+  "data_seed": 0,
+  "episodes": 10000,
+  "val_episodes": 128,
+  "parallel": 512,
+  "steps": 2000000,
+  "batch_size": 1024,
+  "width": 4096,
+  "depth": 8,
+  "log_interval": 1000,
+  "eval_interval": 50000,
+  "eval_episodes": 500,
+  "save_interval": 100000,
+  "keep_checkpoints": 2,
+  "solver_iteration_warnings": false,
+  "run": "m1-double-n10000-s0",
+  "upstream_commit": "ab6a2c2602b9ac2196e786aea7b7fab2fe779d98"
+}

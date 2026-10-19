@@ -1,0 +1,8 @@
+{
+  "run": "m4-xyz10-s3",
+  "mode": "streaming",
+  "features": "xyz10",
+  "env": "block-double-task1-v0",
+  "seed": 3,
+  "episodes": 1000
+}

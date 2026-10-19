@@ -1,0 +1,9 @@
+{
+  "run": "m1-single-n10000-s2",
+  "mode": "fixed",
+  "features": "handcrafted",
+  "env": "block-single-task1-v0",
+  "seed": 2,
+  "episodes": 10000,
+  "data_seed": 2
+}

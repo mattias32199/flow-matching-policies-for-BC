@@ -3,6 +3,8 @@ import csv
 import json
 from pathlib import Path
 
+from catalog import export_catalog
+
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -20,6 +22,7 @@ def read_jsonl(path):
 def summarize():
     rows = []
     status = []
+    catalog = export_catalog()
     for config_file in sorted((ROOT / 'runs').glob('*/config.json')):
         config = json.loads(config_file.read_text())
         if config['run'].startswith('smoke'):
@@ -49,10 +52,12 @@ def summarize():
     report = ['<!-- LIVE_RESULTS_START -->', '## Live experiment status', '',
               'Pilot runs validate execution only. Reproduction runs target 2,000,000 updates; '
               'partial curves do not establish either mystery.', '',
-              '| Run | Updates | Train flow | Val flow | Val action MSE | Success | Eval update | Finished |',
-              '| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |']
+              '| Run records | W&B | Updates | Train flow | Val flow | Val action MSE | Success | Eval update | Finished |',
+              '| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |']
     for row in status:
-        report.append(f"| {row['run']} | {row['step']} | {number(row['train'])} | {number(row['val'])} | "
+        url = catalog[row['run']]['wandb_url']
+        remote = f'[Charts]({url})' if url else 'pending upload'
+        report.append(f"| [{row['run']}](results/runs/{row['run']}/README.md) | {remote} | {row['step']} | {number(row['train'])} | {number(row['val'])} | "
                       f"{number(row['mse'])} | {number(row['success'])} | {row['eval_step'] or '—'} | "
                       f"{'yes' if row['done'] else 'no'} |")
     report += ['', 'Blank evaluation cells mean no recorded evaluation yet. Undefined duration '

@@ -1,0 +1,2 @@
+{"index": 0, "collection_idx": 0, "collection_time": 115.90666437149048, "train/transitions": 112710, "train/success_rate": 0.875, "train/avg_episode_length": 1761.09375, "train/avg_return": 0.875, "val/transitions": 228114, "val/success_rate": 0.7734375, "val/avg_episode_length": 1782.140625, "val/avg_return": 0.7734375}
+{"index": 1, "collection_idx": 1, "collection_time": 37.64158606529236, "train/transitions": 120150, "train/success_rate": 0.75, "train/avg_episode_length": 1877.34375, "train/avg_return": 0.75}

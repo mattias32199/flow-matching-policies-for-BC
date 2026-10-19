@@ -2,6 +2,14 @@
 
 Status: GPU integration validated; long-run reproduction in progress. No reproduction claims yet.
 
+## Evidence and exact runs
+
+Open the [run catalog](results/runs/README.md) for every planned condition, diagnostic, configuration, and complete portable scalar log. Run names in the table below link directly to their records. Each run page lists individual evaluations by gradient update, with links to exact JSONL lines and W&B evaluation charts when available.
+
+The configured W&B destination is [yzchhr/ocbench-bc-mysteries-1-4](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4). Upload links are published only after authenticated project creation. Until then they read **pending upload**, rather than implying the project or remote runs already exist.
+
+The completed [smoke-v3 evaluation](results/runs/smoke-v3/README.md#evaluations) verifies evaluation logging and checkpoint execution; its zero-success result is a two-update smoke test, not a reproduction result.
+
 ## Planned comparisons
 
 - Mystery 1: block-double with fixed 10,000 episodes; track training/validation flow loss, action MSE, and success over training. Compare block-single with independently sampled 10,000 versus 50,000 episodes over four seeds.
@@ -24,16 +32,16 @@ Dataset-size comparisons use independent generation seeds (0–3 for 10K, 10000�
 
 Pilot runs validate execution only. Reproduction runs target 2,000,000 updates; partial curves do not establish either mystery.
 
-| Run | Updates | Train flow | Val flow | Val action MSE | Success | Eval update | Finished |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
-| m1-double-n10000-s0 | 0 | — | — | — | — | — | no |
-| m4-handcrafted-s0 | 1000 | 0.0886 | 0.0820 | 0.0539 | — | — | no |
-| m4-standardized-s0 | 1000 | 0.0850 | 0.0788 | 0.0502 | — | — | no |
-| m4-xyz0.1-s0 | 1000 | 0.0863 | 0.0810 | 0.0503 | — | — | no |
-| pilot-m1-double-n10000-s0 | 100 | 0.2445 | 0.2911 | 0.1626 | — | — | no |
-| pilot-m4-handcrafted-s0 | 100 | 0.2729 | 0.3451 | 0.2120 | — | — | no |
-| pilot-m4-standardized-s0 | 100 | 0.3114 | 0.3221 | 0.1346 | — | — | no |
-| pilot-m4-xyz0.1-s0 | 100 | 0.3143 | 0.3025 | 0.1196 | — | — | no |
+| Run records | W&B | Updates | Train flow | Val flow | Val action MSE | Success | Eval update | Finished |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| [m1-double-n10000-s0](results/runs/m1-double-n10000-s0/README.md) | pending upload | 0 | — | — | — | — | — | no |
+| [m4-handcrafted-s0](results/runs/m4-handcrafted-s0/README.md) | pending upload | 7000 | 0.0523 | 0.0457 | 0.0411 | — | — | no |
+| [m4-standardized-s0](results/runs/m4-standardized-s0/README.md) | pending upload | 7000 | 0.0462 | 0.0452 | 0.0364 | — | — | no |
+| [m4-xyz0.1-s0](results/runs/m4-xyz0.1-s0/README.md) | pending upload | 7000 | 0.0554 | 0.0470 | 0.0437 | — | — | no |
+| [pilot-m1-double-n10000-s0](results/runs/pilot-m1-double-n10000-s0/README.md) | pending upload | 100 | 0.2445 | 0.2911 | 0.1626 | — | — | no |
+| [pilot-m4-handcrafted-s0](results/runs/pilot-m4-handcrafted-s0/README.md) | pending upload | 100 | 0.2729 | 0.3451 | 0.2120 | — | — | no |
+| [pilot-m4-standardized-s0](results/runs/pilot-m4-standardized-s0/README.md) | pending upload | 100 | 0.3114 | 0.3221 | 0.1346 | — | — | no |
+| [pilot-m4-xyz0.1-s0](results/runs/pilot-m4-xyz0.1-s0/README.md) | pending upload | 100 | 0.3143 | 0.3025 | 0.1196 | — | — | no |
 
 Blank evaluation cells mean no recorded evaluation yet. Undefined duration aggregates at zero success are stored as null; success itself remains zero.
 <!-- LIVE_RESULTS_END -->

@@ -2,7 +2,7 @@
 .venv/
 data/
 checkpoints/
-runs/
+/runs/
 wandb/
 __pycache__/
 *.pyc
@@ -11,3 +11,7 @@ __pycache__/
 *.pt
 *.ckpt
 PROGRESS.md
+
+.env
+.env.*
+*.key

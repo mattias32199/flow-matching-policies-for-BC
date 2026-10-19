@@ -1,0 +1,9 @@
+{
+  "run": "m1-double-n10000-s3",
+  "mode": "fixed",
+  "features": "handcrafted",
+  "env": "block-double-task1-v0",
+  "seed": 3,
+  "episodes": 10000,
+  "data_seed": 3
+}

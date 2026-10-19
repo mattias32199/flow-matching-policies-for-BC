@@ -1,0 +1,6 @@
+{"index": 0, "collection_idx": 0, "collection_time": 150.5060999393463, "train/transitions": 1761921, "train/success_rate": 0.803, "train/avg_episode_length": 1761.921, "train/avg_return": 0.8029999732971191, "val/transitions": 228576, "val/success_rate": 0.7734375, "val/avg_episode_length": 1785.75, "val/avg_return": 0.7734375}
+{"index": 1, "collection_idx": 1, "collection_time": 106.47191619873047, "train/transitions": 1769291, "train/success_rate": 0.777, "train/avg_episode_length": 1769.291, "train/avg_return": 0.7770000100135803}
+{"index": 2, "collection_idx": 2, "collection_time": 105.18958139419556, "train/transitions": 1788279, "train/success_rate": 0.781, "train/avg_episode_length": 1788.279, "train/avg_return": 0.781000018119812}
+{"index": 3, "collection_idx": 3, "collection_time": 104.68489003181458, "train/transitions": 1745390, "train/success_rate": 0.816, "train/avg_episode_length": 1745.39, "train/avg_return": 0.8159999847412109}
+{"index": 4, "collection_idx": 4, "collection_time": 104.85651707649231, "train/transitions": 1805322, "train/success_rate": 0.778, "train/avg_episode_length": 1805.322, "train/avg_return": 0.777999997138977}
+{"index": 5, "collection_idx": 5, "collection_time": 106.70281457901001, "train/transitions": 1820481, "train/success_rate": 0.749, "train/avg_episode_length": 1820.481, "train/avg_return": 0.7490000128746033}

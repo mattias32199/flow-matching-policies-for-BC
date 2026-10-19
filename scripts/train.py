@@ -1,5 +1,6 @@
 """State-based FBC reproductions using the pinned upstream agent and simulator."""
 import argparse
+import hashlib
 import faulthandler
 import signal
 import json
@@ -123,6 +124,10 @@ def main():
         raise RuntimeError('Refusing to overwrite an existing run; use a new run name.')
     config_record = vars(args) | {'upstream_commit': subprocess.check_output(
         ['git', '-C', str(ROOT / 'ocbench'), 'rev-parse', 'HEAD'], text=True).strip()}
+    config_record['code_commit'] = subprocess.check_output(
+        ['git', '-C', str(ROOT), 'rev-parse', 'HEAD'], text=True).strip()
+    config_record['training_code_sha256'] = hashlib.sha256(
+        Path(__file__).read_bytes() + (ROOT / 'scripts' / 'simulation.py').read_bytes()).hexdigest()
     (run / 'config.json').write_text(json.dumps(config_record, indent=2))
     print(f'JAX_DEVICES {jax.devices()}', flush=True)
     if not any(device.platform == 'gpu' for device in jax.devices()):

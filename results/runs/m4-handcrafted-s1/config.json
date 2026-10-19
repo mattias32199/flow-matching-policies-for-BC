@@ -1,0 +1,8 @@
+{
+  "run": "m4-handcrafted-s1",
+  "mode": "streaming",
+  "features": "handcrafted",
+  "env": "block-double-task1-v0",
+  "seed": 1,
+  "episodes": 1000
+}

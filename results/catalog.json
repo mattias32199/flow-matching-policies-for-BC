@@ -1,0 +1,646 @@
+[
+  {
+    "name": "m1-double-n10000-s0",
+    "status": "collecting",
+    "config": {
+      "env": "block-double-task1-v0",
+      "mode": "fixed",
+      "features": "handcrafted",
+      "seed": 0,
+      "data_seed": 0,
+      "episodes": 10000,
+      "val_episodes": 128,
+      "parallel": 512,
+      "steps": 2000000,
+      "batch_size": 1024,
+      "width": 4096,
+      "depth": 8,
+      "log_interval": 1000,
+      "eval_interval": 50000,
+      "eval_episodes": 500,
+      "save_interval": 100000,
+      "keep_checkpoints": 2,
+      "solver_iteration_warnings": false,
+      "run": "m1-double-n10000-s0",
+      "upstream_commit": "ab6a2c2602b9ac2196e786aea7b7fab2fe779d98"
+    },
+    "wandb_url": null,
+    "wandb_id": null
+  },
+  {
+    "name": "m4-handcrafted-s0",
+    "status": "training",
+    "config": {
+      "env": "block-double-task1-v0",
+      "mode": "streaming",
+      "features": "handcrafted",
+      "seed": 0,
+      "data_seed": 0,
+      "episodes": 1000,
+      "val_episodes": 128,
+      "parallel": 512,
+      "steps": 2000000,
+      "batch_size": 1024,
+      "width": 4096,
+      "depth": 8,
+      "log_interval": 1000,
+      "eval_interval": 50000,
+      "eval_episodes": 500,
+      "save_interval": 100000,
+      "keep_checkpoints": 2,
+      "solver_iteration_warnings": false,
+      "run": "m4-handcrafted-s0",
+      "upstream_commit": "ab6a2c2602b9ac2196e786aea7b7fab2fe779d98"
+    },
+    "wandb_url": null,
+    "wandb_id": null
+  },
+  {
+    "name": "m4-standardized-s0",
+    "status": "training",
+    "config": {
+      "env": "block-double-task1-v0",
+      "mode": "streaming",
+      "features": "standardized",
+      "seed": 0,
+      "data_seed": 0,
+      "episodes": 1000,
+      "val_episodes": 128,
+      "parallel": 512,
+      "steps": 2000000,
+      "batch_size": 1024,
+      "width": 4096,
+      "depth": 8,
+      "log_interval": 1000,
+      "eval_interval": 50000,
+      "eval_episodes": 500,
+      "save_interval": 100000,
+      "keep_checkpoints": 2,
+      "solver_iteration_warnings": false,
+      "run": "m4-standardized-s0",
+      "upstream_commit": "ab6a2c2602b9ac2196e786aea7b7fab2fe779d98"
+    },
+    "wandb_url": null,
+    "wandb_id": null
+  },
+  {
+    "name": "m4-xyz0.1-s0",
+    "status": "training",
+    "config": {
+      "env": "block-double-task1-v0",
+      "mode": "streaming",
+      "features": "xyz0.1",
+      "seed": 0,
+      "data_seed": 0,
+      "episodes": 1000,
+      "val_episodes": 128,
+      "parallel": 512,
+      "steps": 2000000,
+      "batch_size": 1024,
+      "width": 4096,
+      "depth": 8,
+      "log_interval": 1000,
+      "eval_interval": 50000,
+      "eval_episodes": 500,
+      "save_interval": 100000,
+      "keep_checkpoints": 2,
+      "solver_iteration_warnings": false,
+      "run": "m4-xyz0.1-s0",
+      "upstream_commit": "ab6a2c2602b9ac2196e786aea7b7fab2fe779d98"
+    },
+    "wandb_url": null,
+    "wandb_id": null
+  },
+  {
+    "name": "m4-xyz10-s0",
+    "status": "queued",
+    "config": {
+      "run": "m4-xyz10-s0",
+      "mode": "streaming",
+      "features": "xyz10",
+      "env": "block-double-task1-v0",
+      "seed": 0,
+      "episodes": 1000
+    },
+    "wandb_url": null,
+    "wandb_id": null
+  },
+  {
+    "name": "m4-handcrafted-s1",
+    "status": "queued",
+    "config": {
+      "run": "m4-handcrafted-s1",
+      "mode": "streaming",
+      "features": "handcrafted",
+      "env": "block-double-task1-v0",
+      "seed": 1,
+      "episodes": 1000
+    },
+    "wandb_url": null,
+    "wandb_id": null
+  },
+  {
+    "name": "m4-standardized-s1",
+    "status": "queued",
+    "config": {
+      "run": "m4-standardized-s1",
+      "mode": "streaming",
+      "features": "standardized",
+      "env": "block-double-task1-v0",
+      "seed": 1,
+      "episodes": 1000
+    },
+    "wandb_url": null,
+    "wandb_id": null
+  },
+  {
+    "name": "m4-xyz0.1-s1",
+    "status": "queued",
+    "config": {
+      "run": "m4-xyz0.1-s1",
+      "mode": "streaming",
+      "features": "xyz0.1",
+      "env": "block-double-task1-v0",
+      "seed": 1,
+      "episodes": 1000
+    },
+    "wandb_url": null,
+    "wandb_id": null
+  },
+  {
+    "name": "m4-xyz10-s1",
+    "status": "queued",
+    "config": {
+      "run": "m4-xyz10-s1",
+      "mode": "streaming",
+      "features": "xyz10",
+      "env": "block-double-task1-v0",
+      "seed": 1,
+      "episodes": 1000
+    },
+    "wandb_url": null,
+    "wandb_id": null
+  },
+  {
+    "name": "m4-handcrafted-s2",
+    "status": "queued",
+    "config": {
+      "run": "m4-handcrafted-s2",
+      "mode": "streaming",
+      "features": "handcrafted",
+      "env": "block-double-task1-v0",
+      "seed": 2,
+      "episodes": 1000
+    },
+    "wandb_url": null,
+    "wandb_id": null
+  },
+  {
+    "name": "m4-standardized-s2",
+    "status": "queued",
+    "config": {
+      "run": "m4-standardized-s2",
+      "mode": "streaming",
+      "features": "standardized",
+      "env": "block-double-task1-v0",
+      "seed": 2,
+      "episodes": 1000
+    },
+    "wandb_url": null,
+    "wandb_id": null
+  },
+  {
+    "name": "m4-xyz0.1-s2",
+    "status": "queued",
+    "config": {
+      "run": "m4-xyz0.1-s2",
+      "mode": "streaming",
+      "features": "xyz0.1",
+      "env": "block-double-task1-v0",
+      "seed": 2,
+      "episodes": 1000
+    },
+    "wandb_url": null,
+    "wandb_id": null
+  },
+  {
+    "name": "m4-xyz10-s2",
+    "status": "queued",
+    "config": {
+      "run": "m4-xyz10-s2",
+      "mode": "streaming",
+      "features": "xyz10",
+      "env": "block-double-task1-v0",
+      "seed": 2,
+      "episodes": 1000
+    },
+    "wandb_url": null,
+    "wandb_id": null
+  },
+  {
+    "name": "m4-handcrafted-s3",
+    "status": "queued",
+    "config": {
+      "run": "m4-handcrafted-s3",
+      "mode": "streaming",
+      "features": "handcrafted",
+      "env": "block-double-task1-v0",
+      "seed": 3,
+      "episodes": 1000
+    },
+    "wandb_url": null,
+    "wandb_id": null
+  },
+  {
+    "name": "m4-standardized-s3",
+    "status": "queued",
+    "config": {
+      "run": "m4-standardized-s3",
+      "mode": "streaming",
+      "features": "standardized",
+      "env": "block-double-task1-v0",
+      "seed": 3,
+      "episodes": 1000
+    },
+    "wandb_url": null,
+    "wandb_id": null
+  },
+  {
+    "name": "m4-xyz0.1-s3",
+    "status": "queued",
+    "config": {
+      "run": "m4-xyz0.1-s3",
+      "mode": "streaming",
+      "features": "xyz0.1",
+      "env": "block-double-task1-v0",
+      "seed": 3,
+      "episodes": 1000
+    },
+    "wandb_url": null,
+    "wandb_id": null
+  },
+  {
+    "name": "m4-xyz10-s3",
+    "status": "queued",
+    "config": {
+      "run": "m4-xyz10-s3",
+      "mode": "streaming",
+      "features": "xyz10",
+      "env": "block-double-task1-v0",
+      "seed": 3,
+      "episodes": 1000
+    },
+    "wandb_url": null,
+    "wandb_id": null
+  },
+  {
+    "name": "m1-single-n10000-s0",
+    "status": "queued",
+    "config": {
+      "run": "m1-single-n10000-s0",
+      "mode": "fixed",
+      "features": "handcrafted",
+      "env": "block-single-task1-v0",
+      "seed": 0,
+      "episodes": 10000,
+      "data_seed": 0
+    },
+    "wandb_url": null,
+    "wandb_id": null
+  },
+  {
+    "name": "m1-single-n50000-s0",
+    "status": "queued",
+    "config": {
+      "run": "m1-single-n50000-s0",
+      "mode": "fixed",
+      "features": "handcrafted",
+      "env": "block-single-task1-v0",
+      "seed": 0,
+      "episodes": 50000,
+      "data_seed": 10000
+    },
+    "wandb_url": null,
+    "wandb_id": null
+  },
+  {
+    "name": "m1-double-n10000-s1",
+    "status": "queued",
+    "config": {
+      "run": "m1-double-n10000-s1",
+      "mode": "fixed",
+      "features": "handcrafted",
+      "env": "block-double-task1-v0",
+      "seed": 1,
+      "episodes": 10000,
+      "data_seed": 1
+    },
+    "wandb_url": null,
+    "wandb_id": null
+  },
+  {
+    "name": "m1-single-n10000-s1",
+    "status": "queued",
+    "config": {
+      "run": "m1-single-n10000-s1",
+      "mode": "fixed",
+      "features": "handcrafted",
+      "env": "block-single-task1-v0",
+      "seed": 1,
+      "episodes": 10000,
+      "data_seed": 1
+    },
+    "wandb_url": null,
+    "wandb_id": null
+  },
+  {
+    "name": "m1-single-n50000-s1",
+    "status": "queued",
+    "config": {
+      "run": "m1-single-n50000-s1",
+      "mode": "fixed",
+      "features": "handcrafted",
+      "env": "block-single-task1-v0",
+      "seed": 1,
+      "episodes": 50000,
+      "data_seed": 10001
+    },
+    "wandb_url": null,
+    "wandb_id": null
+  },
+  {
+    "name": "m1-double-n10000-s2",
+    "status": "queued",
+    "config": {
+      "run": "m1-double-n10000-s2",
+      "mode": "fixed",
+      "features": "handcrafted",
+      "env": "block-double-task1-v0",
+      "seed": 2,
+      "episodes": 10000,
+      "data_seed": 2
+    },
+    "wandb_url": null,
+    "wandb_id": null
+  },
+  {
+    "name": "m1-single-n10000-s2",
+    "status": "queued",
+    "config": {
+      "run": "m1-single-n10000-s2",
+      "mode": "fixed",
+      "features": "handcrafted",
+      "env": "block-single-task1-v0",
+      "seed": 2,
+      "episodes": 10000,
+      "data_seed": 2
+    },
+    "wandb_url": null,
+    "wandb_id": null
+  },
+  {
+    "name": "m1-single-n50000-s2",
+    "status": "queued",
+    "config": {
+      "run": "m1-single-n50000-s2",
+      "mode": "fixed",
+      "features": "handcrafted",
+      "env": "block-single-task1-v0",
+      "seed": 2,
+      "episodes": 50000,
+      "data_seed": 10002
+    },
+    "wandb_url": null,
+    "wandb_id": null
+  },
+  {
+    "name": "m1-double-n10000-s3",
+    "status": "queued",
+    "config": {
+      "run": "m1-double-n10000-s3",
+      "mode": "fixed",
+      "features": "handcrafted",
+      "env": "block-double-task1-v0",
+      "seed": 3,
+      "episodes": 10000,
+      "data_seed": 3
+    },
+    "wandb_url": null,
+    "wandb_id": null
+  },
+  {
+    "name": "m1-single-n10000-s3",
+    "status": "queued",
+    "config": {
+      "run": "m1-single-n10000-s3",
+      "mode": "fixed",
+      "features": "handcrafted",
+      "env": "block-single-task1-v0",
+      "seed": 3,
+      "episodes": 10000,
+      "data_seed": 3
+    },
+    "wandb_url": null,
+    "wandb_id": null
+  },
+  {
+    "name": "m1-single-n50000-s3",
+    "status": "queued",
+    "config": {
+      "run": "m1-single-n50000-s3",
+      "mode": "fixed",
+      "features": "handcrafted",
+      "env": "block-single-task1-v0",
+      "seed": 3,
+      "episodes": 50000,
+      "data_seed": 10003
+    },
+    "wandb_url": null,
+    "wandb_id": null
+  },
+  {
+    "name": "pilot-m1-double-n10000-s0",
+    "status": "incomplete",
+    "config": {
+      "env": "block-double-task1-v0",
+      "mode": "fixed",
+      "features": "handcrafted",
+      "seed": 0,
+      "data_seed": 0,
+      "episodes": 64,
+      "val_episodes": 128,
+      "parallel": 64,
+      "steps": 100,
+      "batch_size": 1024,
+      "width": 4096,
+      "depth": 8,
+      "log_interval": 10,
+      "eval_interval": 100,
+      "eval_episodes": 16,
+      "save_interval": 100,
+      "keep_checkpoints": 2,
+      "run": "pilot-m1-double-n10000-s0",
+      "upstream_commit": "ab6a2c2602b9ac2196e786aea7b7fab2fe779d98"
+    },
+    "wandb_url": null,
+    "wandb_id": null
+  },
+  {
+    "name": "pilot-m4-handcrafted-s0",
+    "status": "incomplete",
+    "config": {
+      "env": "block-double-task1-v0",
+      "mode": "streaming",
+      "features": "handcrafted",
+      "seed": 0,
+      "data_seed": 0,
+      "episodes": 64,
+      "val_episodes": 128,
+      "parallel": 64,
+      "steps": 100,
+      "batch_size": 1024,
+      "width": 4096,
+      "depth": 8,
+      "log_interval": 10,
+      "eval_interval": 100,
+      "eval_episodes": 16,
+      "save_interval": 100,
+      "keep_checkpoints": 2,
+      "run": "pilot-m4-handcrafted-s0",
+      "upstream_commit": "ab6a2c2602b9ac2196e786aea7b7fab2fe779d98"
+    },
+    "wandb_url": null,
+    "wandb_id": null
+  },
+  {
+    "name": "pilot-m4-standardized-s0",
+    "status": "incomplete",
+    "config": {
+      "env": "block-double-task1-v0",
+      "mode": "streaming",
+      "features": "standardized",
+      "seed": 0,
+      "data_seed": 0,
+      "episodes": 64,
+      "val_episodes": 128,
+      "parallel": 64,
+      "steps": 100,
+      "batch_size": 1024,
+      "width": 4096,
+      "depth": 8,
+      "log_interval": 10,
+      "eval_interval": 100,
+      "eval_episodes": 16,
+      "save_interval": 100,
+      "keep_checkpoints": 2,
+      "run": "pilot-m4-standardized-s0",
+      "upstream_commit": "ab6a2c2602b9ac2196e786aea7b7fab2fe779d98"
+    },
+    "wandb_url": null,
+    "wandb_id": null
+  },
+  {
+    "name": "pilot-m4-xyz0.1-s0",
+    "status": "incomplete",
+    "config": {
+      "env": "block-double-task1-v0",
+      "mode": "streaming",
+      "features": "xyz0.1",
+      "seed": 0,
+      "data_seed": 0,
+      "episodes": 64,
+      "val_episodes": 128,
+      "parallel": 64,
+      "steps": 100,
+      "batch_size": 1024,
+      "width": 4096,
+      "depth": 8,
+      "log_interval": 10,
+      "eval_interval": 100,
+      "eval_episodes": 16,
+      "save_interval": 100,
+      "keep_checkpoints": 2,
+      "run": "pilot-m4-xyz0.1-s0",
+      "upstream_commit": "ab6a2c2602b9ac2196e786aea7b7fab2fe779d98"
+    },
+    "wandb_url": null,
+    "wandb_id": null
+  },
+  {
+    "name": "smoke-v1",
+    "status": "incomplete",
+    "config": {
+      "env": "block-double-task1-v0",
+      "mode": "streaming",
+      "features": "handcrafted",
+      "seed": 0,
+      "episodes": 8,
+      "val_episodes": 4,
+      "parallel": 12,
+      "steps": 2,
+      "batch_size": 16,
+      "width": 128,
+      "depth": 2,
+      "log_interval": 1,
+      "eval_interval": 2,
+      "eval_episodes": 4,
+      "save_interval": 100000,
+      "run": "smoke-v1",
+      "upstream_commit": "ab6a2c2602b9ac2196e786aea7b7fab2fe779d98"
+    },
+    "wandb_url": null,
+    "wandb_id": null
+  },
+  {
+    "name": "smoke-v2",
+    "status": "incomplete",
+    "config": {
+      "env": "block-double-task1-v0",
+      "mode": "streaming",
+      "features": "handcrafted",
+      "seed": 0,
+      "episodes": 8,
+      "val_episodes": 4,
+      "parallel": 12,
+      "steps": 2,
+      "batch_size": 16,
+      "width": 128,
+      "depth": 2,
+      "log_interval": 1,
+      "eval_interval": 2,
+      "eval_episodes": 4,
+      "save_interval": 100000,
+      "run": "smoke-v2",
+      "upstream_commit": "ab6a2c2602b9ac2196e786aea7b7fab2fe779d98"
+    },
+    "wandb_url": null,
+    "wandb_id": null
+  },
+  {
+    "name": "smoke-v3",
+    "status": "completed",
+    "config": {
+      "env": "block-double-task1-v0",
+      "mode": "streaming",
+      "features": "handcrafted",
+      "seed": 0,
+      "data_seed": 0,
+      "episodes": 8,
+      "val_episodes": 4,
+      "parallel": 12,
+      "steps": 2,
+      "batch_size": 16,
+      "width": 128,
+      "depth": 2,
+      "log_interval": 1,
+      "eval_interval": 2,
+      "eval_episodes": 4,
+      "save_interval": 100000,
+      "keep_checkpoints": 2,
+      "run": "smoke-v3",
+      "upstream_commit": "ab6a2c2602b9ac2196e786aea7b7fab2fe779d98"
+    },
+    "wandb_url": null,
+    "wandb_id": null
+  }
+]

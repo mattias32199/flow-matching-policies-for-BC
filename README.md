@@ -57,3 +57,9 @@ Refresh a local snapshot at any time (this does not commit or push):
 .venv/bin/python scripts/summarize.py
 .venv/bin/python scripts/plot.py
 ```
+
+## Completion watcher
+
+`bash scripts/start_watcher.sh` starts a separate persistent watcher using the current `CODEX_THREAD_ID`. Every 60 seconds it checks for new completed runs, supervisor failures, missing supervisor heartbeats, stale training logs, and a stalled W&B mirror. It uses the supported `codex queue --thread … --message …` command to queue follow-up work in the existing conversation. No new task or model is selected, and no timed Git commits are made.
+
+The watcher requires the local Codex daemon to remain available. If queuing fails, it retains the pending event locally and retries; it does not silently mark the event delivered. See `.local/watcher-status.json`, `.local/watch-events.jsonl`, and `.local/watcher.log`. A queue acknowledgement means a follow-up was accepted; model execution follows the thread's normal scheduling and approval policy. Existing diagnostic completions are ignored when first establishing the baseline.

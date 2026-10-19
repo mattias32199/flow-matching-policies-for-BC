@@ -1,6 +1,7 @@
 """State-based FBC reproductions using the pinned upstream agent and simulator."""
 import argparse
-import csv
+import faulthandler
+import signal
 import json
 import os
 from pathlib import Path
@@ -100,8 +101,10 @@ def main():
     parser.add_argument('--eval-interval', type=int, default=50000)
     parser.add_argument('--eval-episodes', type=int, default=500)
     parser.add_argument('--save-interval', type=int, default=100000)
+    parser.add_argument('--keep-checkpoints', type=int, default=2)
     parser.add_argument('--run', required=True)
     args = parser.parse_args()
+    faulthandler.register(signal.SIGUSR1)
     run = ROOT / 'runs' / args.run
     run.mkdir(parents=True, exist_ok=True)
     (run / 'checkpoints').mkdir(exist_ok=True)
@@ -193,6 +196,10 @@ def main():
             emit(run / 'eval.jsonl', {'step': step, **{k: float(v) for k, v in metrics.items()}})
         if step % args.save_interval == 0 or step == args.steps:
             save_agent(agent, str(run / 'checkpoints'), step)
+            saved = sorted((run / 'checkpoints').glob('params_*.pkl'),
+                           key=lambda path: int(path.stem.split('_')[-1]))
+            for old in saved[:-max(1, args.keep_checkpoints)]:
+                old.unlink()
     (run / 'DONE').write_text('Training and final evaluation completed.\n')
 
 

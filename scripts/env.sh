@@ -18,3 +18,5 @@ for cuda_lib in "$REPO_ROOT"/.venv/lib/python*/site-packages/nvidia/*/lib; do
     if [ -d "$cuda_lib" ]; then export LD_LIBRARY_PATH="$cuda_lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"; fi
 done
 export WARP_CACHE_PATH="$REPO_ROOT/.local/cache/warp"
+export CUDA_CACHE_PATH="$REPO_ROOT/.local/cache/cuda"
+export JAX_COMPILATION_CACHE_DIR="$REPO_ROOT/.local/cache/jax"

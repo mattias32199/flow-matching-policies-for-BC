@@ -66,6 +66,13 @@ def export_catalog(root=ROOT):
     target = root / 'results' / 'runs'
     target.mkdir(parents=True, exist_ok=True)
     mapping = read_mapping(root)
+    marker = root / '.local' / 'wandb-project.json'
+    verified = json.loads(marker.read_text()) if marker.exists() else {}
+    connected = verified.get('url') == APP_URL
+    tracking = dict(status='connected' if connected else 'credentials_pending',
+                    project_url=APP_URL,
+                    catalog_url=f'{APP_URL}/runs/ocbench-catalog-v1' if connected else None)
+    (root / 'results' / 'tracking.json').write_text(json.dumps(tracking, indent=2) + '\n')
     entries = {job['run']: dict(name=job['run'], status='queued', config=clean_config(job)) for job in matrix()}
     queue_path = root / '.local' / 'queue-status.json'
     queue = json.loads(queue_path.read_text()) if queue_path.exists() else {}
@@ -120,6 +127,8 @@ def export_catalog(root=ROOT):
         entry['wandb_id'] = metadata.get('id') if url else None
         entry.pop('records', None)
     lines = ['# Run catalog', '', '[Results](../../RESULTS.md) · [W&B project](' + APP_URL + ')', '',
+             ('[W&B catalog table](' + tracking['catalog_url'] + ')' if connected
+              else 'Remote project connection has not been verified.'), '',
              'Full runs, queued conditions, and diagnostic runs are separate entries. '
              'Evaluation links identify the exact gradient update and JSONL line.', '',
              '| Run | Status | Exact records | W&B |', '| --- | --- | --- | --- |']

@@ -41,10 +41,11 @@ The [paper implementation details](https://arxiv.org/html/2610.07056v1#A4.SS1) r
 
 Navigation: **[RESULTS.md](RESULTS.md) → [run catalog](results/runs/README.md) → per-run configuration and full scalar logs**. Each evaluation row identifies its training update and exact JSONL line. Once uploaded, the same run record links to its W&B charts, and the W&B run links back to the exact repository records. Git records are snapshots updated with code/result commits; W&B can follow active runs without creating commits.
 
-The configured W&B project is [yzchhr/ocbench-bc-mysteries-1-4](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4). Authentication and project creation must succeed before run links are published; pending uploads are explicitly labeled. Use the normal `WANDB_API_KEY` environment variable or SDK-managed saved credentials. Keys belong outside Git.
+The live W&B project is [yzchhr/ocbench-bc-mysteries-1-4](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4). Historical training and evaluation logs are backfilled, and active runs are mirrored without Git commits. The [W&B catalog table](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocbench-catalog-v1) links run charts to the exact repository records. Use the normal `WANDB_API_KEY` environment variable or SDK-managed saved credentials. Keys belong outside Git.
 
 ```bash
 source scripts/env.sh
+# Load your credential setup into this shell first.
 bash scripts/start_tracking.sh
 ```
 

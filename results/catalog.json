@@ -1,7 +1,7 @@
 [
   {
     "name": "m1-double-n10000-s0",
-    "status": "collecting",
+    "status": "training",
     "config": {
       "env": "block-double-task1-v0",
       "mode": "fixed",
@@ -24,8 +24,8 @@
       "run": "m1-double-n10000-s0",
       "upstream_commit": "ab6a2c2602b9ac2196e786aea7b7fab2fe779d98"
     },
-    "wandb_url": null,
-    "wandb_id": null
+    "wandb_url": "https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb7d868146415f56201",
+    "wandb_id": "ocb7d868146415f56201"
   },
   {
     "name": "m4-handcrafted-s0",
@@ -52,8 +52,8 @@
       "run": "m4-handcrafted-s0",
       "upstream_commit": "ab6a2c2602b9ac2196e786aea7b7fab2fe779d98"
     },
-    "wandb_url": null,
-    "wandb_id": null
+    "wandb_url": "https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb6555c1eef3e7c6a5b",
+    "wandb_id": "ocb6555c1eef3e7c6a5b"
   },
   {
     "name": "m4-standardized-s0",
@@ -80,8 +80,8 @@
       "run": "m4-standardized-s0",
       "upstream_commit": "ab6a2c2602b9ac2196e786aea7b7fab2fe779d98"
     },
-    "wandb_url": null,
-    "wandb_id": null
+    "wandb_url": "https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocbdf09e0125b1d85354",
+    "wandb_id": "ocbdf09e0125b1d85354"
   },
   {
     "name": "m4-xyz0.1-s0",
@@ -108,8 +108,8 @@
       "run": "m4-xyz0.1-s0",
       "upstream_commit": "ab6a2c2602b9ac2196e786aea7b7fab2fe779d98"
     },
-    "wandb_url": null,
-    "wandb_id": null
+    "wandb_url": "https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocbb5e56eb1e20d223a2",
+    "wandb_id": "ocbb5e56eb1e20d223a2"
   },
   {
     "name": "m4-xyz10-s0",
@@ -482,8 +482,8 @@
       "run": "pilot-m1-double-n10000-s0",
       "upstream_commit": "ab6a2c2602b9ac2196e786aea7b7fab2fe779d98"
     },
-    "wandb_url": null,
-    "wandb_id": null
+    "wandb_url": "https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb68488cbd9d27a930e",
+    "wandb_id": "ocb68488cbd9d27a930e"
   },
   {
     "name": "pilot-m4-handcrafted-s0",
@@ -509,8 +509,8 @@
       "run": "pilot-m4-handcrafted-s0",
       "upstream_commit": "ab6a2c2602b9ac2196e786aea7b7fab2fe779d98"
     },
-    "wandb_url": null,
-    "wandb_id": null
+    "wandb_url": "https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocbe05d0f1b8fc3f1410",
+    "wandb_id": "ocbe05d0f1b8fc3f1410"
   },
   {
     "name": "pilot-m4-standardized-s0",
@@ -536,8 +536,8 @@
       "run": "pilot-m4-standardized-s0",
       "upstream_commit": "ab6a2c2602b9ac2196e786aea7b7fab2fe779d98"
     },
-    "wandb_url": null,
-    "wandb_id": null
+    "wandb_url": "https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb6d452dd304eeae07c",
+    "wandb_id": "ocb6d452dd304eeae07c"
   },
   {
     "name": "pilot-m4-xyz0.1-s0",
@@ -563,8 +563,8 @@
       "run": "pilot-m4-xyz0.1-s0",
       "upstream_commit": "ab6a2c2602b9ac2196e786aea7b7fab2fe779d98"
     },
-    "wandb_url": null,
-    "wandb_id": null
+    "wandb_url": "https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocbff8e42a1745ad8ec8",
+    "wandb_id": "ocbff8e42a1745ad8ec8"
   },
   {
     "name": "smoke-v1",
@@ -588,8 +588,8 @@
       "run": "smoke-v1",
       "upstream_commit": "ab6a2c2602b9ac2196e786aea7b7fab2fe779d98"
     },
-    "wandb_url": null,
-    "wandb_id": null
+    "wandb_url": "https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocbd033838f80b0e2f1b",
+    "wandb_id": "ocbd033838f80b0e2f1b"
   },
   {
     "name": "smoke-v2",
@@ -613,8 +613,8 @@
       "run": "smoke-v2",
       "upstream_commit": "ab6a2c2602b9ac2196e786aea7b7fab2fe779d98"
     },
-    "wandb_url": null,
-    "wandb_id": null
+    "wandb_url": "https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocbcfa2db50a832eda81",
+    "wandb_id": "ocbcfa2db50a832eda81"
   },
   {
     "name": "smoke-v3",
@@ -640,7 +640,7 @@
       "run": "smoke-v3",
       "upstream_commit": "ab6a2c2602b9ac2196e786aea7b7fab2fe779d98"
     },
-    "wandb_url": null,
-    "wandb_id": null
+    "wandb_url": "https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb233228745f4126752",
+    "wandb_id": "ocb233228745f4126752"
   }
 ]

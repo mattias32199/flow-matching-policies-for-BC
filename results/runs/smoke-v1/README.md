@@ -4,7 +4,7 @@ Status: **incomplete**.
 
 [Results](../../../RESULTS.md) · [Run catalog](../README.md)
 
-W&B: awaiting authenticated upload (or run has not started).
+W&B: [training charts and evaluations](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocbd033838f80b0e2f1b)
 
 [Exact configuration](config.json) · [Training and validation log](metrics.jsonl) · [Evaluation log](eval.jsonl) · [Collection log](collections.jsonl) · [Retained dataset counts](dataset.jsonl)
 

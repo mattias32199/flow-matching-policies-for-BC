@@ -49,7 +49,10 @@ def summarize():
         writer.writerows(rows)
     def number(value):
         return '—' if value is None else f'{value:.4f}'
-    report = ['<!-- LIVE_RESULTS_START -->', '## Live experiment status', '',
+    tracking = json.loads((ROOT / 'results' / 'tracking.json').read_text())
+    tracking_link = (f"[W&B project]({tracking['project_url']}) · [W&B run catalog]({tracking['catalog_url']})"
+                     if tracking['status'] == 'connected' else 'W&B: authenticated upload pending.')
+    report = ['<!-- LIVE_RESULTS_START -->', '## Live experiment status', '', tracking_link, '',
               'Pilot runs validate execution only. Reproduction runs target 2,000,000 updates; '
               'partial curves do not establish either mystery.', '',
               '| Run records | W&B | Updates | Train flow | Val flow | Val action MSE | Success | Eval update | Finished |',

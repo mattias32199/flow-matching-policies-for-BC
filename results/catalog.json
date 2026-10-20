@@ -1,7 +1,7 @@
 [
   {
     "name": "m1-double-n10000-s0",
-    "status": "training",
+    "status": "completed",
     "config": {
       "env": "block-double-task1-v0",
       "mode": "fixed",
@@ -113,17 +113,33 @@
   },
   {
     "name": "m4-xyz10-s0",
-    "status": "queued",
+    "status": "training",
     "config": {
-      "run": "m4-xyz10-s0",
+      "env": "block-double-task1-v0",
       "mode": "streaming",
       "features": "xyz10",
-      "env": "block-double-task1-v0",
       "seed": 0,
-      "episodes": 1000
+      "data_seed": 0,
+      "episodes": 1000,
+      "val_episodes": 128,
+      "parallel": 2500,
+      "steps": 2000000,
+      "batch_size": 1024,
+      "width": 4096,
+      "depth": 8,
+      "log_interval": 1000,
+      "eval_interval": 50000,
+      "eval_episodes": 500,
+      "save_interval": 100000,
+      "keep_checkpoints": 2,
+      "solver_iteration_warnings": false,
+      "run": "m4-xyz10-s0",
+      "upstream_commit": "ab6a2c2602b9ac2196e786aea7b7fab2fe779d98",
+      "code_commit": "b5dc0b2db4fe1984007cb77f85f10a432239347b",
+      "training_code_sha256": "8768af247340869685cacc8f7547961db67068aee9f4d1987a8c9a027e28b95e"
     },
-    "wandb_url": null,
-    "wandb_id": null
+    "wandb_url": "https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb8f3a301437f09df88",
+    "wandb_id": "ocb8f3a301437f09df88"
   },
   {
     "name": "m4-handcrafted-s1",

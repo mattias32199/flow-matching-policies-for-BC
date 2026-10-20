@@ -1,0 +1,146 @@
+{
+  "run": "m1-double-n10000-s0",
+  "training_records": 2001,
+  "evaluation_records": 40,
+  "episodes_per_evaluation": 500,
+  "final": {
+    "step": 2000000,
+    "seconds": 60282.024931749096,
+    "collection": 0,
+    "training/flow_loss": 0.0033669802360236645,
+    "training/action_mse": 0.0008760126656852663,
+    "validation/flow_loss": 0.05617256835103035,
+    "validation/action_mse": 0.014597355388104916
+  },
+  "final_evaluation": {
+    "step": 2000000,
+    "success": 0.258,
+    "failure": 0.0,
+    "healthy": 1.0,
+    "episode.final_reward": 0.258,
+    "episode.return": 0.258,
+    "episode.length": 2357.434,
+    "episode.duration": 56.25092873954773,
+    "mean_steps": 2357.43408203125,
+    "mean_success_steps": 1947.4185791015625,
+    "throughput": 0.27360254526138306,
+    "success_weighted_speed": 0.33120766282081604
+  },
+  "best_evaluation": {
+    "step": 1450000,
+    "success": 0.296,
+    "failure": 0.0,
+    "healthy": 1.0,
+    "episode.final_reward": 0.296,
+    "episode.return": 0.296,
+    "episode.length": 2314.314,
+    "episode.duration": 56.025640614032746,
+    "mean_steps": 2314.31396484375,
+    "mean_success_steps": 1872.682373046875,
+    "throughput": 0.3197491765022278,
+    "success_weighted_speed": 0.3951551020145416
+  },
+  "minimum_validation_flow": {
+    "step": 182000,
+    "seconds": 6435.799049467081,
+    "collection": 0,
+    "training/flow_loss": 0.015799744054675102,
+    "training/action_mse": 0.01716356724500656,
+    "validation/flow_loss": 0.017516054213047028,
+    "validation/action_mse": 0.017589211463928223
+  },
+  "final_to_minimum_validation_flow_ratio": 3.2069190736569877,
+  "last_five_evaluations": [
+    {
+      "step": 1800000,
+      "success": 0.21,
+      "failure": 0.0,
+      "healthy": 1.0,
+      "episode.final_reward": 0.21,
+      "episode.return": 0.21,
+      "episode.length": 2388.218,
+      "episode.duration": 56.528297437667845,
+      "mean_steps": 2388.218017578125,
+      "mean_success_steps": 1967.7047119140625,
+      "throughput": 0.21982917189598083,
+      "success_weighted_speed": 0.26680833101272583
+    },
+    {
+      "step": 1850000,
+      "success": 0.252,
+      "failure": 0.0,
+      "healthy": 1.0,
+      "episode.final_reward": 0.252,
+      "episode.return": 0.252,
+      "episode.length": 2354.656,
+      "episode.duration": 58.914279080867765,
+      "mean_steps": 2354.656005859375,
+      "mean_success_steps": 1923.238037109375,
+      "throughput": 0.26755499839782715,
+      "success_weighted_speed": 0.3275725543498993
+    },
+    {
+      "step": 1900000,
+      "success": 0.282,
+      "failure": 0.0,
+      "healthy": 1.0,
+      "episode.final_reward": 0.282,
+      "episode.return": 0.282,
+      "episode.length": 2337.814,
+      "episode.duration": 56.93719277429581,
+      "mean_steps": 2337.81396484375,
+      "mean_success_steps": 1924.872314453125,
+      "throughput": 0.3015637695789337,
+      "success_weighted_speed": 0.36625805497169495
+    },
+    {
+      "step": 1950000,
+      "success": 0.252,
+      "failure": 0.0,
+      "healthy": 1.0,
+      "episode.final_reward": 0.252,
+      "episode.return": 0.252,
+      "episode.length": 2355.942,
+      "episode.duration": 57.53711260461807,
+      "mean_steps": 2355.94189453125,
+      "mean_success_steps": 1928.34130859375,
+      "throughput": 0.26740896701812744,
+      "success_weighted_speed": 0.326705664396286
+    },
+    {
+      "step": 2000000,
+      "success": 0.258,
+      "failure": 0.0,
+      "healthy": 1.0,
+      "episode.final_reward": 0.258,
+      "episode.return": 0.258,
+      "episode.length": 2357.434,
+      "episode.duration": 56.25092873954773,
+      "mean_steps": 2357.43408203125,
+      "mean_success_steps": 1947.4185791015625,
+      "throughput": 0.27360254526138306,
+      "success_weighted_speed": 0.33120766282081604
+    }
+  ],
+  "last_five_mean_success": 0.2508,
+  "dataset": {
+    "train_episodes": 7866,
+    "val_episodes": 97,
+    "train_transitions": 12465118,
+    "val_transitions": 152756
+  },
+  "checkpoint_validation": {
+    "file": "runs/m1-double-n10000-s0/checkpoints/params_2000000.pkl",
+    "bytes": 1634165468,
+    "sha256": "1d05ab5b8cc933a4e0c2aaa0e061bbf0a35405521ecfd9de7a9bc8fe1c02409e",
+    "numeric_leaves": 117,
+    "numeric_elements": 408539665,
+    "all_numeric_values_finite": true,
+    "validation": "Deserialized on CPU and checked all numeric leaves; no new rollout evaluation or full agent restore."
+  },
+  "limitations": [
+    "One seed; no multi-seed uncertainty estimate.",
+    "Tail mean averages five correlated checkpoint evaluations, not independent training seeds.",
+    "Dataset-size reversal and Mystery 4 remain incomplete."
+  ]
+}

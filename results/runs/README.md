@@ -8,7 +8,7 @@ Full runs, queued conditions, and diagnostic runs are separate entries. Evaluati
 
 | Run | Status | Exact records | W&B |
 | --- | --- | --- | --- |
-| m1-double-n10000-s0 | training | [Config and logs](m1-double-n10000-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb7d868146415f56201) |
+| m1-double-n10000-s0 | completed | [Config and logs](m1-double-n10000-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb7d868146415f56201) |
 | m1-double-n10000-s1 | queued | [Config and logs](m1-double-n10000-s1/README.md) | not uploaded |
 | m1-double-n10000-s2 | queued | [Config and logs](m1-double-n10000-s2/README.md) | not uploaded |
 | m1-double-n10000-s3 | queued | [Config and logs](m1-double-n10000-s3/README.md) | not uploaded |
@@ -32,7 +32,7 @@ Full runs, queued conditions, and diagnostic runs are separate entries. Evaluati
 | m4-xyz0.1-s1 | queued | [Config and logs](m4-xyz0.1-s1/README.md) | not uploaded |
 | m4-xyz0.1-s2 | queued | [Config and logs](m4-xyz0.1-s2/README.md) | not uploaded |
 | m4-xyz0.1-s3 | queued | [Config and logs](m4-xyz0.1-s3/README.md) | not uploaded |
-| m4-xyz10-s0 | queued | [Config and logs](m4-xyz10-s0/README.md) | not uploaded |
+| m4-xyz10-s0 | training | [Config and logs](m4-xyz10-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb8f3a301437f09df88) |
 | m4-xyz10-s1 | queued | [Config and logs](m4-xyz10-s1/README.md) | not uploaded |
 | m4-xyz10-s2 | queued | [Config and logs](m4-xyz10-s2/README.md) | not uploaded |
 | m4-xyz10-s3 | queued | [Config and logs](m4-xyz10-s3/README.md) | not uploaded |

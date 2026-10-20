@@ -1,10 +1,10 @@
 # m4-xyz10-s0
 
-Status: **queued**.
+Status: **training**.
 
 [Results](../../../RESULTS.md) · [Run catalog](../README.md)
 
-W&B: awaiting authenticated upload (or run has not started).
+W&B: [training charts and evaluations](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb8f3a301437f09df88)
 
 [Exact configuration](config.json) · [Training and validation log](metrics.jsonl) · [Evaluation log](eval.jsonl) · [Collection log](collections.jsonl) · [Retained dataset counts](dataset.jsonl)
 

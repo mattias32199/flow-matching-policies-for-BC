@@ -1,0 +1,63 @@
+{
+  "gpu_model": "NVIDIA RTX A6000",
+  "context": "Benchmarks shared a GPU with an ongoing experiment; these are relative throughput measurements, not isolated production rates.",
+  "training": [
+    {
+      "mode": "train",
+      "compute_dtype": "float32",
+      "updates": 100,
+      "seconds": 6.1450551461894065,
+      "updates_per_second": 16.273246963782046,
+      "loss": 1.1949032545089722,
+      "parameter_dtypes": [
+        "float32"
+      ]
+    },
+    {
+      "mode": "train",
+      "compute_dtype": "bfloat16",
+      "updates": 100,
+      "seconds": 3.9213613069150597,
+      "updates_per_second": 25.501348173058336,
+      "loss": 1.194525122642517,
+      "parameter_dtypes": [
+        "float32"
+      ]
+    }
+  ],
+  "simulation": [
+    {
+      "mode": "sim",
+      "episodes": 1000,
+      "parallel": 512,
+      "seconds": 231.32047893595882,
+      "episodes_per_second": 4.323006785217881,
+      "transitions": 1782644,
+      "success_rate": 0.776
+    },
+    {
+      "mode": "sim",
+      "episodes": 1000,
+      "parallel": 1024,
+      "seconds": 130.80587537912652,
+      "episodes_per_second": 7.644916538355861,
+      "transitions": 1784252,
+      "success_rate": 0.778
+    },
+    {
+      "mode": "sim",
+      "episodes": 2500,
+      "parallel": 2500,
+      "seconds": 184.7110682290513,
+      "episodes_per_second": 13.53465184284393,
+      "transitions": 4460725,
+      "success_rate": 0.7832
+    }
+  ],
+  "interpretation": {
+    "bf16_update_speedup": 1.5670719082561995,
+    "same_episode_count_parallel_speedup": 1.76842575507791,
+    "larger_collection_episode_throughput_speedup": 3.1308421465181158
+  },
+  "applied_change": "Future processes default to at most 2500 parallel worlds. Collection sizes, model, precision and horizons are unchanged. Existing workers keep their recorded parallel=512 setting."
+}

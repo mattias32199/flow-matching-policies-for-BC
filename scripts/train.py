@@ -99,7 +99,7 @@ def main():
     parser.add_argument('--data-seed', type=int)
     parser.add_argument('--episodes', type=int, default=1000)
     parser.add_argument('--val-episodes', type=int, default=128)
-    parser.add_argument('--parallel', type=int, default=512)
+    parser.add_argument('--parallel', type=int, default=2500)
     parser.add_argument('--steps', type=int, default=2000000)
     parser.add_argument('--batch-size', type=int, default=1024)
     parser.add_argument('--width', type=int, default=4096)

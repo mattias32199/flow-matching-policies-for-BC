@@ -1,0 +1,250 @@
+{
+  "snapshot_utc": "2026-10-21T22:57:03+00:00",
+  "mystery1": {
+    "run": "m1-double-n10000-s0",
+    "minimum_validation_flow": {
+      "step": 182000,
+      "seconds": 6435.799049467081,
+      "collection": 0,
+      "training/flow_loss": 0.015799744054675102,
+      "training/action_mse": 0.01716356724500656,
+      "validation/flow_loss": 0.017516054213047028,
+      "validation/action_mse": 0.017589211463928223
+    },
+    "final": {
+      "step": 2000000,
+      "seconds": 60282.024931749096,
+      "collection": 0,
+      "training/flow_loss": 0.0033669802360236645,
+      "training/action_mse": 0.0008760126656852663,
+      "validation/flow_loss": 0.05617256835103035,
+      "validation/action_mse": 0.014597355388104916
+    },
+    "nearby_early_evaluation": {
+      "step": 200000,
+      "success": 0.008,
+      "failure": 0.0,
+      "healthy": 1.0,
+      "episode.final_reward": 0.008,
+      "episode.return": 0.008,
+      "episode.length": 2496.926,
+      "episode.duration": 58.94639900684356,
+      "mean_steps": 2496.926025390625,
+      "mean_success_steps": 2115.75,
+      "throughput": 0.008009849116206169,
+      "success_weighted_speed": 0.009452912956476212
+    },
+    "final_evaluation": {
+      "step": 2000000,
+      "success": 0.258,
+      "failure": 0.0,
+      "healthy": 1.0,
+      "episode.final_reward": 0.258,
+      "episode.return": 0.258,
+      "episode.length": 2357.434,
+      "episode.duration": 56.25092873954773,
+      "mean_steps": 2357.43408203125,
+      "mean_success_steps": 1947.4185791015625,
+      "throughput": 0.27360254526138306,
+      "success_weighted_speed": 0.33120766282081604
+    },
+    "final_to_minimum_validation_flow_ratio": 3.2069190736569877
+  },
+  "mystery4": {
+    "common_evaluation_update": 1350000,
+    "conditions": {
+      "handcrafted": {
+        "evaluation": {
+          "step": 1350000,
+          "success": 0.522,
+          "failure": 0.0,
+          "healthy": 1.0,
+          "episode.final_reward": 0.522,
+          "episode.return": 0.522,
+          "episode.length": 2227.37,
+          "episode.duration": 57.667093004226686,
+          "mean_steps": 2227.3701171875,
+          "mean_success_steps": 1977.7203369140625,
+          "throughput": 0.5858927369117737,
+          "success_weighted_speed": 0.6598505973815918
+        },
+        "metrics": {
+          "step": 1350000,
+          "seconds": 157840.29109550896,
+          "collection": 1106,
+          "training/flow_loss": 0.012791545130312443,
+          "training/action_mse": 0.01180452574044466,
+          "validation/flow_loss": 0.01180507056415081,
+          "validation/action_mse": 0.011073753237724304
+        }
+      },
+      "standardized": {
+        "evaluation": {
+          "step": 1350000,
+          "success": 0.374,
+          "failure": 0.0,
+          "healthy": 1.0,
+          "episode.final_reward": 0.374,
+          "episode.return": 0.374,
+          "episode.length": 2285.02,
+          "episode.duration": 56.33758561038971,
+          "mean_steps": 2285.02001953125,
+          "mean_success_steps": 1925.1871337890625,
+          "throughput": 0.40918681025505066,
+          "success_weighted_speed": 0.4856671094894409
+        },
+        "metrics": {
+          "step": 1350000,
+          "seconds": 154367.8172503868,
+          "collection": 1106,
+          "training/flow_loss": 0.011271005496382713,
+          "training/action_mse": 0.013871264643967152,
+          "validation/flow_loss": 0.01220328826457262,
+          "validation/action_mse": 0.011758792214095592
+        }
+      },
+      "xyz0.1": {
+        "evaluation": {
+          "step": 1350000,
+          "success": 0.028,
+          "failure": 0.0,
+          "healthy": 1.0,
+          "episode.final_reward": 0.028,
+          "episode.return": 0.028,
+          "episode.length": 2483.61,
+          "episode.duration": 57.174083278656006,
+          "mean_steps": 2483.610107421875,
+          "mean_success_steps": 1914.642822265625,
+          "throughput": 0.02818477898836136,
+          "success_weighted_speed": 0.03656034544110298
+        },
+        "metrics": {
+          "step": 1350000,
+          "seconds": 157222.9146787331,
+          "collection": 1106,
+          "training/flow_loss": 0.013045813888311386,
+          "training/action_mse": 0.01682737097144127,
+          "validation/flow_loss": 0.01438380591571331,
+          "validation/action_mse": 0.012954052537679672
+        }
+      },
+      "xyz10": {
+        "evaluation": {
+          "step": 1350000,
+          "success": 0.612,
+          "failure": 0.0,
+          "healthy": 1.0,
+          "episode.final_reward": 0.612,
+          "episode.return": 0.612,
+          "episode.length": 2141.728,
+          "episode.duration": 55.77206835794449,
+          "mean_steps": 2141.72802734375,
+          "mean_success_steps": 1914.5882568359375,
+          "throughput": 0.7143763899803162,
+          "success_weighted_speed": 0.799127459526062
+        },
+        "metrics": {
+          "step": 1350000,
+          "seconds": 108238.23456306197,
+          "collection": 1106,
+          "training/flow_loss": 0.015973014757037163,
+          "training/action_mse": 0.0241922028362751,
+          "validation/flow_loss": 0.015555818565189838,
+          "validation/action_mse": 0.028939487412571907
+        }
+      }
+    }
+  },
+  "jobs": [
+    {
+      "experiment": "m1-double-n10000-s0",
+      "segment": "m1-double-n10000-s0",
+      "status": "completed",
+      "latest_update": 2000000,
+      "latest_evaluation_update": 2000000,
+      "gpu_constraint": null,
+      "gpu_type": null
+    },
+    {
+      "experiment": "m1-double-n10000-s1",
+      "segment": "m1-double-n10000-s1",
+      "status": "pending",
+      "latest_update": null,
+      "latest_evaluation_update": null,
+      "gpu_constraint": "A6000|A5000",
+      "gpu_type": null
+    },
+    {
+      "experiment": "m1-single-n10000-s0",
+      "segment": "m1-single-n10000-s0",
+      "status": "pending",
+      "latest_update": null,
+      "latest_evaluation_update": null,
+      "gpu_constraint": "A6000|A5000",
+      "gpu_type": null
+    },
+    {
+      "experiment": "m1-single-n50000-s0",
+      "segment": "m1-single-n50000-s0",
+      "status": "pending",
+      "latest_update": null,
+      "latest_evaluation_update": null,
+      "gpu_constraint": "A6000|A5000",
+      "gpu_type": null
+    },
+    {
+      "experiment": "m4-handcrafted-s0",
+      "segment": "m4-handcrafted-s0-cont1",
+      "status": "running",
+      "latest_update": 1113000,
+      "latest_evaluation_update": null,
+      "gpu_constraint": "A6000",
+      "gpu_type": "A6000"
+    },
+    {
+      "experiment": "m4-standardized-s0",
+      "segment": "m4-standardized-s0-cont1",
+      "status": "running",
+      "latest_update": 1113000,
+      "latest_evaluation_update": null,
+      "gpu_constraint": "A6000",
+      "gpu_type": "A6000"
+    },
+    {
+      "experiment": "m4-xyz0.1-s0",
+      "segment": "m4-xyz0.1-s0-cont1",
+      "status": "running",
+      "latest_update": 1113000,
+      "latest_evaluation_update": null,
+      "gpu_constraint": "A6000",
+      "gpu_type": "A6000"
+    },
+    {
+      "experiment": "m4-xyz10-s0",
+      "segment": "m4-xyz10-s0-cont1",
+      "status": "pending",
+      "latest_update": null,
+      "latest_evaluation_update": null,
+      "gpu_constraint": "A6000|A5000",
+      "gpu_type": null
+    },
+    {
+      "experiment": "m4-fourier1-s0",
+      "segment": "m4-fourier1-s0",
+      "status": "pending",
+      "latest_update": null,
+      "latest_evaluation_update": null,
+      "gpu_constraint": "A6000|A5000",
+      "gpu_type": null
+    },
+    {
+      "experiment": "m4-fourier4-s0",
+      "segment": "m4-fourier4-s0",
+      "status": "pending",
+      "latest_update": null,
+      "latest_evaluation_update": null,
+      "gpu_constraint": "A6000|A5000",
+      "gpu_type": null
+    }
+  ]
+}

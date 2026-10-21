@@ -116,7 +116,8 @@ def main():
         while True:
             queue_path = ROOT / '.local' / 'queue-status.json'
             queue = json.loads(queue_path.read_text()) if queue_path.exists() else {}
-            active = set(queue.get('active', {}).values())
+            from individual_jobs import active_runs
+            active = set(queue.get('active', {}).values()) | active_runs()
             changed = 0
             for path in sorted((ROOT / 'runs').glob('*/config.json')):
                 config = clean_config(json.loads(path.read_text()))

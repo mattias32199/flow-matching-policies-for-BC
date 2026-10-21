@@ -1,6 +1,6 @@
 # m4-handcrafted-s0
 
-Status: **training**.
+Status: **inactive**.
 
 [Results](../../../RESULTS.md) · [Run catalog](../README.md)
 
@@ -36,3 +36,10 @@ These JSONL records are the complete portable scalar logs, not sampled chart exp
 | 1000000 | 0.516 | 500 | [JSONL line 20](eval.jsonl#L20) | [Evaluation charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb6555c1eef3e7c6a5b) |
 | 1050000 | 0.566 | 500 | [JSONL line 21](eval.jsonl#L21) | [Evaluation charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb6555c1eef3e7c6a5b) |
 | 1100000 | 0.474 | 500 | [JSONL line 22](eval.jsonl#L22) | [Evaluation charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb6555c1eef3e7c6a5b) |
+| 1150000 | 0.582 | 500 | [JSONL line 23](eval.jsonl#L23) | [Evaluation charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb6555c1eef3e7c6a5b) |
+| 1200000 | 0.578 | 500 | [JSONL line 24](eval.jsonl#L24) | [Evaluation charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb6555c1eef3e7c6a5b) |
+| 1250000 | 0.638 | 500 | [JSONL line 25](eval.jsonl#L25) | [Evaluation charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb6555c1eef3e7c6a5b) |
+| 1300000 | 0.48 | 500 | [JSONL line 26](eval.jsonl#L26) | [Evaluation charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb6555c1eef3e7c6a5b) |
+| 1350000 | 0.522 | 500 | [JSONL line 27](eval.jsonl#L27) | [Evaluation charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb6555c1eef3e7c6a5b) |
+| 1400000 | 0.584 | 500 | [JSONL line 28](eval.jsonl#L28) | [Evaluation charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb6555c1eef3e7c6a5b) |
+| 1450000 | 0.576 | 500 | [JSONL line 29](eval.jsonl#L29) | [Evaluation charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb6555c1eef3e7c6a5b) |

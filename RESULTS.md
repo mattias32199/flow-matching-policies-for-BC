@@ -1,99 +1,113 @@
-# Results
+# Mystery 1 and 4: what we have learned
 
-Status: first full 2M-update run completed; remaining comparisons are in progress. Findings below are preliminary and single-seed.
+**One experiment is complete; the other nine have been submitted.** This is a progress snapshot, not a finished multi-seed reproduction. The [original blog](https://seohong.me/blog/behavioral-cloning-mystery/) is the reference. Our plots use the same order: robot success, flow loss, action MSE.
 
-## Evidence and exact runs
+## What is confirmed, and what is still open?
 
-Open the [run catalog](results/runs/README.md) for every planned condition, diagnostic, configuration, and complete portable scalar log. Run names in the table below link directly to their records. Each run page lists individual evaluations by gradient update, with links to exact JSONL lines and W&B evaluation charts when available.
+| Question | Evidence so far | What we can say |
+| --- | --- | --- |
+| Can control improve while validation flow loss gets worse? | One completed block-double 10K run | **Yes, in this run.** This does not show that overfitting causes better control. |
+| Is 10K data better than 50K data? | Both block-single jobs are submitted; no results yet | **Unknown.** We cannot claim the dataset-size reversal. |
+| Does input scaling matter with fresh data? | Four partial, single-seed source runs | **A large effect is observed.** XYZ ×0.1 is much worse; exact final rankings are unfinished. |
+| Are all scaling variants' losses identical? | Similar early losses; later losses differ | **No.** The losses do not reliably rank robot success, but they are not identical. |
+| Do Fourier position features help? | Two jobs submitted; no rollout results | **Unknown.** These are extensions beyond the blog comparison. |
+| Are these conclusions robust across seeds? | One completed seed; repeat submitted | **Not established.** |
 
-The live W&B project is [yzchhr/ocbench-bc-mysteries-1-4](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4). Historical metrics and evaluations are uploaded; active runs continue to update there. The [W&B run catalog](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocbench-catalog-v1) links back to the exact run records. Queued runs are labeled and acquire W&B links when they start.
+## Mystery 1: loss can be misleading
 
-The completed [smoke-v3 evaluation](results/runs/smoke-v3/README.md#evaluations) verifies evaluation logging and checkpoint execution; its zero-success result is a two-update smoke test, not a reproduction result.
+![Mystery 1: success, flow loss, and action MSE](results/mystery1.png)
 
-## Completed result: Mystery 1, block-double, nominal 10K, seed 0
+In the completed [block-double, nominal 10K, seed 0 run](results/runs/m1-double-n10000-s0/README.md), validation flow loss reached its lowest recorded value at **182K updates: 0.01752**. It then rose to **0.05617 at 2M**, a **3.21× increase**, while training flow loss fell to **0.00337**. Yet robot success rose from **0.8% at the nearby 200K evaluation to 25.8% at 2M**. Each success measurement uses 500 episodes; the final result is 129 successes out of 500.
 
-![Completed run: success and log-scale losses](results/runs/m1-double-n10000-s0/analysis.png)
+This reproduces the qualitative loss/control mismatch in one run: a worse validation flow score does not necessarily mean a worse robot policy. Validation action MSE stays much flatter after its initial decline, ending at **0.01460**. It is a different measure of prediction error, and it tells a different story from flow loss. We have not shown that either loss predicts control perfectly, or that deliberately causing more overfitting improves control.
 
-The [completed run](results/runs/m1-double-n10000-s0/README.md) reached **25.8% success (129/500)** at 2M updates ([exact final evaluation](results/runs/m1-double-n10000-s0/eval.jsonl#L40)). Its last five evaluations at 1.8–2M updates averaged **25.08%**; these are correlated checkpoint evaluations, not five independent seeds. The best observed evaluation was 29.6% at 1.45M updates ([record](results/runs/m1-double-n10000-s0/eval.jsonl#L29)); choosing this maximum is optimistic and is not the final score.
+The best checkpoint scored 29.6%; the **final score is 25.8%**, not that selected maximum. Nominal 10K means 10,000 requested demonstrations; successful-trajectory filtering retained 7,866 training episodes. The seed-1 repeat and the independent block-single 10K/50K comparison have no rollout results yet. One run per dataset size will still leave seed robustness unresolved. See [exact computed evidence](results/runs/m1-double-n10000-s0/analysis.json).
 
-Validation flow loss reached its recorded minimum of 0.017516 at 182K updates, then increased to 0.056173 at 2M (3.21×), while final training flow loss fell to 0.003367. Rollout success increased from 0.8% at the nearby 200K evaluation to 25.8% at 2M. This supports the qualitative Mystery 1 pattern that worsening validation flow loss can coexist with improving control. It does not yet establish the dataset-size reversal or robustness across seeds. Final validation action MSE was 0.014597. See the [computed analysis](results/runs/m1-double-n10000-s0/analysis.json), [complete loss log](results/runs/m1-double-n10000-s0/metrics.jsonl), and [W&B charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb7d868146415f56201).
+## Mystery 4: scaling affects behavior much more than the training scores suggest
 
-The nominal 10,000 training episodes retained 7,866 successful episodes (12,465,118 transitions); validation retained 97 episodes (152,756 transitions). The run took approximately 16.74 hours through the final training log, including collection and earlier evaluations. All 40 scheduled 500-episode evaluations are recorded. The latest two checkpoints (1.9M and 2M) remain local and are excluded from Git. The final checkpoint deserialized on CPU with all 117 numeric leaves finite; optimizer count is 2,000,000. Its size and SHA-256 are recorded in the analysis; this integrity check does not constitute a fresh rollout evaluation.
+### Handcrafted versus standardized
 
-At the completion snapshot, Mystery 4's 500K evaluations were 27.2% handcrafted, 2.2% standardized, and 0.2% xyz×0.1. These partial single-seed results suggest a substantial feature-scaling effect, but all runs remain unfinished and xyz×10 has only just started. The queue has one completed experiment, four active, 23 pending, and no recorded failures. Existing protocol limitations above still apply.
+![Mystery 4 baseline comparison](results/mystery4_baseline.png)
 
-## Shared demonstration cache and producer overlap
+### Changing only the XYZ scale
 
-The [performance report](results/cache-performance/README.md) contains exact timings, W&B charts, storage/privacy checks, and parallel-generation evidence. A full-model comparison completed 8,192 updates across four independent and four shared-data consumers. Combined collection/preprocessing/training work fell from **379.04s to 186.90s (2.03×)**. Median cache reads were **0.287s** versus **63.92s** for fresh collection; a separate training-node read took **0.406s** and matched the producer's raw-data SHA-256. All shared consumers received identical arrays and finite training losses.
+![Mystery 4 four-way scaling comparison](results/mystery4_scaling.png)
 
-Four parallel A6000 prefill jobs then served 32 collection requests, generating 28 fresh collections and reusing four already in progress. Their start-to-final-finish span was **579s**, versus **1,765s** of summed fresh-generation work: **3.05× serial-work throughput**, including staggered starts. The next seed now has **36 cached collections occupying 11.89GB**; total demonstration files are **15.29GB**. The shared cache cap is **80GB**, including write reservations; four-consumer cleanup bounds retention. Data and private scheduler paths remain excluded from Git.
+The table compares all four source runs at the **same 1.35M update**, the latest shared rollout checkpoint. Comparing each run's latest result would mix different training budgets.
 
-These measurements do not establish a 2× or 3× production learner speedup. Synchronized cache misses can still block all consumers. Future streaming workers therefore start a private, on-demand two-GPU producer pool on cache misses, generating disjoint indices ahead of four trainers. The benchmark-based ideal overlap estimate is **1.47× with one producer** or **2.95× with two**, pending sustained production measurements and resource availability. Already-running seed-0 workers remain unchanged because their old checkpoints omit exact sampler state. Model precision, batch size, collection size, and update horizons are unchanged. Twenty-five tests, the full-model benchmark, cross-node loading, and a private producer entry-point smoke test passed.
+| Input features | Robot success | Train flow | Val flow | Val action MSE |
+| --- | ---: | ---: | ---: | ---: |
+| [Handcrafted](results/runs/m4-handcrafted-s0/README.md) | 52.2% | 0.01279 | 0.01181 | 0.01107 |
+| [Standardized](results/runs/m4-standardized-s0/README.md) | 37.4% | 0.01127 | 0.01220 | 0.01176 |
+| [Standardized, XYZ ×0.1](results/runs/m4-xyz0.1-s0/README.md) | 2.8% | 0.01305 | 0.01438 | 0.01295 |
+| [Standardized, XYZ ×10](results/runs/m4-xyz10-s0/README.md) | 61.2% | 0.01597 | 0.01556 | 0.02894 |
 
-## Isolated A6000 training profile
+XYZ ×0.1 achieves **2.8% success**, versus **52.2%** for handcrafted inputs and **61.2%** for XYZ ×10. The training flow losses remain in a fairly narrow range. More tellingly, XYZ ×10 has a worse validation action MSE (**0.02894**) than XYZ ×0.1 (**0.01295**), while its robot success is far higher. A lower held-out prediction error therefore does not reliably identify the better robot policy here. [Held-out loss plots](results/mystery4_validation.png) show this directly.
 
-A dedicated single-GPU Slurm profile tested eight full-model execution variants with three timing repeats each. [Exact timing records, approximate MFU, and trace aggregates](results/profiling/README.md) are available separately from the scientific runs; these are synthetic throughput tests.
+This supports the qualitative scaling effect. It does **not** establish that all losses are identical, a reliable ranking between XYZ ×10 and handcrafted inputs, or a result at infinite training time. These are partial single-seed runs with finite data streams. Earlier workers used paired seeds but separately simulated data, so their trajectories can differ slightly. The original allocation timed out before they finished; their historical measurements remain valid partial results.
 
-The original host-fed update loop sustained **36.29 updates/s**. Device-resident inputs plus buffer donation gave **36.30/s**, explicit TF32 **36.13/s**, and eight-update compiled groups **37.16/s** (2.4% faster). BF16 reached **56.58/s** (1.56×), with finite losses but unverified task-learning equivalence. Strict FP32 precision was slower at **19.58/s**. Default-mode CUDA traces contain tensor-core GEMMs; GEMM events account for approximately 56% of recorded GPU-event durations. Thus high GPU activity does not mean all runtime is matrix multiplication.
+## Restarts and current job progress
 
-Analytical dense-matrix FLOPs divided by the precision-specific dense peak yield approximately **39% training-loop MFU** for the default path and **31% for BF16**. These are estimates, not hardware counters: the default denominator assumes TF32 tensor-core execution, and the numerator omits elementwise, normalization, and optimizer operations. The profiler's raw XLA cost analysis omits substantial library/loop work and is explicitly rejected as an MFU numerator. Higher precision-dependent MFU does not necessarily mean faster training.
+![Continuation segments on their own validation sets](results/continuations.png)
 
-Production streaming runs spend roughly 75% of elapsed time collecting demonstrations (about 64% for the newer parallelism setting). A 1.56× update speedup therefore implies only approximately 10–15% end-to-end improvement if other costs stay unchanged. The isolated simulator sweep measured 115.28s for 1,000 episodes at parallel512 versus 63.33s at parallel1024 (1.82×); 2,500 episodes at parallel2500 took 88.08s (28.38 episodes/s), testing a larger collection rather than the current protocol. The larger simulator parallelism cap is already used by newer/future processes. Existing reproduction workers were preserved: grouped updates offer little benefit, and changing arithmetic requires learning validation. Existing checkpoints contain agent/optimizer/RNG state but omit the data-sampler cursor/permutation and streaming snapshot, so exact continuation cannot be asserted without additional resume-state support.
+The four original Mystery 4 experiments continue from pinned checkpoints: handcrafted, standardized and XYZ ×0.1 at **1.1M**, XYZ ×10 at **800K**. They restore model weights, optimizer state, agent RNG and preprocessing. They restart the data stream, sampler and validation set. These are **continuation segments of the same four conditions**, not extra experiments or exact uninterrupted resumes. Some source curves extend beyond the pinned updates; the resumed branches replay part of the update range using fresh data. We do not average those branches or join their validation curves.
 
-## Ten-experiment scope and individual-job preparation
+The first three continuations have completed real GPU updates with finite losses. Their new validation numbers cannot be compared directly to the old held-out sets, and fresh rollout evaluations are required before claiming new control results. The fourth continuation and the five new conditions remain queued at this snapshot. Pending jobs accept **A6000 or A5000**, whichever Slurm can schedule first. This improves placement flexibility; it is not a measured A5000 speed claim.
 
-The current scope is [four Mystery 1 and six Mystery 4 experiments](EXPERIMENTS.md),
-including two new fixed XYZ Fourier feature conditions. The completed Mystery 1
-run is retained. Four source Mystery 4 checkpoints are pinned locally: handcrafted,
-standardized and XYZ×0.1 at **1.1M** updates, and XYZ×10 at **800K**.
-[Checkpoint integrity evidence](results/validation/migration-checkpoints.json)
-records hashes and finite-state checks without uploading checkpoints.
+Snapshot: **2026-10-21T22:57:03+00:00**. [Machine-readable findings and job states](results/findings.json). These scheduler states are a snapshot; [W&B](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4) follows active training.
 
-Individual continuations restore network, optimizer, agent RNG and saved input/action
-transforms. They use fresh streaming data and a replacement validation set; this
-boundary is explicit, and cross-boundary validation losses are not measurements on
-the same held-out samples. A small-model CPU test verifies exact next-update parity
-after agent-state restoration. Both Fourier input widths also passed a small-model
-[update/action-sampling integration check](results/validation/fourier-integration.json).
-All 28 tests pass. These checks establish preparation integrity, not resumed GPU
-launch success or new reproduction results. Nine individual launches are prepared
-(four continuations and five new experiments); none were submitted in this preparation.
+| Scientific experiment | State | Latest update in current segment | GPU / eligibility |
+| --- | --- | ---: | --- |
+| m1-double-n10000-s0 | completed | 2,000,000 | — |
+| m1-double-n10000-s1 | pending | — | A6000|A5000 |
+| m1-single-n10000-s0 | pending | — | A6000|A5000 |
+| m1-single-n50000-s0 | pending | — | A6000|A5000 |
+| m4-handcrafted-s0 | running | 1,113,000 | A6000 |
+| m4-standardized-s0 | running | 1,113,000 | A6000 |
+| m4-xyz0.1-s0 | running | 1,113,000 | A6000 |
+| m4-xyz10-s0 | pending | — | A6000|A5000 |
+| m4-fourier1-s0 | pending | — | A6000|A5000 |
+| m4-fourier4-s0 | pending | — | A6000|A5000 |
 
-## Planned comparisons
+## How to read the figures
 
-- Mystery 1: block-double with fixed 10,000 episodes; track training/validation flow loss, action MSE, and success over training. Repeat block-double at seed 1, then compare block-single with independently sampled 10,000 versus 50,000 episodes at training seed 0.
-- Mystery 4: six block-double streaming runs at seed 0: handcrafted, standardized, XYZ scaled by 0.1 or 10, and two fixed XYZ Fourier feature extensions. See [the ten-experiment plan and exact network contract](EXPERIMENTS.md).
+Success is the observed fraction of 500 evaluation episodes. We connect the measured checkpoints; there are no invented points, extrapolated tails or seed uncertainty bands. Every plotted condition currently has one training seed. Thin loss traces are the recorded measurements; thick lines are nonoverlapping 50K-update means, computed within each run. Loss panels omit the first 10K updates to make later trends readable and use logarithmic vertical axes. The raw [CSV](results/curves.csv) and [per-run JSONL records](results/runs/README.md) retain all measurements. Plots are also available as SVG: [Mystery 1](results/mystery1.svg), [M4 baseline](results/mystery4_baseline.svg), [M4 scaling](results/mystery4_scaling.svg), [M4 validation](results/mystery4_validation.svg), [continuations](results/continuations.svg).
 
-Reference defaults: eight 4096-wide residual MLP layers, action chunks of 25, batch size 1024, learning rate 1e-4, 10 flow steps. Blog-specific settings beyond the public reference commands remain unverified. Finite streaming runs approximate the infinite-data setting.
+## What this reproduction does not match exactly
 
-## Validation
+The [experiment plan](EXPERIMENTS.md) records the settings and input/output contract. We use the public reference architecture (eight 4096-wide layers), batch 1024, action chunks of 25, and a 2M-update budget. The completed Mystery 1 run stops earlier than the blog's displayed 3M-update curve. Our standardization is a frozen training-set z-score; the blog's exact scaling constants are not available in the reference commands. Streaming uses finite 1K-episode collections with transition starts used once. Fourier features are our extensions. Those choices, limited seeds, and restarted validation sets prevent a claim of exact numerical reproduction or proof of the proposed distribution-shift explanation.
 
-- Local Python 3.11 environment installed from the pinned submodule; exact resolved versions are in `results/environment.txt`.
-- Four preprocessing/metric tests pass (including zero-success serialization): xyz index mapping, constant-feature stability, and identical frozen training/evaluation transforms.
-- Full reference FBC model has 136,179,887 parameters. Three synthetic GPU updates at batch size 1024 produced finite flow losses: 2.92764, 3.65450, 2.35684. This validates execution and memory capacity, not task learning.
-- End-to-end GPU smoke test completed demonstration collection, two updates, four rollout evaluations, and checkpoint saving. Four full reference-model workers each reached 100 real updates with finite training and validation losses.
-- Checkpoints remain local; the latest two per run are retained.
+## Execution and performance evidence
 
-The planned dataset-size comparison uses independent generation seeds (0 for 10K, 10000 for 50K), with training seed 0 in both groups. Feature variants share generation and training seeds; GPU simulation is not bitwise deterministic, so separately generated streams can differ slightly despite paired seeds. Requested episode counts are before upstream success filtering; actual retained episodes/transitions are logged locally in each run.
+All nine remaining scientific jobs were accepted by Slurm; three are training at this snapshot. The first two continuations restored their saved steps and completed subsequent collections and updates. W&B server history independently confirmed the resumed metrics. A separate CPU Slurm job maintains uploads without depending on the interactive agent. Descriptive job/script names are used inside owner-only directories. Data, checkpoints, credentials, exact local launch scripts and run directories remain outside Git.
+
+Initial A6000 compute-only intervals were about **34 updates/s**. Intervals spanning a fresh collection plus training were about **10.8 updates/s** per job. These short observations are not long-run averages or A5000 benchmarks. See the earlier [isolated profile](results/profiling/README.md) and [shared-cache benchmark](results/cache-performance/README.md) for separate performance experiments; their synthetic/aggregate speedups are not production speed claims. The 80GB cache cap bounds retained cache entries, not the cumulative data needed over a whole training stream.
+
+The 32-test suite passes, covering preprocessing, metrics, checkpoint restoration, cache/prefetch behavior and private individual launchers. Small-model and integrity checks are recorded under [validation](results/validation/). They establish execution correctness, not the scientific conclusions above.
+
+## Exact records
+
+[Run catalog](results/runs/README.md) · [W&B project](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4) · [W&B catalog](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocbench-catalog-v1)
+
+The table below lists observed source and continuation records separately. Inactive source runs stopped at the allocation time limit. Blank evaluation cells mean that segment has no recorded rollout result yet. Pilots and smoke tests remain in the catalog as execution diagnostics.
 
 <!-- LIVE_RESULTS_START -->
 ## Live experiment status
 
 [W&B project](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4) · [W&B run catalog](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocbench-catalog-v1)
 
-Pilot runs validate execution only. Reproduction runs target 2,000,000 updates; partial curves do not establish either mystery.
+Pilot runs validate execution only. Reproduction runs target 2,000,000 updates; partial single-seed curves support only the limited findings explained above.
 
 | Run records | W&B | Updates | Train flow | Val flow | Val action MSE | Success | Eval update | Finished |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
 | [m1-double-n10000-s0](results/runs/m1-double-n10000-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb7d868146415f56201) | 2000000 | 0.0034 | 0.0562 | 0.0146 | 0.2580 | 2000000 | yes |
-| [m4-handcrafted-s0](results/runs/m4-handcrafted-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb6555c1eef3e7c6a5b) | 1113000 | 0.0132 | 0.0127 | 0.0121 | 0.4740 | 1100000 | no |
-| [m4-standardized-s0](results/runs/m4-standardized-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocbdf09e0125b1d85354) | 1141000 | 0.0131 | 0.0119 | 0.0109 | 0.3820 | 1100000 | no |
-| [m4-xyz0.1-s0](results/runs/m4-xyz0.1-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocbb5e56eb1e20d223a2) | 1120000 | 0.0125 | 0.0131 | 0.0130 | 0.0180 | 1100000 | no |
-| [m4-xyz10-s0](results/runs/m4-xyz10-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb8f3a301437f09df88) | 873000 | 0.0154 | 0.0169 | 0.0280 | 0.5500 | 850000 | no |
-| [pilot-m1-double-n10000-s0](results/runs/pilot-m1-double-n10000-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb68488cbd9d27a930e) | 100 | 0.2445 | 0.2911 | 0.1626 | — | — | no |
-| [pilot-m4-handcrafted-s0](results/runs/pilot-m4-handcrafted-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocbe05d0f1b8fc3f1410) | 100 | 0.2729 | 0.3451 | 0.2120 | — | — | no |
-| [pilot-m4-standardized-s0](results/runs/pilot-m4-standardized-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb6d452dd304eeae07c) | 100 | 0.3114 | 0.3221 | 0.1346 | — | — | no |
-| [pilot-m4-xyz0.1-s0](results/runs/pilot-m4-xyz0.1-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocbff8e42a1745ad8ec8) | 100 | 0.3143 | 0.3025 | 0.1196 | — | — | no |
+| [m4-handcrafted-s0](results/runs/m4-handcrafted-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb6555c1eef3e7c6a5b) | 1468000 | 0.0118 | 0.0162 | 0.0170 | 0.5760 | 1450000 | no |
+| [m4-handcrafted-s0-cont1](results/runs/m4-handcrafted-s0-cont1/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb89ddace69a79a65f6) | 1113000 | 0.0126 | 0.0137 | 0.0147 | — | — | no |
+| [m4-standardized-s0](results/runs/m4-standardized-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocbdf09e0125b1d85354) | 1500000 | 0.0131 | 0.0132 | 0.0131 | 0.5000 | 1450000 | no |
+| [m4-standardized-s0-cont1](results/runs/m4-standardized-s0-cont1/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb33979b4ad2b65ef78) | 1113000 | 0.0127 | 0.0139 | 0.0150 | — | — | no |
+| [m4-xyz0.1-s0](results/runs/m4-xyz0.1-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocbb5e56eb1e20d223a2) | 1473000 | 0.0112 | 0.0151 | 0.0187 | 0.0260 | 1450000 | no |
+| [m4-xyz0.1-s0-cont1](results/runs/m4-xyz0.1-s0-cont1/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocbf86da02146d369276) | 1113000 | 0.0134 | 0.0140 | 0.0158 | — | — | no |
+| [m4-xyz10-s0](results/runs/m4-xyz10-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb8f3a301437f09df88) | 1387000 | 0.0105 | 0.0208 | 0.0273 | 0.6120 | 1350000 | no |
 
 Blank evaluation cells mean no recorded evaluation yet. Undefined duration aggregates at zero success are stored as null; success itself remains zero.
 <!-- LIVE_RESULTS_END -->

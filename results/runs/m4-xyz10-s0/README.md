@@ -1,6 +1,6 @@
 # m4-xyz10-s0
 
-Status: **training**.
+Status: **inactive**.
 
 [Results](../../../RESULTS.md) · [Run catalog](../README.md)
 
@@ -31,3 +31,13 @@ These JSONL records are the complete portable scalar logs, not sampled chart exp
 | 750000 | 0.504 | 500 | [JSONL line 15](eval.jsonl#L15) | [Evaluation charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb8f3a301437f09df88) |
 | 800000 | 0.506 | 500 | [JSONL line 16](eval.jsonl#L16) | [Evaluation charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb8f3a301437f09df88) |
 | 850000 | 0.55 | 500 | [JSONL line 17](eval.jsonl#L17) | [Evaluation charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb8f3a301437f09df88) |
+| 900000 | 0.45 | 500 | [JSONL line 18](eval.jsonl#L18) | [Evaluation charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb8f3a301437f09df88) |
+| 950000 | 0.474 | 500 | [JSONL line 19](eval.jsonl#L19) | [Evaluation charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb8f3a301437f09df88) |
+| 1000000 | 0.468 | 500 | [JSONL line 20](eval.jsonl#L20) | [Evaluation charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb8f3a301437f09df88) |
+| 1050000 | 0.564 | 500 | [JSONL line 21](eval.jsonl#L21) | [Evaluation charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb8f3a301437f09df88) |
+| 1100000 | 0.534 | 500 | [JSONL line 22](eval.jsonl#L22) | [Evaluation charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb8f3a301437f09df88) |
+| 1150000 | 0.636 | 500 | [JSONL line 23](eval.jsonl#L23) | [Evaluation charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb8f3a301437f09df88) |
+| 1200000 | 0.596 | 500 | [JSONL line 24](eval.jsonl#L24) | [Evaluation charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb8f3a301437f09df88) |
+| 1250000 | 0.604 | 500 | [JSONL line 25](eval.jsonl#L25) | [Evaluation charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb8f3a301437f09df88) |
+| 1300000 | 0.578 | 500 | [JSONL line 26](eval.jsonl#L26) | [Evaluation charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb8f3a301437f09df88) |
+| 1350000 | 0.612 | 500 | [JSONL line 27](eval.jsonl#L27) | [Evaluation charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb8f3a301437f09df88) |

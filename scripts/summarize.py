@@ -54,10 +54,12 @@ def summarize():
                      if tracking['status'] == 'connected' else 'W&B: authenticated upload pending.')
     report = ['<!-- LIVE_RESULTS_START -->', '## Live experiment status', '', tracking_link, '',
               'Pilot runs validate execution only. Reproduction runs target 2,000,000 updates; '
-              'partial curves do not establish either mystery.', '',
+              'partial single-seed curves support only the limited findings explained above.', '',
               '| Run records | W&B | Updates | Train flow | Val flow | Val action MSE | Success | Eval update | Finished |',
               '| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |']
     for row in status:
+        if row['run'].startswith('pilot-'):
+            continue
         url = catalog[row['run']]['wandb_url']
         remote = f'[Charts]({url})' if url else 'pending upload'
         report.append(f"| [{row['run']}](results/runs/{row['run']}/README.md) | {remote} | {row['step']} | {number(row['train'])} | {number(row['val'])} | "

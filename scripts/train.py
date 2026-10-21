@@ -96,6 +96,18 @@ def emit(path, record):
     print(json.dumps(record), flush=True)
 
 
+def cache_request(args, index, episodes, val_episodes):
+    from collection_cache import CollectionCache
+    from demo_identity import description
+    fourier = args.features in ('fourier1', 'fourier4')
+    kwargs = {'consumers': ('fourier1', 'fourier4')} if fourier else {}
+    cache = CollectionCache(ROOT / 'data' / 'shared-demos', **kwargs)
+    identity = description(args.env, episodes, val_episodes, args.data_seed, index, args.parallel)
+    if fourier:
+        identity['consumer_group'] = 'fourier-pair-v1'
+    return cache, identity
+
+
 def collect(args, index, episodes, val_episodes):
     print(f'COLLECTION_START index={index} episodes={episodes}', flush=True)
     def generate():
@@ -108,15 +120,9 @@ def collect(args, index, episodes, val_episodes):
         val = {k: v for k, v in val.items() if k in DATASET_KEYS} if val is not None else None
         return train, val, metrics
     if args.mode == 'streaming' and args.collection_cache:
-        from collection_cache import CollectionCache
-        from demo_identity import description
         from prefetch_control import ensure_producer
         fourier = args.features in ('fourier1', 'fourier4')
-        kwargs = {'consumers': ('fourier1', 'fourier4')} if fourier else {}
-        cache = CollectionCache(ROOT / 'data' / 'shared-demos', **kwargs)
-        identity = description(args.env, episodes, val_episodes, args.data_seed, index, args.parallel)
-        if fourier:
-            identity['consumer_group'] = 'fourier-pair-v1'
+        cache, identity = cache_request(args, index, episodes, val_episodes)
         if not cache.contains(identity) and not fourier:
             ensure_producer(args, needed_index=index)
         return cache.get(identity, generate, consumer=args.features)
@@ -141,6 +147,7 @@ def main():
     parser.add_argument('--val-episodes', type=int, default=128)
     parser.add_argument('--parallel', type=int, default=2500)
     parser.add_argument('--collection-cache', action=argparse.BooleanOptionalAction, default=True)
+    parser.add_argument('--loader-prefetch', action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument('--steps', type=int, default=2000000)
     parser.add_argument('--batch-size', type=int, default=1024)
     parser.add_argument('--width', type=int, default=4096)
@@ -190,7 +197,8 @@ def main():
         + (ROOT / 'scripts' / 'collection_cache.py').read_bytes() + (ROOT / 'scripts' / 'demo_identity.py').read_bytes()
         + (ROOT / 'scripts' / 'prefetch_control.py').read_bytes()
         + (ROOT / 'scripts' / 'private_slurm.py').read_bytes() + (ROOT / 'scripts' / 'demo_producer.py').read_bytes()
-        + (ROOT / 'scripts' / 'migration.py').read_bytes()).hexdigest()
+        + (ROOT / 'scripts' / 'migration.py').read_bytes()
+        + (ROOT / 'scripts' / 'loader_prefetch.py').read_bytes()).hexdigest()
     (run / 'config.json').write_text(json.dumps(config_record, indent=2))
     print(f'JAX_DEVICES {jax.devices()}', flush=True)
     if not any(device.platform == 'gpu' for device in jax.devices()):
@@ -242,13 +250,19 @@ def main():
     print(f'PARAMETERS {sum(x.size for x in jax.tree_util.tree_leaves(agent.network.params))}', flush=True)
     permutation = sampler.permutation(train.size) if args.mode == 'streaming' else None
     cursor = 0
+    prefetch = None
+    if args.mode == 'streaming' and args.collection_cache and args.loader_prefetch:
+        from loader_prefetch import CachedCollectionPrefetch
+        prefetch = CachedCollectionPrefetch()
     first_step = resume['step'] + 1 if resume else 1
     for step in range(first_step, args.steps + 1):
         if args.mode == 'streaming':
             if cursor + args.batch_size > train.size:
                 index += 1
                 del train
-                raw_train, _, metrics = collect(args, index, args.episodes, 0)
+                loaded = prefetch.take(index) if prefetch else None
+                raw_train, _, metrics = loaded if loaded is not None else collect(args, index, args.episodes, 0)
+                del loaded
                 train = dataset(raw_train, normalizer)
                 del raw_train
                 permutation = sampler.permutation(train.size)
@@ -258,6 +272,9 @@ def main():
             if len(idxs) != args.batch_size:
                 raise RuntimeError('Collection has fewer transitions than a batch.')
             cursor += args.batch_size
+            if prefetch and step % 100 == 0:
+                cache, identity = cache_request(args, index + 1, args.episodes, 0)
+                prefetch.schedule(index + 1, cache, identity, args.features)
         else:
             idxs = sampler.integers(train.size, size=args.batch_size)
         batch = train.sample(args.batch_size, idxs=idxs, keys=('observations', 'actions'))
@@ -294,6 +311,8 @@ def main():
                            key=lambda path: int(path.stem.split('_')[-1]))
             for old in saved[:-max(1, args.keep_checkpoints)]:
                 old.unlink()
+    if prefetch:
+        prefetch.close()
     (run / 'DONE').write_text('Training and final evaluation completed.\n')
 
 

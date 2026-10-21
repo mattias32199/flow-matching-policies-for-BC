@@ -18,7 +18,9 @@ CUDA_VISIBLE_DEVICES=0 .venv/bin/python scripts/train.py --run smoke-example \
   --width 128 --depth 2 --log-interval 1 --eval-interval 2 --eval-episodes 4
 ```
 
-Run the full four-GPU matrix in a persistent session:
+**Current execution:** nine individual Slurm jobs have been submitted, retaining the already-completed tenth result. Three continuation segments are verified training in the latest snapshot. Pending jobs accept A6000 or A5000. Launch/work directories are owner-only; names are descriptive. See [current progress and findings](RESULTS.md), and do not launch a second supervisor over these runs.
+
+For a fresh independent checkout, the four-GPU supervisor is available:
 
 ```bash
 tmux -S "$REPO_ROOT/.local/tmux.sock" new-session -d -s ocbench-reproduction \
@@ -33,7 +35,7 @@ The latest two checkpoints per run are retained locally to bound disk usage. `re
 
 `--pilot-first` adds four 100-step full-model task-learning pilots (64 generated episodes each) before the full queue. Pilot metrics are labeled with `pilot-` and do not support the blog conclusions.
 
-`results/curves.csv` contains portable scalar curves; `scripts/plot.py` generates `results/curves.png` with success, validation flow loss, and validation action MSE, excluding pilots. Shading is sample standard deviation across available seeds, not a significance claim.
+`results/curves.csv` contains portable scalar curves. `scripts/plot.py` generates clean PNG and SVG comparisons in the original blog order: success, flow loss, action MSE. Mystery 1, M4 baseline/scaling, held-out losses and restart segments have separate figures linked from [RESULTS.md](RESULTS.md). Loss traces show raw measurements plus 50K-update means, omitting the first 10K loss updates; axes use a log scale. No seed uncertainty bands are shown because each plotted condition has one training seed.
 
 The [paper implementation details](https://arxiv.org/html/2610.07056v1#A4.SS1) refresh 25K streaming episodes every 100K updates. This implementation instead collects 1K episodes at a time and uses each retained transition start once, matching the blog's conceptual fresh-data description. This and the explicitly chosen z-score scaling prevent a claim of exact numerical reproduction. The requested blog uses 10K block-double episodes; the later paper's corresponding figure uses 30K.
 
@@ -56,6 +58,7 @@ Refresh a local snapshot at any time (this does not commit or push):
 ```bash
 .venv/bin/python scripts/summarize.py
 .venv/bin/python scripts/plot.py
+.venv/bin/python scripts/report_findings.py  # also refresh scheduler state where Slurm is available
 ```
 
 ## Completion watcher

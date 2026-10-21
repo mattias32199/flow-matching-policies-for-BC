@@ -67,7 +67,8 @@ bitwise-identical simulation across those old runs and the new pair. Separate
 data-producer jobs are not automatically launched for the Fourier pair.
 
 New scientific runs should each use one GPU through `scripts/private_slurm.py`,
-with opaque job names and owner-only launch/work directories. Existing active
+with descriptive job/script names and owner-only launch/work directories. Pending jobs
+may use A6000 or A5000, whichever is available first. Existing active
 runs require deadline and continuation planning before changing allocations.
 Existing checkpoints omit exact sampler/stream state; a restart must not be
 described as exact continuation without additional verified recovery support.
@@ -100,9 +101,9 @@ Continuation configuration and exact boundary metadata link to the source run in
 the catalog and W&B records. These are segments of four existing scientific
 experiments, not four additional conditions.
 
-Preparation leaves nine individual launches: four continuations, three new
-Mystery 1 runs and two new Fourier variants. Placement and actual submission are
-separate. Do not resume the legacy supervisor's obsolete in-memory queue.
+The completed preparation produced nine individual launches: four continuations, three new
+Mystery 1 runs and two new Fourier variants. All nine have now been submitted;
+see the timestamped scheduler snapshot in [RESULTS.md](RESULTS.md). Do not resume the legacy supervisor's obsolete in-memory queue.
 
 See [RESULTS.md](RESULTS.md) for outcomes and the [matrix](results/matrix.json)
 for machine-readable settings.

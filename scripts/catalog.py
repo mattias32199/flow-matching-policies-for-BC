@@ -17,7 +17,7 @@ CONFIG_KEYS = {
     'resume_source_run', 'resume_step', 'resume_checkpoint_sha256',
     'resume_stream_index', 'resume_kind', 'validation_reset',
     'run', 'env', 'mode', 'features', 'seed', 'data_seed', 'episodes', 'val_episodes',
-    'collection_cache', 'demo_prefetch', 'demo_producer_workers', 'demo_cache_limit_bytes', 'parallel', 'steps', 'batch_size', 'width', 'depth', 'log_interval', 'eval_interval',
+    'collection_cache', 'loader_prefetch', 'demo_prefetch', 'demo_producer_workers', 'demo_cache_limit_bytes', 'parallel', 'steps', 'batch_size', 'width', 'depth', 'log_interval', 'eval_interval',
     'eval_episodes', 'save_interval', 'keep_checkpoints', 'solver_iteration_warnings',
     'upstream_commit', 'code_commit', 'training_code_sha256',
 }
@@ -82,7 +82,8 @@ def export_catalog(root=ROOT):
     entries = {job['run']: dict(name=job['run'], status='queued', config=clean_config(job)) for job in matrix()}
     queue_path = root / '.local' / 'queue-status.json'
     queue = json.loads(queue_path.read_text()) if queue_path.exists() else {}
-    active = set(queue.get('active', {}).values())
+    from individual_jobs import active_runs
+    active = set(queue.get('active', {}).values()) | active_runs(root)
     failed = set(queue.get('failures', []))
     for config_path in sorted((root / 'runs').glob('*/config.json')):
         local = config_path.parent

@@ -7,7 +7,7 @@ git submodule update --init --recursive
 bash scripts/setup.sh
 ```
 
-Source `scripts/env.sh` before running experiments. Python environment, caches, temporary downloads, datasets, logs, and checkpoints stay inside this checkout. Four independent GPU workers run conditions and seeds in parallel. Checkpoints and machine-specific progress logs are ignored by Git. Start with [RESULTS.md](RESULTS.md), then open the [run catalog](results/runs/README.md) or a run link in its table for the exact configuration, training log, collection log, and evaluation records.
+Source `scripts/env.sh` before running experiments. Python environment, caches, temporary downloads, datasets, logs, and checkpoints stay inside this checkout. Each scientific run uses one GPU. The current scope is [ten experiments](EXPERIMENTS.md): four for Mystery 1 and six for Mystery 4, including two fixed XYZ Fourier feature variants. Checkpoints and machine-specific progress logs are ignored by Git. Start with [RESULTS.md](RESULTS.md), then open the [run catalog](results/runs/README.md) or a run link in its table for the exact configuration, training log, collection log, and evaluation records.
 
 Run a short integration test:
 
@@ -25,7 +25,7 @@ tmux -S "$REPO_ROOT/.local/tmux.sock" new-session -d -s ocbench-reproduction \
   'bash -c "source scripts/env.sh; exec .venv/bin/python -u scripts/supervise.py --pilot-first > .local/supervisor.log 2>&1"'
 ```
 
-`results/matrix.json` records all 28 conditions/seeds. The supervisor uses one GPU per run, exports local metrics every 30 minutes. Git commits/pushes are reserved for code changes and completed experiment results; metric refreshes do not create commits. Configure Git author identity and remote credentials before starting. It stops assigning a GPU if its job fails and preserves incomplete runs for inspection. Inspect `.local/queue-status.json` and `.local/*.log`; run `scripts/summarize.py` to refresh curves manually.
+`results/matrix.json` records the ten planned experiments. Existing supervisors load their queue at startup; changing this file does not modify an already-running supervisor. The supervisor uses one GPU per run, exports local metrics every 30 minutes. Git commits/pushes are reserved for code changes and completed experiment results; metric refreshes do not create commits. Configure Git author identity and remote credentials before starting. It stops assigning a GPU if its job fails and preserves incomplete runs for inspection. Inspect `.local/queue-status.json` and `.local/*.log`; run `scripts/summarize.py` to refresh curves manually.
 
 Mystery 4 uses freshly generated collections without reusing training start indices. Scaling statistics and action normalization are fitted on the initial training collection and frozen; the initial validation set is held out throughout. Standardization here is z-score with a minimum standard deviation of 0.001; exact blog normalization details are not published in the reference commands. Input xyz indices follow the pinned block environment observation layout. This is a documented reproduction choice.
 

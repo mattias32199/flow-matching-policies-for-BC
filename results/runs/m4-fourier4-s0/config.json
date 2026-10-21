@@ -1,0 +1,8 @@
+{
+  "run": "m4-fourier4-s0",
+  "mode": "streaming",
+  "features": "fourier4",
+  "env": "block-double-task1-v0",
+  "seed": 0,
+  "episodes": 1000
+}

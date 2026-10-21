@@ -28,3 +28,6 @@ These JSONL records are the complete portable scalar logs, not sampled chart exp
 | 600000 | 0.388 | 500 | [JSONL line 12](eval.jsonl#L12) | [Evaluation charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb8f3a301437f09df88) |
 | 650000 | 0.468 | 500 | [JSONL line 13](eval.jsonl#L13) | [Evaluation charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb8f3a301437f09df88) |
 | 700000 | 0.518 | 500 | [JSONL line 14](eval.jsonl#L14) | [Evaluation charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb8f3a301437f09df88) |
+| 750000 | 0.504 | 500 | [JSONL line 15](eval.jsonl#L15) | [Evaluation charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb8f3a301437f09df88) |
+| 800000 | 0.506 | 500 | [JSONL line 16](eval.jsonl#L16) | [Evaluation charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb8f3a301437f09df88) |
+| 850000 | 0.55 | 500 | [JSONL line 17](eval.jsonl#L17) | [Evaluation charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb8f3a301437f09df88) |

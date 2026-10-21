@@ -28,6 +28,51 @@
     "wandb_id": "ocb7d868146415f56201"
   },
   {
+    "name": "m1-double-n10000-s1",
+    "status": "queued",
+    "config": {
+      "run": "m1-double-n10000-s1",
+      "mode": "fixed",
+      "features": "handcrafted",
+      "env": "block-double-task1-v0",
+      "seed": 1,
+      "episodes": 10000,
+      "data_seed": 1
+    },
+    "wandb_url": null,
+    "wandb_id": null
+  },
+  {
+    "name": "m1-single-n10000-s0",
+    "status": "queued",
+    "config": {
+      "run": "m1-single-n10000-s0",
+      "mode": "fixed",
+      "features": "handcrafted",
+      "env": "block-single-task1-v0",
+      "seed": 0,
+      "episodes": 10000,
+      "data_seed": 0
+    },
+    "wandb_url": null,
+    "wandb_id": null
+  },
+  {
+    "name": "m1-single-n50000-s0",
+    "status": "queued",
+    "config": {
+      "run": "m1-single-n50000-s0",
+      "mode": "fixed",
+      "features": "handcrafted",
+      "env": "block-single-task1-v0",
+      "seed": 0,
+      "episodes": 50000,
+      "data_seed": 10000
+    },
+    "wandb_url": null,
+    "wandb_id": null
+  },
+  {
     "name": "m4-handcrafted-s0",
     "status": "training",
     "config": {
@@ -142,334 +187,29 @@
     "wandb_id": "ocb8f3a301437f09df88"
   },
   {
-    "name": "m4-handcrafted-s1",
+    "name": "m4-fourier1-s0",
     "status": "queued",
     "config": {
-      "run": "m4-handcrafted-s1",
+      "run": "m4-fourier1-s0",
       "mode": "streaming",
-      "features": "handcrafted",
+      "features": "fourier1",
       "env": "block-double-task1-v0",
-      "seed": 1,
-      "episodes": 1000
-    },
-    "wandb_url": null,
-    "wandb_id": null
-  },
-  {
-    "name": "m4-standardized-s1",
-    "status": "queued",
-    "config": {
-      "run": "m4-standardized-s1",
-      "mode": "streaming",
-      "features": "standardized",
-      "env": "block-double-task1-v0",
-      "seed": 1,
-      "episodes": 1000
-    },
-    "wandb_url": null,
-    "wandb_id": null
-  },
-  {
-    "name": "m4-xyz0.1-s1",
-    "status": "queued",
-    "config": {
-      "run": "m4-xyz0.1-s1",
-      "mode": "streaming",
-      "features": "xyz0.1",
-      "env": "block-double-task1-v0",
-      "seed": 1,
-      "episodes": 1000
-    },
-    "wandb_url": null,
-    "wandb_id": null
-  },
-  {
-    "name": "m4-xyz10-s1",
-    "status": "queued",
-    "config": {
-      "run": "m4-xyz10-s1",
-      "mode": "streaming",
-      "features": "xyz10",
-      "env": "block-double-task1-v0",
-      "seed": 1,
-      "episodes": 1000
-    },
-    "wandb_url": null,
-    "wandb_id": null
-  },
-  {
-    "name": "m4-handcrafted-s2",
-    "status": "queued",
-    "config": {
-      "run": "m4-handcrafted-s2",
-      "mode": "streaming",
-      "features": "handcrafted",
-      "env": "block-double-task1-v0",
-      "seed": 2,
-      "episodes": 1000
-    },
-    "wandb_url": null,
-    "wandb_id": null
-  },
-  {
-    "name": "m4-standardized-s2",
-    "status": "queued",
-    "config": {
-      "run": "m4-standardized-s2",
-      "mode": "streaming",
-      "features": "standardized",
-      "env": "block-double-task1-v0",
-      "seed": 2,
-      "episodes": 1000
-    },
-    "wandb_url": null,
-    "wandb_id": null
-  },
-  {
-    "name": "m4-xyz0.1-s2",
-    "status": "queued",
-    "config": {
-      "run": "m4-xyz0.1-s2",
-      "mode": "streaming",
-      "features": "xyz0.1",
-      "env": "block-double-task1-v0",
-      "seed": 2,
-      "episodes": 1000
-    },
-    "wandb_url": null,
-    "wandb_id": null
-  },
-  {
-    "name": "m4-xyz10-s2",
-    "status": "queued",
-    "config": {
-      "run": "m4-xyz10-s2",
-      "mode": "streaming",
-      "features": "xyz10",
-      "env": "block-double-task1-v0",
-      "seed": 2,
-      "episodes": 1000
-    },
-    "wandb_url": null,
-    "wandb_id": null
-  },
-  {
-    "name": "m4-handcrafted-s3",
-    "status": "queued",
-    "config": {
-      "run": "m4-handcrafted-s3",
-      "mode": "streaming",
-      "features": "handcrafted",
-      "env": "block-double-task1-v0",
-      "seed": 3,
-      "episodes": 1000
-    },
-    "wandb_url": null,
-    "wandb_id": null
-  },
-  {
-    "name": "m4-standardized-s3",
-    "status": "queued",
-    "config": {
-      "run": "m4-standardized-s3",
-      "mode": "streaming",
-      "features": "standardized",
-      "env": "block-double-task1-v0",
-      "seed": 3,
-      "episodes": 1000
-    },
-    "wandb_url": null,
-    "wandb_id": null
-  },
-  {
-    "name": "m4-xyz0.1-s3",
-    "status": "queued",
-    "config": {
-      "run": "m4-xyz0.1-s3",
-      "mode": "streaming",
-      "features": "xyz0.1",
-      "env": "block-double-task1-v0",
-      "seed": 3,
-      "episodes": 1000
-    },
-    "wandb_url": null,
-    "wandb_id": null
-  },
-  {
-    "name": "m4-xyz10-s3",
-    "status": "queued",
-    "config": {
-      "run": "m4-xyz10-s3",
-      "mode": "streaming",
-      "features": "xyz10",
-      "env": "block-double-task1-v0",
-      "seed": 3,
-      "episodes": 1000
-    },
-    "wandb_url": null,
-    "wandb_id": null
-  },
-  {
-    "name": "m1-single-n10000-s0",
-    "status": "queued",
-    "config": {
-      "run": "m1-single-n10000-s0",
-      "mode": "fixed",
-      "features": "handcrafted",
-      "env": "block-single-task1-v0",
       "seed": 0,
-      "episodes": 10000,
-      "data_seed": 0
+      "episodes": 1000
     },
     "wandb_url": null,
     "wandb_id": null
   },
   {
-    "name": "m1-single-n50000-s0",
+    "name": "m4-fourier4-s0",
     "status": "queued",
     "config": {
-      "run": "m1-single-n50000-s0",
-      "mode": "fixed",
-      "features": "handcrafted",
-      "env": "block-single-task1-v0",
+      "run": "m4-fourier4-s0",
+      "mode": "streaming",
+      "features": "fourier4",
+      "env": "block-double-task1-v0",
       "seed": 0,
-      "episodes": 50000,
-      "data_seed": 10000
-    },
-    "wandb_url": null,
-    "wandb_id": null
-  },
-  {
-    "name": "m1-double-n10000-s1",
-    "status": "queued",
-    "config": {
-      "run": "m1-double-n10000-s1",
-      "mode": "fixed",
-      "features": "handcrafted",
-      "env": "block-double-task1-v0",
-      "seed": 1,
-      "episodes": 10000,
-      "data_seed": 1
-    },
-    "wandb_url": null,
-    "wandb_id": null
-  },
-  {
-    "name": "m1-single-n10000-s1",
-    "status": "queued",
-    "config": {
-      "run": "m1-single-n10000-s1",
-      "mode": "fixed",
-      "features": "handcrafted",
-      "env": "block-single-task1-v0",
-      "seed": 1,
-      "episodes": 10000,
-      "data_seed": 1
-    },
-    "wandb_url": null,
-    "wandb_id": null
-  },
-  {
-    "name": "m1-single-n50000-s1",
-    "status": "queued",
-    "config": {
-      "run": "m1-single-n50000-s1",
-      "mode": "fixed",
-      "features": "handcrafted",
-      "env": "block-single-task1-v0",
-      "seed": 1,
-      "episodes": 50000,
-      "data_seed": 10001
-    },
-    "wandb_url": null,
-    "wandb_id": null
-  },
-  {
-    "name": "m1-double-n10000-s2",
-    "status": "queued",
-    "config": {
-      "run": "m1-double-n10000-s2",
-      "mode": "fixed",
-      "features": "handcrafted",
-      "env": "block-double-task1-v0",
-      "seed": 2,
-      "episodes": 10000,
-      "data_seed": 2
-    },
-    "wandb_url": null,
-    "wandb_id": null
-  },
-  {
-    "name": "m1-single-n10000-s2",
-    "status": "queued",
-    "config": {
-      "run": "m1-single-n10000-s2",
-      "mode": "fixed",
-      "features": "handcrafted",
-      "env": "block-single-task1-v0",
-      "seed": 2,
-      "episodes": 10000,
-      "data_seed": 2
-    },
-    "wandb_url": null,
-    "wandb_id": null
-  },
-  {
-    "name": "m1-single-n50000-s2",
-    "status": "queued",
-    "config": {
-      "run": "m1-single-n50000-s2",
-      "mode": "fixed",
-      "features": "handcrafted",
-      "env": "block-single-task1-v0",
-      "seed": 2,
-      "episodes": 50000,
-      "data_seed": 10002
-    },
-    "wandb_url": null,
-    "wandb_id": null
-  },
-  {
-    "name": "m1-double-n10000-s3",
-    "status": "queued",
-    "config": {
-      "run": "m1-double-n10000-s3",
-      "mode": "fixed",
-      "features": "handcrafted",
-      "env": "block-double-task1-v0",
-      "seed": 3,
-      "episodes": 10000,
-      "data_seed": 3
-    },
-    "wandb_url": null,
-    "wandb_id": null
-  },
-  {
-    "name": "m1-single-n10000-s3",
-    "status": "queued",
-    "config": {
-      "run": "m1-single-n10000-s3",
-      "mode": "fixed",
-      "features": "handcrafted",
-      "env": "block-single-task1-v0",
-      "seed": 3,
-      "episodes": 10000,
-      "data_seed": 3
-    },
-    "wandb_url": null,
-    "wandb_id": null
-  },
-  {
-    "name": "m1-single-n50000-s3",
-    "status": "queued",
-    "config": {
-      "run": "m1-single-n50000-s3",
-      "mode": "fixed",
-      "features": "handcrafted",
-      "env": "block-single-task1-v0",
-      "seed": 3,
-      "episodes": 50000,
-      "data_seed": 10003
+      "episodes": 1000
     },
     "wandb_url": null,
     "wandb_id": null

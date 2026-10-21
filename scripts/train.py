@@ -28,6 +28,7 @@ class Features:
     """Fit on initial training data only; apply identically at train and test."""
     def __init__(self, observations, mode):
         self.mode = mode
+        self.frequencies = {'fourier1': (1.,), 'fourier4': (1., 2., 4., 8.)}.get(mode, ())
         dim = observations.shape[-1]
         self.center = np.zeros(dim, np.float32)
         self.scale = np.ones(dim, np.float32)
@@ -45,11 +46,21 @@ class Features:
             xyz = list(range(12, 15))
             for start in range(19, dim, 9):
                 xyz.extend(range(start, start + 3))
-            multiplier = {'standardized': 1., 'xyz0.1': .1, 'xyz10': 10.}[mode]
+            self.xyz = xyz
+            multiplier = {'standardized': 1., 'xyz0.1': .1, 'xyz10': 10.,
+                          'fourier1': 1., 'fourier4': 1.}[mode]
             self.scale[xyz] *= multiplier
 
     def __call__(self, observations):
-        return (observations - self.center) * self.scale
+        standardized = (observations - self.center) * self.scale
+        if not self.frequencies:
+            return standardized
+        # Preserve the complete standardized state; append fixed coordinate features.
+        extra = []
+        for frequency in self.frequencies:
+            phase = np.float32(2 * np.pi * frequency) * standardized[..., self.xyz]
+            extra.extend((np.sin(phase), np.cos(phase)))
+        return np.concatenate([standardized, *extra], axis=-1)
 
 
 class EvalAgent:
@@ -58,6 +69,20 @@ class EvalAgent:
 
     def sample_actions(self, observations, seed=None):
         return self.agent.sample_actions(self.features(observations), seed=seed)
+
+
+def saved_preprocessing(path, mode):
+    """Restore observation and action transforms without refitting any statistic."""
+    with np.load(path, allow_pickle=False) as saved:
+        features = Features.__new__(Features)
+        features.mode = mode
+        features.center, features.scale = saved['center'].copy(), saved['scale'].copy()
+        features.frequencies = tuple(saved['fourier_frequencies']) if 'fourier_frequencies' in saved else ()
+        features.xyz = list(range(12, 15))
+        for start in range(19, len(features.center), 9):
+            features.xyz.extend(range(start, start + 3))
+        normalizer = ActionNormalizer(saved['q_low'], saved['q_high'], saved['clip'], saved['gripper_dims'])
+    return features, normalizer
 
 
 def evaluation_record(step, metrics):
@@ -86,9 +111,13 @@ def collect(args, index, episodes, val_episodes):
         from collection_cache import CollectionCache
         from demo_identity import description
         from prefetch_control import ensure_producer
-        cache = CollectionCache(ROOT / 'data' / 'shared-demos')
+        fourier = args.features in ('fourier1', 'fourier4')
+        kwargs = {'consumers': ('fourier1', 'fourier4')} if fourier else {}
+        cache = CollectionCache(ROOT / 'data' / 'shared-demos', **kwargs)
         identity = description(args.env, episodes, val_episodes, args.data_seed, index, args.parallel)
-        if not cache.contains(identity):
+        if fourier:
+            identity['consumer_group'] = 'fourier-pair-v1'
+        if not cache.contains(identity) and not fourier:
             ensure_producer(args, needed_index=index)
         return cache.get(identity, generate, consumer=args.features)
     return generate()
@@ -105,7 +134,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--env', default='block-double-task1-v0')
     parser.add_argument('--mode', choices=['fixed', 'streaming'], default='streaming')
-    parser.add_argument('--features', choices=['handcrafted', 'standardized', 'xyz0.1', 'xyz10'], default='handcrafted')
+    parser.add_argument('--features', choices=['handcrafted', 'standardized', 'xyz0.1', 'xyz10', 'fourier1', 'fourier4'], default='handcrafted')
     parser.add_argument('--seed', type=int, default=0)
     parser.add_argument('--data-seed', type=int)
     parser.add_argument('--episodes', type=int, default=1000)
@@ -123,22 +152,34 @@ def main():
     parser.add_argument('--keep-checkpoints', type=int, default=2)
     parser.add_argument('--solver-iteration-warnings', action='store_true')
     parser.add_argument('--run', required=True)
+    parser.add_argument('--resume-bundle', type=Path)
     args = parser.parse_args()
     faulthandler.register(signal.SIGUSR1)
     from simulation import configure_iteration_warnings
     configure_iteration_warnings(args.solver_iteration_warnings)
     if args.data_seed is None:
         args.data_seed = args.seed
+    resume = None
+    if args.resume_bundle:
+        from migration import read_bundle
+        resume = read_bundle(args.resume_bundle, args)
     run = ROOT / 'runs' / args.run
     run.mkdir(parents=True, exist_ok=True)
     (run / 'checkpoints').mkdir(exist_ok=True)
     if (run / 'metrics.jsonl').exists():
         raise RuntimeError('Refusing to overwrite an existing run; use a new run name.')
-    config_record = vars(args) | {'upstream_commit': subprocess.check_output(
+    config_record = {k: v for k, v in vars(args).items() if k != 'resume_bundle'} | {'upstream_commit': subprocess.check_output(
         ['git', '-C', str(ROOT / 'ocbench'), 'rev-parse', 'HEAD'], text=True).strip()}
+    if resume:
+        config_record.update(resume_source_run=resume['source_run'], resume_step=resume['step'],
+            resume_checkpoint_sha256=resume['checkpoint_sha256'],
+            resume_stream_index=resume['fresh_stream_index'],
+            resume_kind=resume['continuation_kind'], validation_reset=True)
+    config_record['fourier_frequencies'] = list({'fourier1': (1,), 'fourier4': (1, 2, 4, 8)}.get(args.features, ()))
     producer_config = ROOT / '.local/demo-producer-config.json'
     producer_settings = json.loads(producer_config.read_text()) if producer_config.exists() else {}
     config_record['demo_prefetch'] = bool(args.collection_cache and args.mode == 'streaming'
+        and not config_record['fourier_frequencies']
         and producer_settings.get('enabled') and args.data_seed in producer_settings.get('seeds', []))
     config_record['demo_producer_workers'] = int(producer_settings.get('workers', 2)) if config_record['demo_prefetch'] else 0
     config_record['demo_cache_limit_bytes'] = 80_000_000_000 if args.collection_cache and args.mode == 'streaming' else 0
@@ -148,7 +189,8 @@ def main():
         Path(__file__).read_bytes() + (ROOT / 'scripts' / 'simulation.py').read_bytes()
         + (ROOT / 'scripts' / 'collection_cache.py').read_bytes() + (ROOT / 'scripts' / 'demo_identity.py').read_bytes()
         + (ROOT / 'scripts' / 'prefetch_control.py').read_bytes()
-        + (ROOT / 'scripts' / 'private_slurm.py').read_bytes() + (ROOT / 'scripts' / 'demo_producer.py').read_bytes()).hexdigest()
+        + (ROOT / 'scripts' / 'private_slurm.py').read_bytes() + (ROOT / 'scripts' / 'demo_producer.py').read_bytes()
+        + (ROOT / 'scripts' / 'migration.py').read_bytes()).hexdigest()
     (run / 'config.json').write_text(json.dumps(config_record, indent=2))
     print(f'JAX_DEVICES {jax.devices()}', flush=True)
     if not any(device.platform == 'gpu' for device in jax.devices()):
@@ -158,7 +200,7 @@ def main():
     diagnostic = np.random.default_rng(args.seed + 10000)
     np.random.seed(args.seed)
     start = time.monotonic()
-    index = 0
+    index = resume['fresh_stream_index'] if resume else 0
     data_dir = ROOT / 'data' / f'{args.env}-n{args.episodes}-d{args.data_seed}'
     train_file, val_file = data_dir / 'train.npz', data_dir / 'val.npz'
     if args.mode == 'fixed' and train_file.exists() and val_file.exists():
@@ -171,14 +213,19 @@ def main():
             np.savez(train_file, **raw_train)
             np.savez(val_file, **raw_val)
     emit(run / 'collections.jsonl', {'index': index, **collection_metrics})
-    normalizer = ActionNormalizer.fit(raw_train['actions'], 1., 5.)
+    if resume:
+        features, normalizer = saved_preprocessing(args.resume_bundle / 'preprocessing.npz', args.features)
+    else:
+        normalizer = ActionNormalizer.fit(raw_train['actions'], 1., 5.)
     train, val = dataset(raw_train, normalizer), dataset(raw_val, normalizer)
     del raw_train, raw_val
     emit(run / 'dataset.jsonl', {'train_episodes': int(train['terminals'].sum()),
                                'val_episodes': int(val['terminals'].sum()),
                                'train_transitions': train.size, 'val_transitions': val.size})
-    features = Features(train['observations'], args.features)
+    if not resume:
+        features = Features(train['observations'], args.features)
     np.savez(run / 'preprocessing.npz', center=features.center, scale=features.scale,
+             fourier_frequencies=np.asarray(features.frequencies, dtype=np.float32),
              q_low=normalizer.q_low, q_high=normalizer.q_high, clip=normalizer.clip,
              gripper_dims=np.flatnonzero(normalizer.gripper_dims))
     config = get_config()
@@ -186,10 +233,17 @@ def main():
     config.batch_size = args.batch_size
     example = train.sample(1, keys=('observations', 'actions'))
     agent = FBCAgent.create(args.seed, features(example['observations']), example['actions'], config)
+    if resume:
+        from migration import restore_state
+        agent = restore_state(agent, args.resume_bundle, resume)
+        emit(run / 'continuation.jsonl', {key: config_record[key] for key in
+             ['resume_source_run', 'resume_step', 'resume_checkpoint_sha256',
+              'resume_stream_index', 'resume_kind', 'validation_reset']})
     print(f'PARAMETERS {sum(x.size for x in jax.tree_util.tree_leaves(agent.network.params))}', flush=True)
     permutation = sampler.permutation(train.size) if args.mode == 'streaming' else None
     cursor = 0
-    for step in range(1, args.steps + 1):
+    first_step = resume['step'] + 1 if resume else 1
+    for step in range(first_step, args.steps + 1):
         if args.mode == 'streaming':
             if cursor + args.batch_size > train.size:
                 index += 1
@@ -209,7 +263,7 @@ def main():
         batch = train.sample(args.batch_size, idxs=idxs, keys=('observations', 'actions'))
         batch['observations'] = features(batch['observations'])
         agent, info = agent.update(batch)
-        if step == 1 or step % args.log_interval == 0:
+        if step == first_step or step % args.log_interval == 0:
             loss = float(info['actor/actor_loss'])
             if not np.isfinite(loss):
                 raise RuntimeError(f'Nonfinite loss at step {step}')

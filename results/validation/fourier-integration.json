@@ -1,0 +1,20 @@
+[
+  {
+    "features": "fourier1",
+    "observation_width": 55,
+    "output_width": 175,
+    "loss": 1.3390192985534668,
+    "hidden_width": 32,
+    "device": "cpu",
+    "scientific_result": false
+  },
+  {
+    "features": "fourier4",
+    "observation_width": 109,
+    "output_width": 175,
+    "loss": 1.3026643991470337,
+    "hidden_width": 32,
+    "device": "cpu",
+    "scientific_result": false
+  }
+]

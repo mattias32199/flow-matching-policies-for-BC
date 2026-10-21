@@ -13,12 +13,17 @@ APP_URL = f'https://forge.coreweave.com/wandb/{ENTITY}/{PROJECT}'
 GITHUB = 'https://github.com/mattias32199/flow-matching-policies-for-BC'
 BRANCH = 'reproduce-ocbench-mysteries-1-4'
 CONFIG_KEYS = {
+    'fourier_frequencies',
+    'resume_source_run', 'resume_step', 'resume_checkpoint_sha256',
+    'resume_stream_index', 'resume_kind', 'validation_reset',
     'run', 'env', 'mode', 'features', 'seed', 'data_seed', 'episodes', 'val_episodes',
     'collection_cache', 'demo_prefetch', 'demo_producer_workers', 'demo_cache_limit_bytes', 'parallel', 'steps', 'batch_size', 'width', 'depth', 'log_interval', 'eval_interval',
     'eval_episodes', 'save_interval', 'keep_checkpoints', 'solver_iteration_warnings',
     'upstream_commit', 'code_commit', 'training_code_sha256',
 }
 FIELDS = {
+    'continuation.jsonl': {'resume_source_run', 'resume_step', 'resume_checkpoint_sha256',
+                         'resume_stream_index', 'resume_kind', 'validation_reset'},
     'metrics.jsonl': {'step', 'seconds', 'collection', 'training/flow_loss', 'training/action_mse',
                       'validation/flow_loss', 'validation/action_mse'},
     'eval.jsonl': {'step', 'success', 'failure', 'healthy', 'episode.final_reward',
@@ -104,6 +109,8 @@ def export_catalog(root=ROOT):
         (directory / 'config.json').write_text(json.dumps(config, indent=2) + '\n')
         for filename in FIELDS:
             records = entry.get('records', {}).get(filename, [])
+            if filename == 'continuation.jsonl' and not records:
+                continue
             (directory / filename).write_text(''.join(json.dumps(row, allow_nan=False) + '\n' for row in records))
         evaluations = entry.get('records', {}).get('eval.jsonl', [])
         lines = [f'# {name}', '', f"Status: **{entry['status']}**.", '',
@@ -123,6 +130,14 @@ def export_catalog(root=ROOT):
                          f"{'[Evaluation charts](' + url + ')' if url else 'pending upload'} |")
         if not evaluations:
             lines += ['', 'No evaluation record exists yet; no success rate is inferred.']
+        if config.get('resume_source_run'):
+            source = config['resume_source_run']
+            lines += ['', '## Continuation boundary', '',
+                      f"Continues [{source}](../{source}/README.md) from update {config['resume_step']}. "
+                      'Network, optimizer, RNG and preprocessing are restored. The streaming dataset, '
+                      'sampler and validation set restart; this is not an exact stream resume. '
+                      'Validation losses across this boundary use different held-out samples.', '',
+                      '[Boundary metadata](continuation.jsonl)']
         (directory / 'README.md').write_text('\n'.join(lines) + '\n')
         entry['wandb_url'] = url
         entry['wandb_id'] = metadata.get('id') if url else None

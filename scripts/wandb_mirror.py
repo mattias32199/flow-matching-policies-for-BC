@@ -32,6 +32,8 @@ def payload(stream, record):
                   **{f'evaluation/{key}': value for key, value in clean.items()}}
     elif stream == 'collections.jsonl':
         result = {f'collection/{key}': value for key, value in clean.items()}
+    elif stream == 'continuation.jsonl':
+        result = {f'continuation/{key}': value for key, value in clean.items()}
     else:
         result = {f'dataset/{key}': value for key, value in clean.items()}
     result['record_type'] = stream.removesuffix('.jsonl')

@@ -32,7 +32,7 @@ class CatalogTest(unittest.TestCase):
             self.assertIn('eval.jsonl#L1', content)
             self.assertIn('https://example.test/run', content)
             self.assertEqual(entries['smoke-test']['status'], 'completed')
-            self.assertEqual(len([v for v in entries.values() if v['status']=='queued']),28)
+            self.assertEqual(len([v for v in entries.values() if v['status']=='queued']),10)
 
     def test_stale_identity_is_not_linked(self):
         self.assertNotEqual(run_id(dict(run='m4', steps=100)),run_id(dict(run='m4', steps=2000000)))

@@ -35,3 +35,4 @@ These JSONL records are the complete portable scalar logs, not sampled chart exp
 | 950000 | 0.244 | 500 | [JSONL line 19](eval.jsonl#L19) | [Evaluation charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocbdf09e0125b1d85354) |
 | 1000000 | 0.248 | 500 | [JSONL line 20](eval.jsonl#L20) | [Evaluation charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocbdf09e0125b1d85354) |
 | 1050000 | 0.332 | 500 | [JSONL line 21](eval.jsonl#L21) | [Evaluation charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocbdf09e0125b1d85354) |
+| 1100000 | 0.382 | 500 | [JSONL line 22](eval.jsonl#L22) | [Evaluation charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocbdf09e0125b1d85354) |

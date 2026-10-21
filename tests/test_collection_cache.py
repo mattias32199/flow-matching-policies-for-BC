@@ -10,6 +10,16 @@ from collection_cache import CollectionCache, CacheFull, CONSUMERS
 
 
 class CacheTests(unittest.TestCase):
+    def test_fourier_pair_reuses_data_then_releases_budget(self):
+        cache = CollectionCache(self.tmp.name, limit=100000, consumers=('fourier1', 'fourier4'))
+        desc = dict(self.desc, consumer_group='fourier-pair-v1')
+        cache.get(desc, self.generate, 'fourier1', 30000)
+        self.assertGreater(cache.status()['used_bytes'], 0)
+        _, _, metrics = cache.get(desc, self.generate, 'fourier4', 30000)
+        self.assertTrue(metrics['cache_hit'])
+        self.assertEqual(self.calls, 1)
+        self.assertEqual(cache.status()['used_bytes'], 0)
+
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.cache = CollectionCache(self.tmp.name, limit=100000)

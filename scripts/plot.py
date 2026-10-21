@@ -27,7 +27,9 @@ def plot():
         groups = defaultdict(list)
         for run in data:
             if run.startswith(mystery + '-'):
-                groups[run.rsplit('-s', 1)[0]].append(run)
+                # A fresh validation set makes continuation segments separate curves.
+                group = run if '-cont' in run else run.rsplit('-s', 1)[0]
+                groups[group].append(run)
         for col, (metric, title) in enumerate([
             ('evaluation/success', 'Rollout success'),
             ('validation/flow_loss', 'Validation flow loss'),

@@ -43,10 +43,13 @@ def write_json(path, value):
 
 
 class CollectionCache:
-    def __init__(self, root, limit=DEFAULT_LIMIT):
+    def __init__(self, root, limit=DEFAULT_LIMIT, consumers=CONSUMERS):
         self.root = Path(root)
         self.root.mkdir(parents=True, exist_ok=True)
         self.limit = min(int(limit), DEFAULT_LIMIT)
+        self.consumers = tuple(consumers)
+        if not self.consumers or len(set(self.consumers)) != len(self.consumers):
+            raise ValueError("Consumers must be nonempty and unique.")
         if self.limit <= 0:
             raise ValueError('Cache limit must be positive.')
 
@@ -89,7 +92,7 @@ class CollectionCache:
         return removed
 
     def get(self, description, generate, consumer=None, reservation_bytes=None, allow_uncached=True):
-        if consumer is not None and consumer not in CONSUMERS:
+        if consumer is not None and consumer not in self.consumers:
             raise ValueError('Unknown feature consumer.')
         started = time.monotonic()
         key = cache_key(description)
@@ -177,7 +180,7 @@ class CollectionCache:
                 consumed = set(json.loads(path.read_text()) if path.exists() else [])
                 consumed.add(consumer)
                 write_json(path, sorted(consumed))
-                if consumed == set(CONSUMERS):
+                if consumed == set(self.consumers):
                     with locked(self.root / 'budget.lock'):
                         state = self._state()
                         shutil.rmtree(target)

@@ -40,10 +40,29 @@ Analytical dense-matrix FLOPs divided by the precision-specific dense peak yield
 
 Production streaming runs spend roughly 75% of elapsed time collecting demonstrations (about 64% for the newer parallelism setting). A 1.56× update speedup therefore implies only approximately 10–15% end-to-end improvement if other costs stay unchanged. The isolated simulator sweep measured 115.28s for 1,000 episodes at parallel512 versus 63.33s at parallel1024 (1.82×); 2,500 episodes at parallel2500 took 88.08s (28.38 episodes/s), testing a larger collection rather than the current protocol. The larger simulator parallelism cap is already used by newer/future processes. Existing reproduction workers were preserved: grouped updates offer little benefit, and changing arithmetic requires learning validation. Existing checkpoints contain agent/optimizer/RNG state but omit the data-sampler cursor/permutation and streaming snapshot, so exact continuation cannot be asserted without additional resume-state support.
 
+## Ten-experiment scope and individual-job preparation
+
+The current scope is [four Mystery 1 and six Mystery 4 experiments](EXPERIMENTS.md),
+including two new fixed XYZ Fourier feature conditions. The completed Mystery 1
+run is retained. Four source Mystery 4 checkpoints are pinned locally: handcrafted,
+standardized and XYZ×0.1 at **1.1M** updates, and XYZ×10 at **800K**.
+[Checkpoint integrity evidence](results/validation/migration-checkpoints.json)
+records hashes and finite-state checks without uploading checkpoints.
+
+Individual continuations restore network, optimizer, agent RNG and saved input/action
+transforms. They use fresh streaming data and a replacement validation set; this
+boundary is explicit, and cross-boundary validation losses are not measurements on
+the same held-out samples. A small-model CPU test verifies exact next-update parity
+after agent-state restoration. Both Fourier input widths also passed a small-model
+[update/action-sampling integration check](results/validation/fourier-integration.json).
+All 28 tests pass. These checks establish preparation integrity, not resumed GPU
+launch success or new reproduction results. Nine individual launches are prepared
+(four continuations and five new experiments); none were submitted in this preparation.
+
 ## Planned comparisons
 
-- Mystery 1: block-double with fixed 10,000 episodes; track training/validation flow loss, action MSE, and success over training. Compare block-single with independently sampled 10,000 versus 50,000 episodes over four seeds.
-- Mystery 4: block-double streaming demonstrations; compare handcrafted observations, standardized observations, and standardized observations with object/gripper xyz scaled by 0.1 or 10.
+- Mystery 1: block-double with fixed 10,000 episodes; track training/validation flow loss, action MSE, and success over training. Repeat block-double at seed 1, then compare block-single with independently sampled 10,000 versus 50,000 episodes at training seed 0.
+- Mystery 4: six block-double streaming runs at seed 0: handcrafted, standardized, XYZ scaled by 0.1 or 10, and two fixed XYZ Fourier feature extensions. See [the ten-experiment plan and exact network contract](EXPERIMENTS.md).
 
 Reference defaults: eight 4096-wide residual MLP layers, action chunks of 25, batch size 1024, learning rate 1e-4, 10 flow steps. Blog-specific settings beyond the public reference commands remain unverified. Finite streaming runs approximate the infinite-data setting.
 
@@ -55,7 +74,7 @@ Reference defaults: eight 4096-wide residual MLP layers, action chunks of 25, ba
 - End-to-end GPU smoke test completed demonstration collection, two updates, four rollout evaluations, and checkpoint saving. Four full reference-model workers each reached 100 real updates with finite training and validation losses.
 - Checkpoints remain local; the latest two per run are retained.
 
-Dataset-size comparisons use independent generation seeds (0–3 for 10K, 10000–10003 for 50K), with training seeds 0–3 in both groups. Feature variants share generation and training seeds; GPU simulation is not bitwise deterministic, so separately generated streams can differ slightly despite paired seeds. Requested episode counts are before upstream success filtering; actual retained episodes/transitions are logged locally in each run.
+The planned dataset-size comparison uses independent generation seeds (0 for 10K, 10000 for 50K), with training seed 0 in both groups. Feature variants share generation and training seeds; GPU simulation is not bitwise deterministic, so separately generated streams can differ slightly despite paired seeds. Requested episode counts are before upstream success filtering; actual retained episodes/transitions are logged locally in each run.
 
 <!-- LIVE_RESULTS_START -->
 ## Live experiment status
@@ -67,10 +86,10 @@ Pilot runs validate execution only. Reproduction runs target 2,000,000 updates; 
 | Run records | W&B | Updates | Train flow | Val flow | Val action MSE | Success | Eval update | Finished |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
 | [m1-double-n10000-s0](results/runs/m1-double-n10000-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb7d868146415f56201) | 2000000 | 0.0034 | 0.0562 | 0.0146 | 0.2580 | 2000000 | yes |
-| [m4-handcrafted-s0](results/runs/m4-handcrafted-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb6555c1eef3e7c6a5b) | 1028000 | 0.0107 | 0.0146 | 0.0133 | 0.5160 | 1000000 | no |
-| [m4-standardized-s0](results/runs/m4-standardized-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocbdf09e0125b1d85354) | 1054000 | 0.0142 | 0.0135 | 0.0117 | 0.3320 | 1050000 | no |
-| [m4-xyz0.1-s0](results/runs/m4-xyz0.1-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocbb5e56eb1e20d223a2) | 1035000 | 0.0131 | 0.0134 | 0.0133 | 0.0080 | 1000000 | no |
-| [m4-xyz10-s0](results/runs/m4-xyz10-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb8f3a301437f09df88) | 749000 | 0.0132 | 0.0234 | 0.0331 | 0.5180 | 700000 | no |
+| [m4-handcrafted-s0](results/runs/m4-handcrafted-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb6555c1eef3e7c6a5b) | 1113000 | 0.0132 | 0.0127 | 0.0121 | 0.4740 | 1100000 | no |
+| [m4-standardized-s0](results/runs/m4-standardized-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocbdf09e0125b1d85354) | 1141000 | 0.0131 | 0.0119 | 0.0109 | 0.3820 | 1100000 | no |
+| [m4-xyz0.1-s0](results/runs/m4-xyz0.1-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocbb5e56eb1e20d223a2) | 1120000 | 0.0125 | 0.0131 | 0.0130 | 0.0180 | 1100000 | no |
+| [m4-xyz10-s0](results/runs/m4-xyz10-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb8f3a301437f09df88) | 873000 | 0.0154 | 0.0169 | 0.0280 | 0.5500 | 850000 | no |
 | [pilot-m1-double-n10000-s0](results/runs/pilot-m1-double-n10000-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb68488cbd9d27a930e) | 100 | 0.2445 | 0.2911 | 0.1626 | — | — | no |
 | [pilot-m4-handcrafted-s0](results/runs/pilot-m4-handcrafted-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocbe05d0f1b8fc3f1410) | 100 | 0.2729 | 0.3451 | 0.2120 | — | — | no |
 | [pilot-m4-standardized-s0](results/runs/pilot-m4-standardized-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb6d452dd304eeae07c) | 100 | 0.3114 | 0.3221 | 0.1346 | — | — | no |

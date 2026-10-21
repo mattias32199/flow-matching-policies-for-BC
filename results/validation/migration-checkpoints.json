@@ -1,0 +1,46 @@
+[
+  {
+    "source_run": "m4-handcrafted-s0",
+    "step": 1100000,
+    "checkpoint_bytes": 1634165468,
+    "checkpoint_sha256": "ff55e7526ad07c80442a3093af6289efb36fc077c168ec91d2cddfd49b0c5559",
+    "numeric_elements": 408539665,
+    "fresh_stream_index": 2048,
+    "continuation_kind": "agent_optimizer_rng_fresh_stream",
+    "exact_stream_resume": false,
+    "validation_reset": true
+  },
+  {
+    "source_run": "m4-standardized-s0",
+    "step": 1100000,
+    "checkpoint_bytes": 1634165468,
+    "checkpoint_sha256": "45de272b9e1d2877d52342cb3a2502a3c861d8ddb561a106a15d87e7815c1fe2",
+    "numeric_elements": 408539665,
+    "fresh_stream_index": 2048,
+    "continuation_kind": "agent_optimizer_rng_fresh_stream",
+    "exact_stream_resume": false,
+    "validation_reset": true
+  },
+  {
+    "source_run": "m4-xyz0.1-s0",
+    "step": 1100000,
+    "checkpoint_bytes": 1634165468,
+    "checkpoint_sha256": "4da0ab09c93ac9da4567419fd2b8201ddfe1596e7208950a0d0ebf8bbe9b7059",
+    "numeric_elements": 408539665,
+    "fresh_stream_index": 2048,
+    "continuation_kind": "agent_optimizer_rng_fresh_stream",
+    "exact_stream_resume": false,
+    "validation_reset": true
+  },
+  {
+    "source_run": "m4-xyz10-s0",
+    "step": 800000,
+    "checkpoint_bytes": 1634165468,
+    "checkpoint_sha256": "b7d816ecc7d99b30549c86ac0daf0de6e7b32b7a5f121247f925b204853371ba",
+    "numeric_elements": 408539665,
+    "fresh_stream_index": 2048,
+    "continuation_kind": "agent_optimizer_rng_fresh_stream",
+    "exact_stream_resume": false,
+    "validation_reset": true
+  }
+]

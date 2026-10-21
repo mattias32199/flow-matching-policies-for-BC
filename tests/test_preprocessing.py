@@ -9,6 +9,23 @@ from train import EvalAgent, Features, evaluation_record
 
 
 class PreprocessingTest(unittest.TestCase):
+    def test_fourier_preserves_state_and_uses_frozen_xyz_statistics(self):
+        train = np.random.default_rng(7).normal(size=(100, 37)).astype(np.float32)
+        test = train[:5] + .3
+        z = Features(train, 'standardized')(test)
+        xyz = [12, 13, 14, 19, 20, 21, 28, 29, 30]
+        for mode, frequencies, dim in [('fourier1', [1], 55), ('fourier4', [1, 2, 4, 8], 109)]:
+            transform = Features(train, mode)
+            actual = transform(test)
+            self.assertEqual(actual.shape, (5, dim))
+            self.assertEqual(actual.dtype, np.float32)
+            expected = [z]
+            for frequency in frequencies:
+                phase = np.float32(2 * np.pi * frequency) * z[:, xyz]
+                expected.extend((np.sin(phase), np.cos(phase)))
+            np.testing.assert_array_equal(actual, np.concatenate(expected, axis=-1))
+            np.testing.assert_array_equal(transform(test[0]), actual[0])
+
     def test_scaling_matches_block_layout_and_preserves_other_features(self):
         observations = np.random.default_rng(4).normal(size=(100, 37)).astype(np.float32)
         base = Features(observations, 'standardized')(observations)

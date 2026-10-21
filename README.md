@@ -2,6 +2,8 @@
 
 Reproduce mysteries 1 (overfitting and dataset size) and 4 (observation scaling with streaming data) from [Behavioral cloning mystery](https://seohong.me/blog/behavioral-cloning-mystery/).
 
+Start with the [short plain-language experiment guide and job snapshot](EXPERIMENT_GUIDE.md), then the [copyable OCBench/native and wrapper commands](OCBENCH_COMMANDS.md).
+
 ```bash
 git submodule update --init --recursive
 bash scripts/setup.sh

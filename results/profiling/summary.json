@@ -1,0 +1,334 @@
+{
+  "environment": {
+    "event": "environment",
+    "device": "NVIDIA RTX A6000",
+    "jax": "0.10.2",
+    "batch_size": 1024,
+    "updates": 128,
+    "repeats": 3,
+    "note": "Dedicated allocated GPU; node may share CPU and IO. FLOPs are compiler estimates, not hardware counters."
+  },
+  "training": [
+    {
+      "event": "summary",
+      "case": "fp32-original-host",
+      "median_updates_per_second": 36.2854462044973,
+      "compile_seconds": 3.514711434021592,
+      "compiler_flops_per_update": 14225920000.0,
+      "all_losses_finite": true,
+      "speedup_vs_original": 1.0,
+      "dense_matmul_estimated_flops_per_update": 836008673280,
+      "dense_matmul_estimated_tflops_per_second": 30.334947740794597,
+      "assumed_dense_peak_tflops": 77.4,
+      "approximate_dense_mfu": 0.3919243894159508
+    },
+    {
+      "event": "summary",
+      "case": "fp32-default-device",
+      "median_updates_per_second": 36.300775903985226,
+      "compile_seconds": 3.8789513846859336,
+      "compiler_flops_per_update": 14225920000.0,
+      "all_losses_finite": true,
+      "speedup_vs_original": 1.0004224751544057,
+      "dense_matmul_estimated_flops_per_update": 836008673280,
+      "dense_matmul_estimated_tflops_per_second": 30.347763502525282,
+      "assumed_dense_peak_tflops": 77.4,
+      "approximate_dense_mfu": 0.39208996773288474
+    },
+    {
+      "event": "summary",
+      "case": "fp32-highest-device",
+      "median_updates_per_second": 19.57609941816706,
+      "compile_seconds": 37.79046226013452,
+      "compiler_flops_per_update": 8106429952.0,
+      "all_losses_finite": true,
+      "speedup_vs_original": 0.5395027887445616,
+      "dense_matmul_estimated_flops_per_update": 836008673280,
+      "dense_matmul_estimated_tflops_per_second": 16.365788902579226,
+      "assumed_dense_peak_tflops": 38.7,
+      "approximate_dense_mfu": 0.4228886021338301
+    },
+    {
+      "event": "summary",
+      "case": "fp32-tf32-device",
+      "median_updates_per_second": 36.13007604544335,
+      "compile_seconds": 38.683782160282135,
+      "compiler_flops_per_update": 8106429952.0,
+      "all_losses_finite": true,
+      "speedup_vs_original": 0.9957181135880675,
+      "dense_matmul_estimated_flops_per_update": 836008673280,
+      "dense_matmul_estimated_tflops_per_second": 30.205056940256604,
+      "assumed_dense_peak_tflops": 77.4,
+      "approximate_dense_mfu": 0.39024621369840573
+    },
+    {
+      "event": "summary",
+      "case": "fp32-default-host",
+      "median_updates_per_second": 36.07747783143052,
+      "compile_seconds": 0.6734759984537959,
+      "compiler_flops_per_update": 14225920000.0,
+      "all_losses_finite": true,
+      "speedup_vs_original": 0.9942685457994727,
+      "dense_matmul_estimated_flops_per_update": 836008673280,
+      "dense_matmul_estimated_tflops_per_second": 30.16108437714284,
+      "assumed_dense_peak_tflops": 77.4,
+      "approximate_dense_mfu": 0.3896780927279436
+    },
+    {
+      "event": "summary",
+      "case": "fp32-default-scan8",
+      "median_updates_per_second": 37.159815376053736,
+      "compile_seconds": 9.51300215255469,
+      "compiler_flops_per_update": 1771424000.0,
+      "all_losses_finite": true,
+      "speedup_vs_original": 1.024096966222454,
+      "dense_matmul_estimated_flops_per_update": 836008673280,
+      "dense_matmul_estimated_tflops_per_second": 31.06592795186443,
+      "assumed_dense_peak_tflops": 77.4,
+      "approximate_dense_mfu": 0.4013685781894629
+    },
+    {
+      "event": "summary",
+      "case": "bf16-device",
+      "median_updates_per_second": 56.57860738834398,
+      "compile_seconds": 3.5630538929253817,
+      "compiler_flops_per_update": 290157789184.0,
+      "all_losses_finite": true,
+      "speedup_vs_original": 1.559264479468672,
+      "dense_matmul_estimated_flops_per_update": 836008673280,
+      "dense_matmul_estimated_tflops_per_second": 47.30020649875946,
+      "assumed_dense_peak_tflops": 154.8,
+      "approximate_dense_mfu": 0.3055568895268699
+    },
+    {
+      "event": "summary",
+      "case": "bf16-scan8",
+      "median_updates_per_second": 56.425110588342,
+      "compile_seconds": 3.8367549860849977,
+      "compiler_flops_per_update": 36269719552.0,
+      "all_losses_finite": true,
+      "speedup_vs_original": 1.5550342214435426,
+      "dense_matmul_estimated_flops_per_update": 836008673280,
+      "dense_matmul_estimated_tflops_per_second": 47.17188184263708,
+      "assumed_dense_peak_tflops": 154.8,
+      "approximate_dense_mfu": 0.30472791888008444
+    }
+  ],
+  "trace_aggregates": [
+    {
+      "case": "bf16-scan8",
+      "gpu_event_duration_sum_us": 566659.3479999999,
+      "gemm_event_fraction": 0.4138065661982163,
+      "top_kernels": [
+        {
+          "kernel": "loop_add_fusion_7",
+          "duration_us": 164242.39499999993
+        },
+        {
+          "kernel": "ampere_bf16_s1688gemm_bf16_128x128_ldg8_f2f_stages_32x1_nn",
+          "duration_us": 78392.02299999999
+        },
+        {
+          "kernel": "ampere_bf16_s1688gemm_bf16_128x128_ldg8_f2f_tn",
+          "duration_us": 76793.24300000006
+        },
+        {
+          "kernel": "gemm_fusion_dot_38",
+          "duration_us": 73160.33300000003
+        },
+        {
+          "kernel": "wrapped_convert_1",
+          "duration_us": 38012.816999999995
+        },
+        {
+          "kernel": "input_reduce_fusion_7",
+          "duration_us": 13670.569000000012
+        },
+        {
+          "kernel": "input_reduce_fusion_6",
+          "duration_us": 12632.119999999997
+        },
+        {
+          "kernel": "input_reduce_fusion_29",
+          "duration_us": 12519.797999999984
+        }
+      ]
+    },
+    {
+      "case": "fp32-default-host",
+      "gpu_event_duration_sum_us": 110331.37100000001,
+      "gemm_event_fraction": 0.5603568906979322,
+      "top_kernels": [
+        {
+          "kernel": "loop_add_fusion_1",
+          "duration_us": 22090.313000000002
+        },
+        {
+          "kernel": "void cutlass::Kernel2<cutlass_80_tensorop_s1688gemm_256x128_16x3_tn_align4>(cutlass_80_tensorop_s1688gemm_256x128_16x3_tn_align4::Params)",
+          "duration_us": 20289.315000000002
+        },
+        {
+          "kernel": "void cutlass::Kernel2<cutlass_80_tensorop_s1688gemm_256x128_16x3_nn_align4>(cutlass_80_tensorop_s1688gemm_256x128_16x3_nn_align4::Params)",
+          "duration_us": 20247.173000000006
+        },
+        {
+          "kernel": "void cutlass::Kernel2<cutlass_80_tensorop_s1688gemm_256x128_16x3_nt_align4>(cutlass_80_tensorop_s1688gemm_256x128_16x3_nt_align4::Params)",
+          "duration_us": 19995.331999999995
+        },
+        {
+          "kernel": "input_reduce_fusion_72",
+          "duration_us": 3138.539
+        },
+        {
+          "kernel": "input_reduce_fusion_12",
+          "duration_us": 3070.2160000000003
+        },
+        {
+          "kernel": "input_reduce_fusion_54",
+          "duration_us": 3070.027
+        },
+        {
+          "kernel": "input_multiply_reduce_fusion_8",
+          "duration_us": 2667.3380000000006
+        }
+      ]
+    },
+    {
+      "case": "fp32-default-scan8",
+      "gpu_event_duration_sum_us": 864292.7369999998,
+      "gemm_event_fraction": 0.5829495105429772,
+      "top_kernels": [
+        {
+          "kernel": "loop_add_fusion_1",
+          "duration_us": 176746.9879999999
+        },
+        {
+          "kernel": "void cutlass::Kernel2<cutlass_80_tensorop_s1688gemm_256x128_16x3_nn_align4>(cutlass_80_tensorop_s1688gemm_256x128_16x3_nn_align4::Params)",
+          "duration_us": 165832.49100000004
+        },
+        {
+          "kernel": "void cutlass::Kernel2<cutlass_80_tensorop_s1688gemm_256x128_16x3_tn_align4>(cutlass_80_tensorop_s1688gemm_256x128_16x3_tn_align4::Params)",
+          "duration_us": 165758.412
+        },
+        {
+          "kernel": "void cutlass::Kernel2<cutlass_80_tensorop_s1688gemm_128x256_16x3_nt_align4>(cutlass_80_tensorop_s1688gemm_128x256_16x3_nt_align4::Params)",
+          "duration_us": 162026.94799999995
+        },
+        {
+          "kernel": "input_reduce_fusion_72",
+          "duration_us": 25590.92399999999
+        },
+        {
+          "kernel": "input_reduce_fusion_12",
+          "duration_us": 24572.91799999999
+        },
+        {
+          "kernel": "input_reduce_fusion_54",
+          "duration_us": 24571.39300000001
+        },
+        {
+          "kernel": "input_multiply_reduce_fusion_8",
+          "duration_us": 21474.872999999996
+        }
+      ]
+    },
+    {
+      "case": "fp32-original-host",
+      "gpu_event_duration_sum_us": 109480.55299999991,
+      "gemm_event_fraction": 0.5570579644404978,
+      "top_kernels": [
+        {
+          "kernel": "loop_add_fusion_7",
+          "duration_us": 22064.313
+        },
+        {
+          "kernel": "void cutlass::Kernel2<cutlass_80_tensorop_s1688gemm_256x128_16x3_tn_align4>(cutlass_80_tensorop_s1688gemm_256x128_16x3_tn_align4::Params)",
+          "duration_us": 20055.449999999993
+        },
+        {
+          "kernel": "void cutlass::Kernel2<cutlass_80_tensorop_s1688gemm_256x128_16x3_nn_align4>(cutlass_80_tensorop_s1688gemm_256x128_16x3_nn_align4::Params)",
+          "duration_us": 19898.457
+        },
+        {
+          "kernel": "void cutlass::Kernel2<cutlass_80_tensorop_s1688gemm_256x128_16x3_nt_align4>(cutlass_80_tensorop_s1688gemm_256x128_16x3_nt_align4::Params)",
+          "duration_us": 19757.622999999996
+        },
+        {
+          "kernel": "input_reduce_fusion_13",
+          "duration_us": 3140.7939999999994
+        },
+        {
+          "kernel": "input_reduce_fusion_53",
+          "duration_us": 3070.361999999999
+        },
+        {
+          "kernel": "input_reduce_fusion_71",
+          "duration_us": 3069.8210000000004
+        },
+        {
+          "kernel": "input_multiply_reduce_fusion_8",
+          "duration_us": 2764.504999999999
+        }
+      ]
+    }
+  ],
+  "simulation": [
+    {
+      "mode": "sim",
+      "event": "start",
+      "episodes": 1000,
+      "parallel": 512
+    },
+    {
+      "mode": "sim",
+      "episodes": 1000,
+      "parallel": 512,
+      "seconds": 115.27768231369555,
+      "episodes_per_second": 8.674705978896968,
+      "transitions": 1784250,
+      "success_rate": 0.777
+    },
+    {
+      "mode": "sim",
+      "event": "start",
+      "episodes": 1000,
+      "parallel": 1024
+    },
+    {
+      "mode": "sim",
+      "episodes": 1000,
+      "parallel": 1024,
+      "seconds": 63.331867488101125,
+      "episodes_per_second": 15.789839138848722,
+      "transitions": 1786751,
+      "success_rate": 0.773
+    },
+    {
+      "mode": "sim",
+      "event": "start",
+      "episodes": 2500,
+      "parallel": 2500
+    },
+    {
+      "mode": "sim",
+      "episodes": 2500,
+      "parallel": 2500,
+      "seconds": 88.08433629479259,
+      "episodes_per_second": 28.381890642091335,
+      "transitions": 4464343,
+      "success_rate": 0.782
+    }
+  ],
+  "methodology": {
+    "dense_flops_formula": "6 * batch1024 * (277*4096 + 8*4096^2 + 4096*175)",
+    "dense_weights": 136069120,
+    "peak_source": "https://www.nvidia.com/content/PDF/nvidia-ampere-ga-102-gpu-architecture-whitepaper-v2.1.pdf",
+    "caveats": [
+      "MFU is an approximate dense-matrix estimate, not hardware instruction counters; omits elementwise/normalization/optimizer work and assumes three GEMMs per dense layer.",
+      "Default-mode MFU uses dense TF32 peak because traces contain tensor-core GEMMs and explicit TF32 has similar throughput; instruction-level precision utilization is not measured.",
+      "Raw compiler FLOPs omit library/loop work and are not a valid MFU numerator.",
+      "Repeated synthetic batch excludes dataset sampling and simulator time; no learning-equivalence claim.",
+      "Simulator timings include per-call setup; this sweep has one measurement per setting."
+    ]
+  }
+}

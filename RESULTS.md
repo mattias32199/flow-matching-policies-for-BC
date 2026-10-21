@@ -22,6 +22,16 @@ The nominal 10,000 training episodes retained 7,866 successful episodes (12,465,
 
 At the completion snapshot, Mystery 4's 500K evaluations were 27.2% handcrafted, 2.2% standardized, and 0.2% xyz×0.1. These partial single-seed results suggest a substantial feature-scaling effect, but all runs remain unfinished and xyz×10 has only just started. The queue has one completed experiment, four active, 23 pending, and no recorded failures. Existing protocol limitations above still apply.
 
+## Isolated A6000 training profile
+
+A dedicated single-GPU Slurm profile tested eight full-model execution variants with three timing repeats each. [Exact timing records, approximate MFU, and trace aggregates](results/profiling/README.md) are available separately from the scientific runs; these are synthetic throughput tests.
+
+The original host-fed update loop sustained **36.29 updates/s**. Device-resident inputs plus buffer donation gave **36.30/s**, explicit TF32 **36.13/s**, and eight-update compiled groups **37.16/s** (2.4% faster). BF16 reached **56.58/s** (1.56×), with finite losses but unverified task-learning equivalence. Strict FP32 precision was slower at **19.58/s**. Default-mode CUDA traces contain tensor-core GEMMs; GEMM events account for approximately 56% of recorded GPU-event durations. Thus high GPU activity does not mean all runtime is matrix multiplication.
+
+Analytical dense-matrix FLOPs divided by the precision-specific dense peak yield approximately **39% training-loop MFU** for the default path and **31% for BF16**. These are estimates, not hardware counters: the default denominator assumes TF32 tensor-core execution, and the numerator omits elementwise, normalization, and optimizer operations. The profiler's raw XLA cost analysis omits substantial library/loop work and is explicitly rejected as an MFU numerator. Higher precision-dependent MFU does not necessarily mean faster training.
+
+Production streaming runs spend roughly 75% of elapsed time collecting demonstrations (about 64% for the newer parallelism setting). A 1.56× update speedup therefore implies only approximately 10–15% end-to-end improvement if other costs stay unchanged. The isolated simulator sweep measured 115.28s for 1,000 episodes at parallel512 versus 63.33s at parallel1024 (1.82×); 2,500 episodes at parallel2500 took 88.08s (28.38 episodes/s), testing a larger collection rather than the current protocol. The larger simulator parallelism cap is already used by newer/future processes. Existing reproduction workers were preserved: grouped updates offer little benefit, and changing arithmetic requires learning validation. Existing checkpoints contain agent/optimizer/RNG state but omit the data-sampler cursor/permutation and streaming snapshot, so exact continuation cannot be asserted without additional resume-state support.
+
 ## Planned comparisons
 
 - Mystery 1: block-double with fixed 10,000 episodes; track training/validation flow loss, action MSE, and success over training. Compare block-single with independently sampled 10,000 versus 50,000 episodes over four seeds.
@@ -49,10 +59,10 @@ Pilot runs validate execution only. Reproduction runs target 2,000,000 updates; 
 | Run records | W&B | Updates | Train flow | Val flow | Val action MSE | Success | Eval update | Finished |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
 | [m1-double-n10000-s0](results/runs/m1-double-n10000-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb7d868146415f56201) | 2000000 | 0.0034 | 0.0562 | 0.0146 | 0.2580 | 2000000 | yes |
-| [m4-handcrafted-s0](results/runs/m4-handcrafted-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb6555c1eef3e7c6a5b) | 518000 | 0.0192 | 0.0175 | 0.0162 | 0.2720 | 500000 | no |
-| [m4-standardized-s0](results/runs/m4-standardized-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocbdf09e0125b1d85354) | 533000 | 0.0144 | 0.0138 | 0.0131 | 0.0220 | 500000 | no |
-| [m4-xyz0.1-s0](results/runs/m4-xyz0.1-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocbb5e56eb1e20d223a2) | 522000 | 0.0170 | 0.0153 | 0.0166 | 0.0020 | 500000 | no |
-| [m4-xyz10-s0](results/runs/m4-xyz10-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb8f3a301437f09df88) | 7000 | 0.0592 | 0.0488 | 0.0522 | — | — | no |
+| [m4-handcrafted-s0](results/runs/m4-handcrafted-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb6555c1eef3e7c6a5b) | 1002000 | 0.0106 | 0.0172 | 0.0136 | 0.5160 | 1000000 | no |
+| [m4-standardized-s0](results/runs/m4-standardized-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocbdf09e0125b1d85354) | 1028000 | 0.0170 | 0.0138 | 0.0134 | 0.2480 | 1000000 | no |
+| [m4-xyz0.1-s0](results/runs/m4-xyz0.1-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocbb5e56eb1e20d223a2) | 1009000 | 0.0161 | 0.0146 | 0.0146 | 0.0080 | 1000000 | no |
+| [m4-xyz10-s0](results/runs/m4-xyz10-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb8f3a301437f09df88) | 711000 | 0.0129 | 0.0139 | 0.0134 | 0.5180 | 700000 | no |
 | [pilot-m1-double-n10000-s0](results/runs/pilot-m1-double-n10000-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb68488cbd9d27a930e) | 100 | 0.2445 | 0.2911 | 0.1626 | — | — | no |
 | [pilot-m4-handcrafted-s0](results/runs/pilot-m4-handcrafted-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocbe05d0f1b8fc3f1410) | 100 | 0.2729 | 0.3451 | 0.2120 | — | — | no |
 | [pilot-m4-standardized-s0](results/runs/pilot-m4-standardized-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb6d452dd304eeae07c) | 100 | 0.3114 | 0.3221 | 0.1346 | — | — | no |

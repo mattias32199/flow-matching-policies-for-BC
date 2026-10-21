@@ -1,0 +1,38 @@
+{
+  "benchmark": {
+    "consumers_per_arm": 4,
+    "updates_per_consumer": 1024,
+    "precision": "float32 network/parameters, default XLA matmul precision",
+    "model_parameters": 136179887,
+    "episodes_per_collection": 1000,
+    "validation_episodes": 128
+  },
+  "independent_serial_phase_seconds": 379.03733928408474,
+  "shared_serial_phase_seconds": 186.9025228433311,
+  "measured_serial_work_speedup": 2.027994772450495,
+  "independent_collection_seconds_median": 63.91917205043137,
+  "cache_read_seconds_median": 0.28694256860762835,
+  "cache_read_speedup": 222.75946145110268,
+  "training_and_preprocessing_seconds_median": 30.30512041086331,
+  "cache_entry_bytes": 371280864,
+  "shared_hashes_identical": true,
+  "projected_steady_overlap_speedup": 1.4741162852821839,
+  "projected_two_producer_overlap_speedup": 2.9482325705643677,
+  "storage_cap_bytes": 80000000000,
+  "limitations": [
+    "Serial four-consumer benchmark measures aggregate work, not four-GPU concurrent wall time.",
+    "Cache-hit latency excludes upstream production; steady-rate overlap projection assumes one additional producer GPU with observed generation rate.",
+    "Current pre-cache workers are unchanged; sustained production throughput awaits the next seed group.",
+    "One measured collection per feature condition; simulator numerics are not bitwise deterministic across fresh generations."
+  ],
+  "benchmark_end_cache_status": {
+    "event": "cache_status",
+    "limit_bytes": 80000000000,
+    "reservations": {
+      "1a381c28390940f43abd660391ef5006b51d6baf136f1682460ebc9e7e0ffc6f": 1001000000,
+      "379b17ddad8c5aac09d9f97c1d73ab7101b658f70a1da94eaa90fe3234b0e130": 1001000000,
+      "66259b91c0387f3a29b23a42ba31dc4adb6274f4766612f92a4f8f4b32b5bbd6": 1001000000
+    },
+    "used_bytes": 3339517782
+  }
+}

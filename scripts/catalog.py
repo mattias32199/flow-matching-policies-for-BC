@@ -14,7 +14,7 @@ GITHUB = 'https://github.com/mattias32199/flow-matching-policies-for-BC'
 BRANCH = 'reproduce-ocbench-mysteries-1-4'
 CONFIG_KEYS = {
     'run', 'env', 'mode', 'features', 'seed', 'data_seed', 'episodes', 'val_episodes',
-    'parallel', 'steps', 'batch_size', 'width', 'depth', 'log_interval', 'eval_interval',
+    'collection_cache', 'demo_prefetch', 'demo_producer_workers', 'demo_cache_limit_bytes', 'parallel', 'steps', 'batch_size', 'width', 'depth', 'log_interval', 'eval_interval',
     'eval_episodes', 'save_interval', 'keep_checkpoints', 'solver_iteration_warnings',
     'upstream_commit', 'code_commit', 'training_code_sha256',
 }
@@ -25,6 +25,7 @@ FIELDS = {
                    'episode.return', 'episode.length', 'episode.duration', 'mean_steps',
                    'mean_success_steps', 'throughput', 'success_weighted_speed'},
     'collections.jsonl': {'index', 'collection_idx', 'collection_time', 'cached',
+                         'cache_hit', 'cache_stored', 'cache_key', 'cache_entry_bytes', 'source_collection_time',
                          'train/transitions', 'train/success_rate', 'train/avg_episode_length',
                          'train/avg_return', 'val/transitions', 'val/success_rate',
                          'val/avg_episode_length', 'val/avg_return'},

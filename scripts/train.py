@@ -73,14 +73,25 @@ def emit(path, record):
 
 def collect(args, index, episodes, val_episodes):
     print(f'COLLECTION_START index={index} episodes={episodes}', flush=True)
-    train, val, metrics = generate_mjwarp_datasets(
-        args.env, episodes, val_episodes, args.data_seed, index,
-        max_parallel_episodes=args.parallel,
-    )
-    # Simulator state is not needed for BC; retain dense observations and actions.
-    train = {k: v for k, v in train.items() if k in DATASET_KEYS}
-    val = {k: v for k, v in val.items() if k in DATASET_KEYS} if val is not None else None
-    return train, val, metrics
+    def generate():
+        train, val, metrics = generate_mjwarp_datasets(
+            args.env, episodes, val_episodes, args.data_seed, index,
+            max_parallel_episodes=args.parallel,
+        )
+        # Simulator state is not needed for BC.
+        train = {k: v for k, v in train.items() if k in DATASET_KEYS}
+        val = {k: v for k, v in val.items() if k in DATASET_KEYS} if val is not None else None
+        return train, val, metrics
+    if args.mode == 'streaming' and args.collection_cache:
+        from collection_cache import CollectionCache
+        from demo_identity import description
+        from prefetch_control import ensure_producer
+        cache = CollectionCache(ROOT / 'data' / 'shared-demos')
+        identity = description(args.env, episodes, val_episodes, args.data_seed, index, args.parallel)
+        if not cache.contains(identity):
+            ensure_producer(args, needed_index=index)
+        return cache.get(identity, generate, consumer=args.features)
+    return generate()
 
 
 def dataset(raw, normalizer):
@@ -100,6 +111,7 @@ def main():
     parser.add_argument('--episodes', type=int, default=1000)
     parser.add_argument('--val-episodes', type=int, default=128)
     parser.add_argument('--parallel', type=int, default=2500)
+    parser.add_argument('--collection-cache', action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument('--steps', type=int, default=2000000)
     parser.add_argument('--batch-size', type=int, default=1024)
     parser.add_argument('--width', type=int, default=4096)
@@ -124,10 +136,19 @@ def main():
         raise RuntimeError('Refusing to overwrite an existing run; use a new run name.')
     config_record = vars(args) | {'upstream_commit': subprocess.check_output(
         ['git', '-C', str(ROOT / 'ocbench'), 'rev-parse', 'HEAD'], text=True).strip()}
+    producer_config = ROOT / '.local/demo-producer-config.json'
+    producer_settings = json.loads(producer_config.read_text()) if producer_config.exists() else {}
+    config_record['demo_prefetch'] = bool(args.collection_cache and args.mode == 'streaming'
+        and producer_settings.get('enabled') and args.data_seed in producer_settings.get('seeds', []))
+    config_record['demo_producer_workers'] = int(producer_settings.get('workers', 2)) if config_record['demo_prefetch'] else 0
+    config_record['demo_cache_limit_bytes'] = 80_000_000_000 if args.collection_cache and args.mode == 'streaming' else 0
     config_record['code_commit'] = subprocess.check_output(
         ['git', '-C', str(ROOT), 'rev-parse', 'HEAD'], text=True).strip()
     config_record['training_code_sha256'] = hashlib.sha256(
-        Path(__file__).read_bytes() + (ROOT / 'scripts' / 'simulation.py').read_bytes()).hexdigest()
+        Path(__file__).read_bytes() + (ROOT / 'scripts' / 'simulation.py').read_bytes()
+        + (ROOT / 'scripts' / 'collection_cache.py').read_bytes() + (ROOT / 'scripts' / 'demo_identity.py').read_bytes()
+        + (ROOT / 'scripts' / 'prefetch_control.py').read_bytes()
+        + (ROOT / 'scripts' / 'private_slurm.py').read_bytes() + (ROOT / 'scripts' / 'demo_producer.py').read_bytes()).hexdigest()
     (run / 'config.json').write_text(json.dumps(config_record, indent=2))
     print(f'JAX_DEVICES {jax.devices()}', flush=True)
     if not any(device.platform == 'gpu' for device in jax.devices()):

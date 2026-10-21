@@ -22,6 +22,14 @@ The nominal 10,000 training episodes retained 7,866 successful episodes (12,465,
 
 At the completion snapshot, Mystery 4's 500K evaluations were 27.2% handcrafted, 2.2% standardized, and 0.2% xyz×0.1. These partial single-seed results suggest a substantial feature-scaling effect, but all runs remain unfinished and xyz×10 has only just started. The queue has one completed experiment, four active, 23 pending, and no recorded failures. Existing protocol limitations above still apply.
 
+## Shared demonstration cache and producer overlap
+
+The [performance report](results/cache-performance/README.md) contains exact timings, W&B charts, storage/privacy checks, and parallel-generation evidence. A full-model comparison completed 8,192 updates across four independent and four shared-data consumers. Combined collection/preprocessing/training work fell from **379.04s to 186.90s (2.03×)**. Median cache reads were **0.287s** versus **63.92s** for fresh collection; a separate training-node read took **0.406s** and matched the producer's raw-data SHA-256. All shared consumers received identical arrays and finite training losses.
+
+Four parallel A6000 prefill jobs then served 32 collection requests, generating 28 fresh collections and reusing four already in progress. Their start-to-final-finish span was **579s**, versus **1,765s** of summed fresh-generation work: **3.05× serial-work throughput**, including staggered starts. The next seed now has **36 cached collections occupying 11.89GB**; total demonstration files are **15.29GB**. The shared cache cap is **80GB**, including write reservations; four-consumer cleanup bounds retention. Data and private scheduler paths remain excluded from Git.
+
+These measurements do not establish a 2× or 3× production learner speedup. Synchronized cache misses can still block all consumers. Future streaming workers therefore start a private, on-demand two-GPU producer pool on cache misses, generating disjoint indices ahead of four trainers. The benchmark-based ideal overlap estimate is **1.47× with one producer** or **2.95× with two**, pending sustained production measurements and resource availability. Already-running seed-0 workers remain unchanged because their old checkpoints omit exact sampler state. Model precision, batch size, collection size, and update horizons are unchanged. Twenty-five tests, the full-model benchmark, cross-node loading, and a private producer entry-point smoke test passed.
+
 ## Isolated A6000 training profile
 
 A dedicated single-GPU Slurm profile tested eight full-model execution variants with three timing repeats each. [Exact timing records, approximate MFU, and trace aggregates](results/profiling/README.md) are available separately from the scientific runs; these are synthetic throughput tests.
@@ -59,10 +67,10 @@ Pilot runs validate execution only. Reproduction runs target 2,000,000 updates; 
 | Run records | W&B | Updates | Train flow | Val flow | Val action MSE | Success | Eval update | Finished |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
 | [m1-double-n10000-s0](results/runs/m1-double-n10000-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb7d868146415f56201) | 2000000 | 0.0034 | 0.0562 | 0.0146 | 0.2580 | 2000000 | yes |
-| [m4-handcrafted-s0](results/runs/m4-handcrafted-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb6555c1eef3e7c6a5b) | 1002000 | 0.0106 | 0.0172 | 0.0136 | 0.5160 | 1000000 | no |
-| [m4-standardized-s0](results/runs/m4-standardized-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocbdf09e0125b1d85354) | 1028000 | 0.0170 | 0.0138 | 0.0134 | 0.2480 | 1000000 | no |
-| [m4-xyz0.1-s0](results/runs/m4-xyz0.1-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocbb5e56eb1e20d223a2) | 1009000 | 0.0161 | 0.0146 | 0.0146 | 0.0080 | 1000000 | no |
-| [m4-xyz10-s0](results/runs/m4-xyz10-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb8f3a301437f09df88) | 711000 | 0.0129 | 0.0139 | 0.0134 | 0.5180 | 700000 | no |
+| [m4-handcrafted-s0](results/runs/m4-handcrafted-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb6555c1eef3e7c6a5b) | 1028000 | 0.0107 | 0.0146 | 0.0133 | 0.5160 | 1000000 | no |
+| [m4-standardized-s0](results/runs/m4-standardized-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocbdf09e0125b1d85354) | 1054000 | 0.0142 | 0.0135 | 0.0117 | 0.3320 | 1050000 | no |
+| [m4-xyz0.1-s0](results/runs/m4-xyz0.1-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocbb5e56eb1e20d223a2) | 1035000 | 0.0131 | 0.0134 | 0.0133 | 0.0080 | 1000000 | no |
+| [m4-xyz10-s0](results/runs/m4-xyz10-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb8f3a301437f09df88) | 749000 | 0.0132 | 0.0234 | 0.0331 | 0.5180 | 700000 | no |
 | [pilot-m1-double-n10000-s0](results/runs/pilot-m1-double-n10000-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb68488cbd9d27a930e) | 100 | 0.2445 | 0.2911 | 0.1626 | — | — | no |
 | [pilot-m4-handcrafted-s0](results/runs/pilot-m4-handcrafted-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocbe05d0f1b8fc3f1410) | 100 | 0.2729 | 0.3451 | 0.2120 | — | — | no |
 | [pilot-m4-standardized-s0](results/runs/pilot-m4-standardized-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb6d452dd304eeae07c) | 100 | 0.3114 | 0.3221 | 0.1346 | — | — | no |

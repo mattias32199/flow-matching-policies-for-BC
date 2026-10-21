@@ -72,8 +72,18 @@ Synthetic BF16 updates were 1.57× faster with FP32 parameters, but BF16 has not
 
 ## Single-GPU profiling
 
-Set `PROFILE_PARTITION` to an appropriate GPU partition and submit `sbatch --partition="$PROFILE_PARTITION" --output=.local/profile/slurm-%j.out --error=.local/profile/slurm-%j.err scripts/profile_training.sbatch` from this checkout on a Slurm cluster offering an `A6000` constraint. Adjust scheduler directives for your cluster. The job requests one GPU and leaves production runs untouched.
+Set `PROFILE_PARTITION` to an appropriate GPU partition and submit `.venv/bin/python scripts/private_slurm.py --partition "$PROFILE_PARTITION" --time 01:00:00 -- bash scripts/profile_training.sbatch` from this checkout on a Slurm cluster offering an `A6000` constraint. Adjust scheduler directives for your cluster. The job requests one GPU and leaves production runs untouched.
 
 The profiler uses the full reference model and batch size, warms each executable, and records three timing repetitions. It compares the original host-transfer path, buffer donation, resident batches, eight-update compiled groups, FP32 precision modes, and BF16. It also runs the simulator-parallelism sweep. Results, telemetry, and traces stay under `.local/profile/`; all caches remain in this checkout. Synthetic repeated-batch measurements isolate compute and transfer costs; they do not include real dataset sampling or establish equivalent learning. Compiler FLOP estimates are reported separately from GPU utilization and must not be presented as measured hardware MFU. Numerical and task-learning checks are required before changing reproduction arithmetic.
 
 After the job finishes, run `.venv/bin/python scripts/analyze_profile.py .local/profile/<job-id>` to export portable timing evidence and the throughput figure. See the [completed isolated profile](results/profiling/README.md). Float32 parameters/network dtype do not force strict FP32 GEMMs; the default XLA precision policy can use tensor cores.
+
+## Shared demonstration cache
+
+Future streaming runs share raw collections across the four feature variants using `data/shared-demos`. The cache has an **80GB decimal cap**, including in-progress writes. Each run samples its transition starts once; entries are removed after all four variants load them. Cache identity includes the environment, seed, collection index, episode counts, parallelism, generator revision and package versions. A full cache falls back to fresh collection. Use `--no-collection-cache` to disable it.
+
+An optional pair of Slurm GPUs can precompute up to 24 collections ahead. Local deployment settings in `.local/demo-producer-config.json` select an enabled flag, a GPU partition, and eligible data seeds; these cluster settings are ignored by Git. The first eligible cache miss submits a pool of two private producer jobs using `scripts/private_slurm.py`. It stops when its consumers finish and releases its allocation after prolonged budget/no-consumer waits. The original seed-0 workers continue unchanged.
+
+See the [measured performance report](results/cache-performance/README.md). To reproduce the benchmark, submit `.venv/bin/python scripts/private_slurm.py --partition "$PROFILE_PARTITION" --time 01:00:00 -- .venv/bin/python -u scripts/benchmark_cache.py --prefill 0`, then run `.venv/bin/python scripts/report_cache.py .local/cache-benchmark/<job-id>`. Aggregate work savings and projected concurrent throughput are reported separately.
+
+All automated Slurm submissions use `scripts/private_slurm.py`: random job names, random owner-only launcher/work/output directories, and `umask 0077`. Keep the workspace owner-only. Administrators retain access; scheduler resource records are not anonymous. Deployment partition names and private job inventories remain under ignored local settings.

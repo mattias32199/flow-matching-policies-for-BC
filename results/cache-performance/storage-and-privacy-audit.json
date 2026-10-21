@@ -1,0 +1,15 @@
+{
+  "collections": 36,
+  "cache_accounted_bytes": 11891788759,
+  "cache_actual_logical_bytes": 11891223314,
+  "fixed_demo_logical_bytes": 3400195075,
+  "total_demo_logical_bytes": 15291418389,
+  "cache_cap_bytes": 80000000000,
+  "user_ceiling_bytes": 100000000000,
+  "inflight_reserved_bytes": 0,
+  "accounting_matches_entries": true,
+  "below_user_ceiling": true,
+  "private_submissions_verified": 5,
+  "private_metadata_checks_pass": true,
+  "workspace_mode": "0o700"
+}

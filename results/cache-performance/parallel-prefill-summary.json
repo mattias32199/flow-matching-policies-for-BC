@@ -1,0 +1,10 @@
+{
+  "workers": 4,
+  "total_collection_requests": 32,
+  "fresh_collections_generated": 28,
+  "cache_reuses": 4,
+  "wall_seconds_including_staggered_starts": 579.0,
+  "summed_fresh_generation_seconds": 1765.1586611822713,
+  "generation_work_per_wall_second": 3.048633266290624,
+  "all_workers_completed": true
+}

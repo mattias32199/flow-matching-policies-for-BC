@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-umask 0002
+umask 0077
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 export UV_CACHE_DIR="$REPO_ROOT/.local/cache/uv"
 export UV_PYTHON_INSTALL_DIR="$REPO_ROOT/.local/python"

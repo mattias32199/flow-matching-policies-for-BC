@@ -7,7 +7,7 @@
 #SBATCH --time=01:00:00
 #SBATCH --signal=B:TERM@60
 set -euo pipefail
-cd "${SLURM_SUBMIT_DIR:?}"
+# Submit from the checkout, or use private_slurm.py which sets the process cwd.
 source scripts/env.sh
 PROFILE_OUTPUT="$REPO_ROOT/.local/profile/$SLURM_JOB_ID"
 mkdir -p "$PROFILE_OUTPUT"

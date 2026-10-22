@@ -33,3 +33,27 @@ class RecoveryPolicyTests(unittest.TestCase):
             self.assertIn('--resume-bundle',prepared[-1]['command'])
             run_command.assert_any_call(['scontrol','requeue','123'],check=True)
             record.assert_any_call('case',state='superseded',replacement_run='case-cont1')
+
+    def test_requeue_retry_does_not_interrupt_running_replacement(self):
+        with patch.object(service,'job_fields',return_value={'JobState':'RUNNING'}), \
+             patch.object(service,'record') as record,patch.object(service.subprocess,'run') as command:
+            service.requeue_pending('case-cont1',{'job_id':'123'})
+            command.assert_not_called()
+            record.assert_called_once_with('case-cont1',state='running')
+
+    def test_before_first_checkpoint_preserves_original_command_and_total_target(self):
+        import json
+        import tempfile
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);(root/'.local').mkdir()
+            command=['python','train.py','--run','case','--steps','2000000']
+            (root/'.local/individual-prepared-jobs.json').write_text(json.dumps([{'run':'case','command':command}]))
+            (root/'.local/final-results-plan.json').write_text(json.dumps({'m1':'done','m4':{}}))
+            with patch.object(service,'ROOT',root),patch.object(service,'job_fields',return_value={'JobState':'PREEMPTED'}), \
+                 patch.object(service,'prepare') as prepare,patch.object(service,'record'),patch.object(service,'log'), \
+                 patch.object(service.subprocess,'run'):
+                self.assertTrue(service.recover('case',{'job_id':'123','state':'running'}))
+                prepare.assert_not_called()
+            actual=json.loads((root/'.local/individual-prepared-jobs.json').read_text())[-1]['command']
+            expected=list(command);expected[expected.index('--run')+1]='case-cont1'
+            self.assertEqual(actual,expected)

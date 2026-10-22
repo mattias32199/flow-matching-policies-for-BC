@@ -57,7 +57,7 @@ def prepare():
         launcher = directory / (name + '.sbatch')
         job_name = name
         lines = ['#!/bin/bash', f'#SBATCH --job-name={job_name}',
-                 '#SBATCH --partition=deepaklong', '#SBATCH --constraint=A6000|A5000',
+                 '#SBATCH --requeue', '#SBATCH --partition=deepaklong', '#SBATCH --constraint=A6000|A5000',
                  '#SBATCH --gres=gpu:1', '#SBATCH --ntasks=1', '#SBATCH --cpus-per-task=8',
                  f'#SBATCH --mem={memory}', '#SBATCH --time=2-00:00:00',
                  f'#SBATCH --chdir={directory}', f'#SBATCH --output={directory / "o"}',

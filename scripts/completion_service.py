@@ -28,10 +28,8 @@ def recover(name, item):
     if not restart:
         return False
     directory=ROOT/'runs'/name
-    if not (directory/'checkpoints').exists() or not list((directory/'checkpoints').glob('params_*.pkl')):
-        log(f'Automatic recovery blocked for {name}: no saved checkpoint; preserving artifacts.')
-        return False
-    bundle,manifest=prepare(name)
+    has_checkpoint=bool(list((directory/'checkpoints').glob('params_*.pkl')))
+    bundle,manifest=prepare(name) if has_checkpoint else (None, {'step': 0})
     if manifest['step']>=2_000_000:
         log(f'{name} saved2M but lacks completion gate; requires final evaluation audit.')
         return False
@@ -44,8 +42,16 @@ def recover(name, item):
     old=next(job for job in prepared if job['run']==name)
     job=dict(old);job.update(run=new,job_name=new)
     cmd=list(old['command']);cmd[cmd.index('--run')+1]=new
-    if '--resume-bundle' in cmd:cmd[cmd.index('--resume-bundle')+1]=str(bundle.relative_to(ROOT))
-    else:cmd+=['--resume-bundle',str(bundle.relative_to(ROOT))]
+    target=int(cmd[cmd.index('--steps')+1]) if '--steps' in cmd else 2_000_000
+    if target != 2_000_000:
+        raise ValueError('Scientific jobs must retain the absolute 2M-update target')
+    # With no new checkpoint, retain the original resume bundle (or start at zero).
+    if bundle is not None and '--resume-bundle' in cmd:cmd[cmd.index('--resume-bundle')+1]=str(bundle.relative_to(ROOT))
+    elif bundle is not None:cmd+=['--resume-bundle',str(bundle.relative_to(ROOT))]
+    elif '--resume-bundle' in cmd:
+        original=Path(cmd[cmd.index('--resume-bundle')+1])
+        if not original.is_absolute():original=ROOT/original
+        manifest=json.loads((original/'manifest.json').read_text())
     job['command']=cmd;prepared.append(job);write_json(prepared_path,prepared)
     aliases_path=ROOT/'.local/individual-replacements.json'
     aliases=json.loads(aliases_path.read_text()) if aliases_path.exists() else {}
@@ -57,12 +63,24 @@ def recover(name, item):
         if selected==name:plan['m4'][source]=new
     write_json(plan_path,plan)
     subprocess.run(['scontrol','update','JobId='+item['job_id'],'JobName='+new],check=True)
-    subprocess.run(['scontrol','requeue',item['job_id']],check=True)
-    record(new,state='submitted')
+    requeue_pending(new, item)
     # Requeue has a short automatic delay; this eligibility update is best-effort.
     subprocess.run(['scontrol','update','JobId='+item['job_id'],'StartTime=now'],capture_output=True,text=True)
     log(f'Automatic timeout/preemption continuation {name}→{new} at{manifest["step"]}; same job{item["job_id"]}.')
     return True
+
+
+def requeue_pending(name, item):
+    """Retry a prepared restart without interrupting an already running replacement."""
+    fields=job_fields(item['job_id'])
+    state=fields.get('JobState','UNKNOWN')
+    if state in ('RUNNING','PENDING','CONFIGURING','SUSPENDED'):
+        record(name,state='running' if state=='RUNNING' else 'submitted')
+        return
+    if state not in ('TIMEOUT','PREEMPTED','NODE_FAIL','FAILED'):
+        raise RuntimeError(f'Recovery requires scheduler reconciliation: {state}')
+    subprocess.run(['scontrol','requeue',item['job_id']],check=True)
+    record(name,state='submitted')
 
 
 def notify_once(message, marker):
@@ -83,8 +101,7 @@ def tick():
     for name,item in sorted(data.items(),key=lambda x:(not x[0].startswith('m4-') or 'fourier' in x[0],x[0])):
         if item.get('state')=='superseded' or (ROOT/'runs'/name/'DONE').exists():continue
         if item.get('state')=='requeue_pending':
-            subprocess.run(['scontrol','requeue',item['job_id']],check=True)
-            record(name,state='submitted')
+            requeue_pending(name,item)
         else:
             recover(name,item)
     plan=json.loads((ROOT/'.local/final-results-plan.json').read_text())

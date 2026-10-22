@@ -13,8 +13,8 @@ def read_bundle(path, args):
                 'batch_size', 'width', 'depth', 'val_episodes']:
         if getattr(args, key) != source[key]:
             raise ValueError(f'Continuation must preserve source {key}.')
-    if args.mode != 'streaming' or args.steps <= manifest['step']:
-        raise ValueError('Expected a streaming continuation with remaining updates.')
+    if args.mode not in ('streaming', 'fixed') or args.steps <= manifest['step']:
+        raise ValueError('Expected a continuation with remaining updates.')
     if not 0 <= manifest['fresh_stream_index'] < 4096:
         raise ValueError('Invalid continuation collection index.')
     if sha256(path / manifest['checkpoint']) != manifest['checkpoint_sha256']:

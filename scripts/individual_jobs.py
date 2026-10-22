@@ -114,6 +114,18 @@ def submit_all():
             print(f"{job['run']} {job_id}", flush=True)
 
 
+def resolve_run(name, root=ROOT):
+    path = root / '.local/individual-replacements.json'
+    replacements = json.loads(path.read_text()) if path.exists() else {}
+    seen = set()
+    while name in replacements:
+        if name in seen:
+            raise ValueError('Cycle in individual replacement mapping.')
+        seen.add(name)
+        name = replacements[name]
+    return name
+
+
 def run(name):
     jobs = json.loads(PREPARED.read_text())
     job = next(job for job in jobs if job['run'] == name)
@@ -150,7 +162,10 @@ def main():
     else:
         if not args.name:
             parser.error('--name is required for run')
-        raise SystemExit(run(args.name))
+        name = resolve_run(args.name)
+        if name != args.name:
+            record(args.name, state='superseded', replacement_run=name)
+        raise SystemExit(run(name))
 
 
 if __name__ == '__main__':

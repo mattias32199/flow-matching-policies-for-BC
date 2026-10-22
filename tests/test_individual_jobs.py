@@ -47,3 +47,21 @@ class IndividualJobsTests(unittest.TestCase):
                 'a': {'state': 'submitted'}, 'b': {'state': 'running'},
                 'c': {'state': 'failed'}}))
             self.assertEqual(individual_jobs.active_runs(root), {'a', 'b'})
+
+
+class ReplacementTests(unittest.TestCase):
+    def test_requeued_job_resolves_to_new_segment_without_reusing_old_directory(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / '.local').mkdir()
+            (root / '.local/individual-replacements.json').write_text(json.dumps({'old': 'new'}))
+            self.assertEqual(individual_jobs.resolve_run('old', root), 'new')
+            self.assertEqual(individual_jobs.resolve_run('unaffected', root), 'unaffected')
+
+    def test_replacement_cycle_is_rejected(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / '.local').mkdir()
+            (root / '.local/individual-replacements.json').write_text(json.dumps({'a': 'b', 'b': 'a'}))
+            with self.assertRaises(ValueError):
+                individual_jobs.resolve_run('a', root)

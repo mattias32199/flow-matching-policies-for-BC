@@ -37,8 +37,8 @@ def prepare(name, root=ROOT):
         raise ValueError('Expected a run name, not a path.')
     source = root / 'runs' / name
     config = json.loads((source / 'config.json').read_text())
-    if config['mode'] != 'streaming':
-        raise ValueError('Migration currently supports streaming runs only.')
+    if config['mode'] not in ('streaming', 'fixed'):
+        raise ValueError('Unsupported data mode for continuation.')
     candidates = sorted((source / 'checkpoints').glob('params_*.pkl'),
                         key=lambda p: int(p.stem.split('_')[-1]), reverse=True)
     failures = []
@@ -79,15 +79,16 @@ def prepare(name, root=ROOT):
                 continue
         # A disjoint collection-index namespace prevents later overlap even if the
         # original allocation keeps running for a while after this snapshot.
-        next_index = max(2048, max(records, default=0) + 1)
+        next_index = max(2048, max(records, default=0) + 1) if config['mode'] == 'streaming' else 0
         if next_index >= 4096:
             raise ValueError('No collection-index space remains for continuation.')
         manifest = dict(source_run=name, checkpoint=checkpoint.name, step=step,
                         checkpoint_bytes=pinned.stat().st_size,
                         checkpoint_sha256=sha256(pinned), numeric_elements=numeric,
                         fresh_stream_index=next_index, prepared_at=time.time(),
-                        continuation_kind='agent_optimizer_rng_fresh_stream',
-                        exact_stream_resume=False, validation_reset=True,
+                        continuation_kind=('agent_optimizer_rng_fresh_stream' if config['mode'] == 'streaming'
+                                           else 'agent_optimizer_rng_fixed_dataset_sampler_reset'),
+                        exact_stream_resume=False, validation_reset=config['mode'] == 'streaming',
                         rejected_candidates=failures)
         temporary = target / 'manifest.json.tmp'
         temporary.write_text(json.dumps(manifest, indent=2) + '\n')

@@ -62,3 +62,21 @@ class MigrationTests(unittest.TestCase):
             args.features = 'handcrafted'
             with self.assertRaisesRegex(ValueError, 'features'):
                 read_bundle(bundle, args)
+
+
+class FixedMigrationTests(unittest.TestCase):
+    def test_fixed_checkpoint_keeps_validation_identity_and_restores_agent(self):
+        import pickle
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);run=root/'runs/fixed';(run/'checkpoints').mkdir(parents=True)
+            config=dict(env='block-single-task1-v0',mode='fixed',features='handcrafted',seed=0,
+                        data_seed=0,episodes=10000,val_episodes=128,batch_size=4,width=16,depth=2)
+            (run/'config.json').write_text(json.dumps(config))
+            (run/'collections.jsonl').write_text('{"index":0}\n')
+            with (run/'checkpoints/params_3.pkl').open('wb') as file:
+                pickle.dump({'agent':{'network':{'step':np.asarray(4)},'weights':np.asarray([1.,2.])}},file)
+            bundle,manifest=prepare('fixed',root)
+            self.assertFalse(manifest['validation_reset'])
+            self.assertEqual(manifest['fresh_stream_index'],0)
+            self.assertIn('fixed_dataset',manifest['continuation_kind'])
+            self.assertEqual(read_bundle(bundle,SimpleNamespace(**config,steps=10))['step'],3)

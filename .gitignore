@@ -15,3 +15,7 @@ PROGRESS.md
 .env
 .env.*
 *.key
+
+# Explicitly authorized scalar plot archives; robot datasets remain ignored.
+!/results/plot-data/
+!/results/plot-data/*.npz

@@ -1,0 +1,50 @@
+[
+  {
+    "source_run": "m4-handcrafted-s0",
+    "step": 1400000,
+    "checkpoint": "params_1400000.pkl",
+    "checkpoint_bytes": 1634165468,
+    "checkpoint_sha256": "fc9042cbf6e70c4c478e5663d61876b627629556db768d2740b59fe3110d6590",
+    "numeric_elements": 408539665,
+    "fresh_stream_index": 3072,
+    "continuation_kind": "agent_optimizer_rng_fresh_stream",
+    "exact_stream_resume": false,
+    "validation_reset": true
+  },
+  {
+    "source_run": "m4-standardized-s0",
+    "step": 1400000,
+    "checkpoint": "params_1400000.pkl",
+    "checkpoint_bytes": 1634165468,
+    "checkpoint_sha256": "b542bffef5a3ad6df309d1accd588df36b9bbdc4b2cd4a7ca6d39eafb5de7cba",
+    "numeric_elements": 408539665,
+    "fresh_stream_index": 3072,
+    "continuation_kind": "agent_optimizer_rng_fresh_stream",
+    "exact_stream_resume": false,
+    "validation_reset": true
+  },
+  {
+    "source_run": "m4-xyz0.1-s0",
+    "step": 1400000,
+    "checkpoint": "params_1400000.pkl",
+    "checkpoint_bytes": 1634165468,
+    "checkpoint_sha256": "d29ce2749f521fe53bed91c3096a93ecd3a26cf049eb82eb88cd978be0bb990c",
+    "numeric_elements": 408539665,
+    "fresh_stream_index": 3072,
+    "continuation_kind": "agent_optimizer_rng_fresh_stream",
+    "exact_stream_resume": false,
+    "validation_reset": true
+  },
+  {
+    "source_run": "m4-xyz10-s0",
+    "step": 1300000,
+    "checkpoint": "params_1300000.pkl",
+    "checkpoint_bytes": 1634165468,
+    "checkpoint_sha256": "3063563aefab8e49c71932cc4e3d65399e4f57a4b2c71fa810ec19b59ae456bf",
+    "numeric_elements": 408539665,
+    "fresh_stream_index": 3072,
+    "continuation_kind": "agent_optimizer_rng_fresh_stream",
+    "exact_stream_resume": false,
+    "validation_reset": true
+  }
+]

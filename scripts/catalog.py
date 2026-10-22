@@ -133,12 +133,13 @@ def export_catalog(root=ROOT):
             lines += ['', 'No evaluation record exists yet; no success rate is inferred.']
         if config.get('resume_source_run'):
             source = config['resume_source_run']
+            detail = ('The streaming dataset, sampler and validation set restart. Validation losses across this boundary use different held-out samples.'
+                      if config.get('validation_reset') else
+                      'The fixed dataset and validation set are reused; sampler and diagnostic RNG restart.')
             lines += ['', '## Continuation boundary', '',
                       f"Continues [{source}](../{source}/README.md) from update {config['resume_step']}. "
-                      'Network, optimizer, RNG and preprocessing are restored. The streaming dataset, '
-                      'sampler and validation set restart; this is not an exact stream resume. '
-                      'Validation losses across this boundary use different held-out samples.', '',
-                      '[Boundary metadata](continuation.jsonl)']
+                      'Network, optimizer, agent RNG and preprocessing are restored. ' + detail +
+                      ' This is not an exact sampler resume.', '', '[Boundary metadata](continuation.jsonl)']
         (directory / 'README.md').write_text('\n'.join(lines) + '\n')
         entry['wandb_url'] = url
         entry['wandb_id'] = metadata.get('id') if url else None

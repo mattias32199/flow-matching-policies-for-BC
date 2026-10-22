@@ -181,7 +181,7 @@ def main():
         config_record.update(resume_source_run=resume['source_run'], resume_step=resume['step'],
             resume_checkpoint_sha256=resume['checkpoint_sha256'],
             resume_stream_index=resume['fresh_stream_index'],
-            resume_kind=resume['continuation_kind'], validation_reset=True)
+            resume_kind=resume['continuation_kind'], validation_reset=resume['validation_reset'])
     config_record['fourier_frequencies'] = list({'fourier1': (1,), 'fourier4': (1, 2, 4, 8)}.get(args.features, ()))
     producer_config = ROOT / '.local/demo-producer-config.json'
     producer_settings = json.loads(producer_config.read_text()) if producer_config.exists() else {}

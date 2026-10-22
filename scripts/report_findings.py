@@ -6,6 +6,7 @@ import subprocess
 
 from matrix import matrix
 from catalog import read_records
+from individual_jobs import resolve_run
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'results'
@@ -32,16 +33,21 @@ def report():
     jobs = []
     for planned in matrix():
         name = planned['run']
-        segment = name + '-cont1' if name.startswith('m4-') and name + '-cont1' in ledger else name
+        segment = resolve_run(name + '-cont1', root) if name.startswith('m4-') and name + '-cont1' in ledger else name
         entry = ledger.get(segment, {})
         state = 'completed' if (ROOT / 'runs' / segment / 'DONE').exists() else entry.get('state', 'not_submitted')
         constraint, hardware = entry.get('gpu_constraint', 'A6000'), None
         if entry.get('job_id'):
             # Whitelist fields; scheduler workdirs, scripts and node names are never copied.
-            output = subprocess.run(['scontrol', 'show', 'job', '-o', entry['job_id']],
-                                    check=True, capture_output=True, text=True).stdout
-            fields = dict(token.split('=', 1) for token in output.split() if '=' in token)
-            state = fields.get('JobState', state).lower()
+            query = subprocess.run(['scontrol', 'show', 'job', '-o', entry['job_id']],
+                                   capture_output=True, text=True)
+            fields = dict(token.split('=', 1) for token in query.stdout.split() if '=' in token)
+            if query.returncode:
+                accounting = subprocess.run(['sacct', '-n', '-X', '-j', entry['job_id'], '-o', 'State', '-P'],
+                                            check=True, capture_output=True, text=True).stdout.strip()
+                state = accounting.splitlines()[0].split('|')[0].lower() if accounting else state
+            else:
+                state = fields.get('JobState', state).lower()
             constraint = fields.get('Features', constraint)
             node = fields.get('NodeList', '(null)')
             if state == 'running' and node != '(null)':

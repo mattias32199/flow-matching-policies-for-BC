@@ -92,3 +92,16 @@ An optional pair of Slurm GPUs can precompute up to 24 collections ahead. Local 
 See the [measured performance report](results/cache-performance/README.md). To reproduce the benchmark, submit `.venv/bin/python scripts/private_slurm.py --partition "$PROFILE_PARTITION" --time 01:00:00 -- .venv/bin/python -u scripts/benchmark_cache.py --prefill 0`, then run `.venv/bin/python scripts/report_cache.py .local/cache-benchmark/<job-id>`. Aggregate work savings and projected concurrent throughput are reported separately.
 
 All automated Slurm submissions use `scripts/private_slurm.py`: random job names, random owner-only launcher/work/output directories, and `umask 0077`. Keep the workspace owner-only. Administrators retain access; scheduler resource records are not anonymous. Deployment partition names and private job inventories remain under ignored local settings.
+
+
+## Completed five-run plot archives
+
+The requested final publication covers completed M1 double-10K seed0 plus the four main M4 feature conditions. A durable Slurm service waits for all five to have a DONE marker, a 2M-update training record and a final 2M rollout evaluation. It validates final checkpoint integrity, updates RESULTS.md, and commits/pushes one lossless compressed NPZ per scientific run under `results/plot-data/`, with report links, sizes and SHA-256 hashes. Fourier completion is not a prerequisite for this report.
+
+Archives contain every unsmoothed scalar measurement and configuration, including distinct original, superseded and selected continuation segments; robot demonstration arrays and model checkpoints are excluded. Recreate the published figures using only those five NPZ files and the plotting code:
+
+```bash
+.venv/bin/python scripts/plot_from_npz.py --data results/plot-data --output .local/recreated-plots
+```
+
+The service also resumes explicit checkpoint segments after scheduler timeout/preemption. Fixed-data recoveries reuse their saved datasets and validation set but restart the sampler; streaming recoveries restart their data stream and validation set. Neither is an exact sampler resume. User cancellations are respected. These recoveries let jobs use shorter slots in `all` while retaining eligibility for `deepaklong`; ordinary Slurm priority/fair-share rules apply. Files remain in private owner-only job/run directories. Check `.local/completion-service-status.json` for the local service heartbeat.

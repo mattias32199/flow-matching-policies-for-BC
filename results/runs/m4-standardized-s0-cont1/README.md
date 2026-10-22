@@ -1,6 +1,6 @@
 # m4-standardized-s0-cont1
 
-Status: **training**.
+Status: **inactive**.
 
 [Results](../../../RESULTS.md) · [Run catalog](../README.md)
 
@@ -14,11 +14,10 @@ These JSONL records are the complete portable scalar logs, not sampled chart exp
 
 | Gradient update | Success | Episodes | Record | W&B |
 | ---: | ---: | ---: | --- | --- |
-
-No evaluation record exists yet; no success rate is inferred.
+| 1150000 | 0.326 | 500 | [JSONL line 1](eval.jsonl#L1) | [Evaluation charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb33979b4ad2b65ef78) |
 
 ## Continuation boundary
 
-Continues [m4-standardized-s0](../m4-standardized-s0/README.md) from update 1100000. Network, optimizer, RNG and preprocessing are restored. The streaming dataset, sampler and validation set restart; this is not an exact stream resume. Validation losses across this boundary use different held-out samples.
+Continues [m4-standardized-s0](../m4-standardized-s0/README.md) from update 1100000. Network, optimizer, agent RNG and preprocessing are restored. The streaming dataset, sampler and validation set restart. Validation losses across this boundary use different held-out samples. This is not an exact sampler resume.
 
 [Boundary metadata](continuation.jsonl)

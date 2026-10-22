@@ -1,0 +1,1 @@
+{"resume_source_run": "m4-xyz0.1-s0", "resume_step": 1400000, "resume_checkpoint_sha256": "d29ce2749f521fe53bed91c3096a93ecd3a26cf049eb82eb88cd978be0bb990c", "resume_stream_index": 3072, "resume_kind": "agent_optimizer_rng_fresh_stream", "validation_reset": true}

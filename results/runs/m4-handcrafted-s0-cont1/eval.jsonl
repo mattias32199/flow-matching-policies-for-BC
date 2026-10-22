@@ -1,0 +1,1 @@
+{"step": 1150000, "success": 0.566, "failure": 0.0, "healthy": 1.0, "episode.final_reward": 0.566, "episode.return": 0.566, "episode.length": 2133.052, "episode.duration": 54.59224704265594, "mean_steps": 2133.052001953125, "mean_success_steps": 1851.6820068359375, "throughput": 0.6633687019348145, "success_weighted_speed": 0.7641701102256775}

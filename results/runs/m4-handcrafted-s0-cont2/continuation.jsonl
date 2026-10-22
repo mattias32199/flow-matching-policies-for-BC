@@ -1,0 +1,1 @@
+{"resume_source_run": "m4-handcrafted-s0", "resume_step": 1400000, "resume_checkpoint_sha256": "fc9042cbf6e70c4c478e5663d61876b627629556db768d2740b59fe3110d6590", "resume_stream_index": 3072, "resume_kind": "agent_optimizer_rng_fresh_stream", "validation_reset": true}

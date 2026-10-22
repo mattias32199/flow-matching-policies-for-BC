@@ -9,18 +9,23 @@ Full runs, queued conditions, and diagnostic runs are separate entries. Evaluati
 | Run | Status | Exact records | W&B |
 | --- | --- | --- | --- |
 | m1-double-n10000-s0 | completed | [Config and logs](m1-double-n10000-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb7d868146415f56201) |
-| m1-double-n10000-s1 | queued | [Config and logs](m1-double-n10000-s1/README.md) | not uploaded |
-| m1-single-n10000-s0 | queued | [Config and logs](m1-single-n10000-s0/README.md) | not uploaded |
-| m1-single-n50000-s0 | queued | [Config and logs](m1-single-n50000-s0/README.md) | not uploaded |
-| m4-fourier1-s0 | queued | [Config and logs](m4-fourier1-s0/README.md) | not uploaded |
-| m4-fourier4-s0 | queued | [Config and logs](m4-fourier4-s0/README.md) | not uploaded |
+| m1-double-n10000-s1 | training | [Config and logs](m1-double-n10000-s1/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocbe40e2aea73f9d4663) |
+| m1-single-n10000-s0 | training | [Config and logs](m1-single-n10000-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocbc917128d7081f944a) |
+| m1-single-n50000-s0 | training | [Config and logs](m1-single-n50000-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb85c79ff83a5c3d368) |
+| m4-fourier1-s0 | training | [Config and logs](m4-fourier1-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb9ed5754b980da256e) |
+| m4-fourier4-s0 | training | [Config and logs](m4-fourier4-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb628936cae54ff280c) |
 | m4-handcrafted-s0 | inactive | [Config and logs](m4-handcrafted-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb6555c1eef3e7c6a5b) |
-| m4-handcrafted-s0-cont1 | training | [Config and logs](m4-handcrafted-s0-cont1/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb89ddace69a79a65f6) |
+| m4-handcrafted-s0-cont1 | inactive | [Config and logs](m4-handcrafted-s0-cont1/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb89ddace69a79a65f6) |
+| m4-handcrafted-s0-cont2 | completed | [Config and logs](m4-handcrafted-s0-cont2/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb84f0a7faf0b586cf8) |
 | m4-standardized-s0 | inactive | [Config and logs](m4-standardized-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocbdf09e0125b1d85354) |
-| m4-standardized-s0-cont1 | training | [Config and logs](m4-standardized-s0-cont1/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb33979b4ad2b65ef78) |
+| m4-standardized-s0-cont1 | inactive | [Config and logs](m4-standardized-s0-cont1/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb33979b4ad2b65ef78) |
+| m4-standardized-s0-cont2 | completed | [Config and logs](m4-standardized-s0-cont2/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb8c6d9298a4314bda4) |
 | m4-xyz0.1-s0 | inactive | [Config and logs](m4-xyz0.1-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocbb5e56eb1e20d223a2) |
-| m4-xyz0.1-s0-cont1 | training | [Config and logs](m4-xyz0.1-s0-cont1/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocbf86da02146d369276) |
+| m4-xyz0.1-s0-cont1 | inactive | [Config and logs](m4-xyz0.1-s0-cont1/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocbf86da02146d369276) |
+| m4-xyz0.1-s0-cont2 | completed | [Config and logs](m4-xyz0.1-s0-cont2/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb608bbd66f8b803e14) |
 | m4-xyz10-s0 | inactive | [Config and logs](m4-xyz10-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb8f3a301437f09df88) |
+| m4-xyz10-s0-cont1 | inactive | [Config and logs](m4-xyz10-s0-cont1/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocbdd22bed18f8358e0f) |
+| m4-xyz10-s0-cont2 | completed | [Config and logs](m4-xyz10-s0-cont2/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb12b19a6ae9b86ff1f) |
 | pilot-m1-double-n10000-s0 | incomplete | [Config and logs](pilot-m1-double-n10000-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb68488cbd9d27a930e) |
 | pilot-m4-handcrafted-s0 | incomplete | [Config and logs](pilot-m4-handcrafted-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocbe05d0f1b8fc3f1410) |
 | pilot-m4-standardized-s0 | incomplete | [Config and logs](pilot-m4-standardized-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb6d452dd304eeae07c) |

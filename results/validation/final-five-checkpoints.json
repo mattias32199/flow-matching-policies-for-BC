@@ -1,0 +1,32 @@
+{
+  "m1-double-n10000-s0": {
+    "step": 2000000,
+    "bytes": 1634165468,
+    "sha256": "1d05ab5b8cc933a4e0c2aaa0e061bbf0a35405521ecfd9de7a9bc8fe1c02409e",
+    "all_numeric_values_finite": true
+  },
+  "m4-handcrafted-s0-cont2": {
+    "step": 2000000,
+    "bytes": 1634165468,
+    "sha256": "0194200c0ffcc321441c9d4a98bbde4adfa2ee4d33b9608dfa4d84712cf92c23",
+    "all_numeric_values_finite": true
+  },
+  "m4-standardized-s0-cont2": {
+    "step": 2000000,
+    "bytes": 1634165468,
+    "sha256": "0f146fdb1d29cd57e47272f1449ce4aecb88892bf2e1f0a37d963cccb555288e",
+    "all_numeric_values_finite": true
+  },
+  "m4-xyz0.1-s0-cont2": {
+    "step": 2000000,
+    "bytes": 1634165468,
+    "sha256": "52b9b3733c50fb45ff10d9d12f8c9829077ac51971760dcc0ded747b63534cba",
+    "all_numeric_values_finite": true
+  },
+  "m4-xyz10-s0-cont2": {
+    "step": 2000000,
+    "bytes": 1634165468,
+    "sha256": "d01b81c60d1d91a1e2ed357f7ec4b1f93cd7b8a0bddcb5df8f52237c8d1eb651",
+    "all_numeric_values_finite": true
+  }
+}

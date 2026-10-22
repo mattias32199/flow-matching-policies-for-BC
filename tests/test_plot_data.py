@@ -5,7 +5,7 @@ import tempfile
 import unittest
 import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'scripts'))
-from plot_data import export, load, branches, check_complete
+from plot_data import export, load, branches, check_complete, unified
 
 
 class PlotDataTests(unittest.TestCase):
@@ -37,6 +37,8 @@ class PlotDataTests(unittest.TestCase):
             self.assertEqual([x['step'] for x in segments[1][1]],[2_000_000])
             with np.load(root/'out/m4-test.npz',allow_pickle=False) as f:
                 self.assertTrue(all(f[k].dtype.kind!='O' for k in f.files))
+                np.testing.assert_array_equal(f['history__metrics__step'], [1_400_000, 2_000_000])
+                self.assertEqual([r['step'] for r in unified(meta,runs,'metrics.jsonl')], [1_400_000, 2_000_000])
             self.assertEqual(index['runs']['m4-test']['bytes'],(root/'out/m4-test.npz').stat().st_size)
 
     def test_missing_final_rollout_or_done_blocks_publication(self):

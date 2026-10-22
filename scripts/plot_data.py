@@ -48,7 +48,7 @@ def export(root=ROOT, plan=None, output=None, require_complete=False):
         if source not in runs or selected not in runs:
             raise ValueError(f'Missing source/selected segment: {source}/{selected}')
         metadata = {'schema': 1, 'experiment': source, 'selected_segment': selected,
-                    'smoothing': 'None in archives. Figures use within-segment 50K-update means.',
+                    'smoothing': 'None in archives. Figures use 50K-update means of the unified selected history.',
                     'branch_policy': 'Follow selected checkpoint ancestry; truncate each parent at its child resume_step; never merge validation sets.',
                     'segments': {name: {'config': run['config'], 'completed': run['completed']}
                                  for name, run in runs.items()}}
@@ -66,6 +66,16 @@ def export(root=ROOT, plan=None, output=None, require_complete=False):
                     if all(v is None or isinstance(v, (int, float, bool)) for v in values):
                         arrays[prefix+'__'+key.replace('/', '__')] = np.asarray(
                             [np.nan if v is None else v for v in values], dtype=np.float64)
+        metadata['unified_prefix'] = 'history'
+        metadata['unified_policy'] = 'One ordered selected training history; checkpoint ancestry resolves overlapping steps. Validation data may change at recovery.'
+        for stream in ['metrics.jsonl', 'eval.jsonl']:
+            rows = unified(metadata, runs, stream)
+            prefix = 'history__' + stream.removesuffix('.jsonl')
+            arrays[prefix+'__jsonl'] = np.asarray([json.dumps(row, allow_nan=False, sort_keys=True) for row in rows], dtype=np.str_)
+            for key in sorted({k for row in rows for k in row}):
+                values = [row.get(key) for row in rows]
+                if all(v is None or isinstance(v, (int, float, bool)) for v in values):
+                    arrays[prefix+'__'+key.replace('/', '__')] = np.asarray([np.nan if v is None else v for v in values], dtype=np.float64)
         arrays['manifest_json'] = np.asarray(json.dumps(metadata, sort_keys=True))
         path = output / (source + '.npz')
         np.savez_compressed(path, **arrays)
@@ -107,6 +117,13 @@ def branches(meta, runs, stream):
         return prior + [(name, [row for row in runs[name]['streams'][stream]
                                if row.get('step', 0) > boundary])]
     return chain(meta['selected_segment'], set())
+
+
+def unified(meta, runs, stream):
+    """One measured history, following checkpoint ancestry and never inventing points."""
+    rows = [row for _, records in branches(meta, runs, stream) for row in records]
+    by_step = {row['step']: row for row in rows}
+    return [by_step[step] for step in sorted(by_step)]
 
 
 if __name__ == '__main__':

@@ -19,6 +19,9 @@ def read_bundle(path, args):
         raise ValueError('Invalid continuation collection index.')
     if sha256(path / manifest['checkpoint']) != manifest['checkpoint_sha256']:
         raise ValueError('Pinned checkpoint checksum mismatch.')
+    if manifest.get('validation_sha256'):
+        if sha256(path / 'validation.npz') != manifest['validation_sha256']:
+            raise ValueError('Pinned validation dataset checksum mismatch.')
     return manifest
 
 

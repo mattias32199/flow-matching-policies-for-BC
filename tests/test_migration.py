@@ -80,3 +80,22 @@ class FixedMigrationTests(unittest.TestCase):
             self.assertEqual(manifest['fresh_stream_index'],0)
             self.assertIn('fixed_dataset',manifest['continuation_kind'])
             self.assertEqual(read_bundle(bundle,SimpleNamespace(**config,steps=10))['step'],3)
+
+    def test_streaming_migration_preserves_pinned_validation_arrays(self):
+        import pickle
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);run=root/'runs/stream';(run/'checkpoints').mkdir(parents=True)
+            config=dict(env='block-double-task1-v0',mode='streaming',features='handcrafted',seed=0,data_seed=0,episodes=1000,val_episodes=128,batch_size=4,width=16,depth=2)
+            (run/'config.json').write_text(json.dumps(config))
+            (run/'collections.jsonl').write_text('{"index":0}\n')
+            np.savez_compressed(run/'validation.npz',observations=np.arange(12).reshape(3,4))
+            with (run/'checkpoints/params_3.pkl').open('wb') as f:
+                pickle.dump({'agent':{'network':{'step':np.asarray(4)}}},f)
+            bundle,manifest=prepare('stream',root)
+            self.assertFalse(manifest['validation_reset'])
+            with np.load(bundle/'validation.npz',allow_pickle=False) as saved:
+                np.testing.assert_array_equal(saved['observations'],np.arange(12).reshape(3,4))
+            read_bundle(bundle,SimpleNamespace(**config,steps=10))
+            (bundle/'validation.npz').write_bytes(b'corrupted')
+            with self.assertRaisesRegex(ValueError,'validation dataset checksum'):
+                read_bundle(bundle,SimpleNamespace(**config,steps=10))

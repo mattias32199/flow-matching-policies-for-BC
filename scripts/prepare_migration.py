@@ -68,7 +68,7 @@ def prepare(name, root=ROOT):
             pinned.unlink(missing_ok=True)
             continue
         for filename in ['config.json', 'preprocessing.npz', 'metrics.jsonl',
-                         'eval.jsonl', 'collections.jsonl', 'dataset.jsonl']:
+                         'eval.jsonl', 'collections.jsonl', 'dataset.jsonl', 'validation.npz']:
             if (source / filename).exists():
                 shutil.copy2(source / filename, target / filename)
         records = []
@@ -88,7 +88,8 @@ def prepare(name, root=ROOT):
                         fresh_stream_index=next_index, prepared_at=time.time(),
                         continuation_kind=('agent_optimizer_rng_fresh_stream' if config['mode'] == 'streaming'
                                            else 'agent_optimizer_rng_fixed_dataset_sampler_reset'),
-                        exact_stream_resume=False, validation_reset=config['mode'] == 'streaming',
+                        validation_sha256=(sha256(target / 'validation.npz') if (target / 'validation.npz').exists() else None),
+                        exact_stream_resume=False, validation_reset=(config['mode'] == 'streaming' and not (source / 'validation.npz').exists()),
                         rejected_candidates=failures)
         temporary = target / 'manifest.json.tmp'
         temporary.write_text(json.dumps(manifest, indent=2) + '\n')

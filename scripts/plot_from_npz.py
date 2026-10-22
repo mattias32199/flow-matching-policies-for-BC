@@ -1,9 +1,38 @@
 """Recreate the five-run final figures using only the published NPZ files."""
 import argparse
+import json
+import numpy as np
 from pathlib import Path
 import matplotlib.pyplot as plt
+from matplotlib.ticker import FormatStrFormatter
 import plot as style
 from plot_data import load, unified
+
+
+def recreate_fixed_validation(directory, output):
+    features = ['handcrafted', 'standardized', 'xyz0.1', 'xyz10']
+    rows = []
+    for f in features:
+        with np.load(Path(directory) / f'm4-{f}-s0.npz', allow_pickle=False) as archive:
+            if 'audit__jsonl' not in archive:return
+            rows.extend(json.loads(str(r)) for r in archive['audit__jsonl'])
+    style.OUT = Path(output)
+    fig, axes = plt.subplots(1, 2, figsize=(12, 5.2))
+    for ax, title in zip(axes, ['Fixed-set validation flow loss', 'Fixed-set validation action MSE']):
+        style.setup(ax, title); ax.set_yscale('linear'); ax.set_ylabel('Loss')
+        ax.yaxis.set_major_formatter(FormatStrFormatter('%.4f'))
+        ax.set_xlim(1_150_000, 2_050_000)
+        ax.set_xticks([1_200_000, 1_400_000, 1_600_000, 1_800_000, 2_000_000])
+    for f in features:
+        selected = sorted([r for r in rows if r['experiment']==f'm4-{f}-s0' and r['validation_set']=='original2500'], key=lambda r:r['checkpoint_step'])
+        for ax, metric in zip(axes, ['flow_loss', 'action_mse']):
+            ax.errorbar([r['checkpoint_step'] for r in selected], [r[metric] for r in selected],
+                yerr=[r[metric+'_batch_se'] for r in selected], color=style.COLORS[f],
+                label=style.LABELS[f], marker='o', capsize=3, lw=1.8)
+    style.finish(fig, axes, 'Mystery 4 · Reevaluated on one fixed validation set',
+        'Retained checkpoints only · original-seed data (index 0, parallel 2500) · no training updates',
+        '32 × 1024 sampled transitions per point; bars: one batch standard error. Regenerated simulator data, not historical raw arrays.', 'mystery4_validation_fixed')
+    plt.close(fig)
 
 
 def recreate(directory, output):
@@ -45,6 +74,7 @@ def recreate(directory, output):
     figures[2].savefig(output/'curves.png', dpi=190)
     for fig in figures:
         plt.close(fig)
+    recreate_fixed_validation(directory, output)
 
 
 if __name__ == '__main__':

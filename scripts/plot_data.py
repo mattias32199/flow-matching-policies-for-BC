@@ -49,7 +49,7 @@ def export(root=ROOT, plan=None, output=None, require_complete=False):
             raise ValueError(f'Missing source/selected segment: {source}/{selected}')
         metadata = {'schema': 1, 'experiment': source, 'selected_segment': selected,
                     'smoothing': 'None in archives. Figures use 50K-update means of the unified selected history.',
-                    'branch_policy': 'Follow selected checkpoint ancestry; truncate each parent at its child resume_step; never merge validation sets.',
+                    'branch_policy': 'Follow selected checkpoint ancestry; truncate each parent at its child resume_step. Unified validation history includes held-out-set changes recorded in segment provenance.',
                     'segments': {name: {'config': run['config'], 'completed': run['completed']}
                                  for name, run in runs.items()}}
         arrays = {'manifest_json': np.asarray(json.dumps(metadata, sort_keys=True))}
@@ -76,6 +76,18 @@ def export(root=ROOT, plan=None, output=None, require_complete=False):
                 values = [row.get(key) for row in rows]
                 if all(v is None or isinstance(v, (int, float, bool)) for v in values):
                     arrays[prefix+'__'+key.replace('/', '__')] = np.asarray([np.nan if v is None else v for v in values], dtype=np.float64)
+        audit_path = root / 'results/validation/m4-validation-audit.jsonl'
+        if audit_path.exists():
+            audit = [row for row in read_records(audit_path) if row['experiment'] == source]
+            if audit:
+                metadata['fixed_validation_audit'] = 'Read-only reevaluation of retained checkpoints on seed-regenerated fixed data; does not replace original measurements.'
+                arrays['audit__jsonl'] = np.asarray([json.dumps(row, sort_keys=True) for row in audit], dtype=np.str_)
+                for key in sorted(audit[0]):
+                    values = [row[key] for row in audit]
+                    if all(isinstance(v, (float, int, bool)) for v in values):
+                        arrays['audit__'+key] = np.asarray(values, dtype=np.float64)
+                    elif all(isinstance(v, str) for v in values):
+                        arrays['audit__'+key] = np.asarray(values, dtype=np.str_)
         arrays['manifest_json'] = np.asarray(json.dumps(metadata, sort_keys=True))
         path = output / (source + '.npz')
         np.savez_compressed(path, **arrays)

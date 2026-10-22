@@ -1,0 +1,57 @@
+{
+  "generator": {
+    "schema": 1,
+    "upstream_commit": "ab6a2c2602b9ac2196e786aea7b7fab2fe779d98",
+    "versions": {
+      "mujoco": "3.16.0",
+      "mujoco-warp": "3.16.0",
+      "warp-lang": "1.18.0",
+      "jax": "0.10.2",
+      "numpy": "2.4.6"
+    },
+    "generator_sha256": "eb4d5a433ecc9812a0c5755ef873ef1a5e386be07b89cf1c155d071b1d65772a"
+  },
+  "batch_seed": 20261022,
+  "batches": 32,
+  "batch_size": 1024,
+  "protocol": "Same sampled transition indices and flow/action noise keys across checkpoints for each dataset; no parameter updates.",
+  "limitation": "Seed-regenerated simulator arrays, not byte-identical copies of historical validation data that was not retained. Batch SE measures Monte Carlo diagnostic variation, not training-seed uncertainty.",
+  "datasets": {
+    "original512": {
+      "collection_idx": 0,
+      "collection_time": 178.43888974189758,
+      "train/transitions": 1765312,
+      "train/success_rate": 0.797,
+      "train/avg_episode_length": 1765.312,
+      "train/avg_return": 0.796999990940094,
+      "val/transitions": 227566,
+      "val/success_rate": 0.78125,
+      "val/avg_episode_length": 1777.859375,
+      "val/avg_return": 0.78125
+    },
+    "resumed2500": {
+      "collection_idx": 3072,
+      "collection_time": 80.45843029022217,
+      "train/transitions": 1794340,
+      "train/success_rate": 0.778,
+      "train/avg_episode_length": 1794.34,
+      "train/avg_return": 0.777999997138977,
+      "val/transitions": 238585,
+      "val/success_rate": 0.7421875,
+      "val/avg_episode_length": 1863.9453125,
+      "val/avg_return": 0.7421875
+    },
+    "original2500": {
+      "collection_idx": 0,
+      "collection_time": 79.45153784751892,
+      "train/transitions": 1766265,
+      "train/success_rate": 0.794,
+      "train/avg_episode_length": 1766.265,
+      "train/avg_return": 0.7940000295639038,
+      "val/transitions": 228556,
+      "val/success_rate": 0.7734375,
+      "val/avg_episode_length": 1785.59375,
+      "val/avg_return": 0.7734375
+    }
+  }
+}

@@ -67,9 +67,9 @@ def write_report(plan, index):
     best=max(scores,key=scores.get);worst=min(scores,key=scores.get)
     lines+=['',f"The observed final success spread is **{100*(max(scores.values())-min(scores.values())):.1f} percentage points**: {best} is highest and {worst} lowest in this seed. Use the measured losses in the table rather than assuming they are identical. This comparison describes the observed effect; it does not prove a distribution-shift mechanism or a universal ranking.", '',
         '### Complete training curves', '',
-        '![Complete validation history](results/mystery4_validation.png)', '',
-        'Each condition is shown as one continuous measured history through 2M updates. Overlapping records are resolved using the checkpoint ancestry; discarded training tails are not mixed into the final trajectory. Weights, optimizer state and agent RNG were restored during recovery; training streams, sampler and validation sets restarted, so validation scores before and after recovery use different held-out sets.', '',
-        'Loss panels show faint raw records plus nonoverlapping 50K-update means, with logarithmic loss axes and the first 10K loss updates omitted. Success points are measured evaluations, not smoothed or extrapolated. No multi-seed uncertainty band is implied.', '',
+        ('![Fixed-set validation reevaluation](results/mystery4_validation_fixed.png)' if (ROOT/'results/mystery4_validation_fixed.png').exists() else '![Complete validation history](results/mystery4_validation.png)'), '',
+        'Training and robot-success curves show one continuous measured history through 2M updates. Where available, the validation figure uses fixed-set checkpoint reevaluations; original logged validation remains in the archives. Overlapping records are resolved using the checkpoint ancestry; discarded training tails are not mixed into the final trajectory. Weights, optimizer state and agent RNG were restored during recovery; training streams, sampler and validation sets restarted, so validation scores before and after recovery use different held-out sets.', '',
+        'Full-history training-loss panels show faint raw records plus nonoverlapping 50K-update means, with logarithmic loss axes and the first 10K loss updates omitted. The fixed-set audit uses linear loss axes and unsmoothed checkpoint estimates with one batch standard error. Success points are measured evaluations, not smoothed or extrapolated. No multi-seed uncertainty band is implied.', '',
         '## Download the complete original plot measurements', '',
         'Each NPZ is **compressed, lossless and pickle-free**: numeric arrays, every unsmoothed scalar record, configuration, and explicit segment/branch metadata. These are the full measurements used for plotting, not simulated robot demonstrations or model checkpoints. Each file provides one ready-to-plot history from the original early steps to 2M; detailed provenance is retained as additional metadata.', '',
         '| Experiment | Complete NPZ | Compressed size |', '| --- | --- | ---: |']
@@ -83,6 +83,10 @@ def write_report(plan, index):
         'These are state-based, finite-budget experiments, not image policies or a literal infinite-data limit. Our frozen z-score/scaling, one-use streaming policy and restarted validation sets differ from an exact numerical blog reproduction. See the [plain-language guide](EXPERIMENT_GUIDE.md), [native and wrapper commands](OCBENCH_COMMANDS.md), [original blog](https://seohong.me/blog/behavioral-cloning-mystery/), and [final checkpoint integrity checks](results/validation/final-five-checkpoints.json). Checkpoint files, robot data and private scheduler paths remain local.', '',
         '[Full run catalog](results/runs/README.md) · [W&B](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4) · [Earlier performance experiments](results/profiling/README.md)', '']
     text=(ROOT/'RESULTS.md').read_text()
+    audit_begin='<!-- M4_VALIDATION_AUDIT_START -->';audit_end='<!-- M4_VALIDATION_AUDIT_END -->'
+    if audit_begin in text and audit_end in text:
+        location=lines.index('## Download the complete original plot measurements')
+        lines[location:location]=[text[text.index(audit_begin):text.index(audit_end)+len(audit_end)],'']
     begin='<!-- LIVE_RESULTS_START -->';end='<!-- LIVE_RESULTS_END -->'
     if begin in text:
         lines += [text[text.index(begin):text.index(end)+len(end)]]

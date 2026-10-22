@@ -41,6 +41,18 @@ class PlotDataTests(unittest.TestCase):
                 self.assertEqual([r['step'] for r in unified(meta,runs,'metrics.jsonl')], [1_400_000, 2_000_000])
             self.assertEqual(index['runs']['m4-test']['bytes'],(root/'out/m4-test.npz').stat().st_size)
 
+    def test_fixed_validation_audit_is_preserved_separately_from_history(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root,plan=self.setup_root(directory)
+            out=root/'results/validation';out.mkdir(parents=True)
+            row={'experiment':'m4-test','checkpoint_step':2_000_000,'validation_set':'original512','flow_loss':.12}
+            (out/'m4-validation-audit.jsonl').write_text(json.dumps(row)+'\n')
+            export(root,plan,root/'out',True)
+            with np.load(root/'out/m4-test.npz',allow_pickle=False) as data:
+                np.testing.assert_array_equal(data['audit__flow_loss'],[.12])
+                np.testing.assert_array_equal(data['history__metrics__step'],[1_400_000,2_000_000])
+                self.assertEqual(json.loads(str(data['audit__jsonl'][0])),row)
+
     def test_missing_final_rollout_or_done_blocks_publication(self):
         with tempfile.TemporaryDirectory() as directory:
             root,plan=self.setup_root(directory)

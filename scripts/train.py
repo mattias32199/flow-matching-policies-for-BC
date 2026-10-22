@@ -221,6 +221,14 @@ def main():
             np.savez(train_file, **raw_train)
             np.savez(val_file, **raw_val)
     emit(run / 'collections.jsonl', {'index': index, **collection_metrics})
+    # Pin the actual held-out arrays: simulator seed regeneration is not byte-exact.
+    saved_validation = args.resume_bundle / 'validation.npz' if resume else None
+    if saved_validation is not None and saved_validation.exists():
+        with np.load(saved_validation, allow_pickle=False) as saved:
+            raw_val = dict(saved)
+    validation_temporary = run / 'validation.tmp.npz'
+    np.savez_compressed(validation_temporary, **raw_val)
+    validation_temporary.replace(run / 'validation.npz')
     if resume:
         features, normalizer = saved_preprocessing(args.resume_bundle / 'preprocessing.npz', args.features)
     else:

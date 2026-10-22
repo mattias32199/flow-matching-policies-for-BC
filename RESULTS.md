@@ -29,11 +29,22 @@ The observed final success spread is **50.0 percentage points**: handcrafted is 
 
 ### Complete training curves
 
-![Complete validation history](results/mystery4_validation.png)
+![Fixed-set validation reevaluation](results/mystery4_validation_fixed.png)
 
-Each condition is shown as one continuous measured history through 2M updates. Overlapping records are resolved using the checkpoint ancestry; discarded training tails are not mixed into the final trajectory. Weights, optimizer state and agent RNG were restored during recovery; training streams, sampler and validation sets restarted, so validation scores before and after recovery use different held-out sets.
+Training and robot-success curves show one continuous measured history through 2M updates. The validation figure above compares retained checkpoints on one fixed regenerated set; original logged validation remains in the archives. Overlapping records are resolved using the checkpoint ancestry; discarded training tails are not mixed into the final trajectory. Weights, optimizer state and agent RNG were restored during recovery; training streams, sampler and validation sets restarted, so validation scores before and after recovery use different held-out sets.
 
-Loss panels show faint raw records plus nonoverlapping 50K-update means, with logarithmic loss axes and the first 10K loss updates omitted. Success points are measured evaluations, not smoothed or extrapolated. No multi-seed uncertainty band is implied.
+Full-history training-loss panels show faint raw records plus nonoverlapping 50K-update means, with logarithmic loss axes and the first 10K loss updates omitted. The fixed-set audit uses linear loss axes and unsmoothed checkpoint estimates with one batch standard error. Success points are measured evaluations, not smoothed or extrapolated. No multi-seed uncertainty band is implied.
+
+<!-- M4_VALIDATION_AUDIT_START -->
+### Validation discontinuity: controlled reevaluation
+
+**The historical validation curve changes held-out datasets at recovery. Connecting the plotted line does not make those scores directly comparable.** We audited restoration and reevaluated saved checkpoints on fixed, seed-regenerated validation sets without training updates. See the [controlled measurements and limitations](results/validation/M4_VALIDATION_AUDIT.md).
+
+The final-score table retains the original logged validation scores. The fixed-set figure uses one consistent regenerated dataset and averages 32 batches per checkpoint; its numbers are separate from the single-batch historical logs.
+
+[Historical logged validation curve — held-out data changes during recovery](results/mystery4_validation.png)
+
+<!-- M4_VALIDATION_AUDIT_END -->
 
 ## Download the complete original plot measurements
 
@@ -42,12 +53,12 @@ Each NPZ is **compressed, lossless and pickle-free**: numeric arrays, every unsm
 | Experiment | Complete NPZ | Compressed size |
 | --- | --- | ---: |
 | m1-double-n10000-s0 | [Download](results/plot-data/m1-double-n10000-s0.npz) | 422.8 KiB |
-| m4-handcrafted-s0 | [Download](results/plot-data/m4-handcrafted-s0.npz) | 663.3 KiB |
-| m4-standardized-s0 | [Download](results/plot-data/m4-standardized-s0.npz) | 668.4 KiB |
-| m4-xyz0.1-s0 | [Download](results/plot-data/m4-xyz0.1-s0.npz) | 662.4 KiB |
-| m4-xyz10-s0 | [Download](results/plot-data/m4-xyz10-s0.npz) | 662.2 KiB |
+| m4-handcrafted-s0 | [Download](results/plot-data/m4-handcrafted-s0.npz) | 669.7 KiB |
+| m4-standardized-s0 | [Download](results/plot-data/m4-standardized-s0.npz) | 674.8 KiB |
+| m4-xyz0.1-s0 | [Download](results/plot-data/m4-xyz0.1-s0.npz) | 668.7 KiB |
+| m4-xyz10-s0 | [Download](results/plot-data/m4-xyz10-s0.npz) | 668.5 KiB |
 
-Combined size: **3079.1 KiB**. [SHA-256 hashes and file manifest](results/plot-data/manifest.json).
+Combined size: **3104.6 KiB**. [SHA-256 hashes and file manifest](results/plot-data/manifest.json).
 
 Recreate the figures from only those five NPZ files (from the repository root):
 
@@ -75,10 +86,10 @@ Pilot runs validate execution only. Reproduction runs target 2,000,000 updates; 
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
 | [m1-double-n10000-s0](results/runs/m1-double-n10000-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb7d868146415f56201) | 2000000 | 0.0034 | 0.0562 | 0.0146 | 0.2580 | 2000000 | yes |
 | [m1-double-n10000-s1](results/runs/m1-double-n10000-s1/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocbe40e2aea73f9d4663) | 2000000 | 0.0033 | 0.0926 | 0.0476 | 0.2740 | 2000000 | yes |
-| [m1-single-n10000-s0](results/runs/m1-single-n10000-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocbc917128d7081f944a) | 932000 | 0.0034 | 0.0500 | 0.0122 | 0.8900 | 900000 | no |
-| [m1-single-n50000-s0](results/runs/m1-single-n50000-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb85c79ff83a5c3d368) | 850000 | 0.0099 | 0.0184 | 0.0102 | 0.8660 | 800000 | no |
-| [m4-fourier1-s0](results/runs/m4-fourier1-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb9ed5754b980da256e) | 501000 | 0.0163 | 0.0137 | 0.0144 | 0.0460 | 500000 | no |
-| [m4-fourier4-s0](results/runs/m4-fourier4-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb628936cae54ff280c) | 501000 | 0.0156 | 0.0136 | 0.0140 | 0.0340 | 500000 | no |
+| [m1-single-n10000-s0](results/runs/m1-single-n10000-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocbc917128d7081f944a) | 979000 | 0.0023 | 0.0519 | 0.0125 | 0.8760 | 950000 | no |
+| [m1-single-n50000-s0](results/runs/m1-single-n50000-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb85c79ff83a5c3d368) | 893000 | 0.0088 | 0.0225 | 0.0144 | 0.8640 | 850000 | no |
+| [m4-fourier1-s0](results/runs/m4-fourier1-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb9ed5754b980da256e) | 527000 | 0.0140 | 0.0149 | 0.0129 | 0.0460 | 500000 | no |
+| [m4-fourier4-s0](results/runs/m4-fourier4-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb628936cae54ff280c) | 527000 | 0.0134 | 0.0145 | 0.0123 | 0.0340 | 500000 | no |
 | [m4-handcrafted-s0](results/runs/m4-handcrafted-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb6555c1eef3e7c6a5b) | 1468000 | 0.0118 | 0.0162 | 0.0170 | 0.5760 | 1450000 | no |
 | [m4-handcrafted-s0-cont1](results/runs/m4-handcrafted-s0-cont1/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb89ddace69a79a65f6) | 1160000 | 0.0132 | 0.0140 | 0.0150 | 0.5660 | 1150000 | no |
 | [m4-handcrafted-s0-cont2](results/runs/m4-handcrafted-s0-cont2/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb84f0a7faf0b586cf8) | 2000000 | 0.0135 | 0.0159 | 0.0192 | 0.5640 | 2000000 | yes |

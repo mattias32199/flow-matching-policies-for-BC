@@ -53,6 +53,23 @@ class PlotDataTests(unittest.TestCase):
                 np.testing.assert_array_equal(data['history__metrics__step'],[1_400_000,2_000_000])
                 self.assertEqual(json.loads(str(data['audit__jsonl'][0])),row)
 
+    def test_recommended_validation_uses_only_one_dataset_and_preserves_historical_jump(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root,plan=self.setup_root(directory)
+            out=root/'results/validation';out.mkdir(parents=True)
+            rows=[{'experiment':'m4-test','checkpoint_step':step,'validation_set':label,
+                   'flow_loss':value,'action_mse':value*2,'flow_loss_batch_se':.001,'action_mse_batch_se':.002}
+                  for step,value in [(2_000_000,.12),(1_400_000,.14)]
+                  for label in ['resumed2500','original2500','original512']]
+            (out/'m4-validation-audit.jsonl').write_text(''.join(json.dumps(r)+'\n' for r in rows))
+            export(root,plan,root/'out',True)
+            with np.load(root/'out/m4-test.npz',allow_pickle=False) as data:
+                np.testing.assert_array_equal(data['fixed_validation__step'],[1_400_000,2_000_000])
+                np.testing.assert_array_equal(data['fixed_validation__flow_loss'],[.14,.12])
+                np.testing.assert_array_equal(data['history__metrics__validation__flow_loss'],[.3,.2])
+                self.assertEqual(json.loads(str(data['manifest_json']))['recommended_validation_prefix'],'fixed_validation')
+                self.assertTrue(all(json.loads(str(r))['validation_set']=='original2500' for r in data['fixed_validation__jsonl']))
+
     def test_missing_final_rollout_or_done_blocks_publication(self):
         with tempfile.TemporaryDirectory() as directory:
             root,plan=self.setup_root(directory)

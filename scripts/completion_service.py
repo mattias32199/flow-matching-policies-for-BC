@@ -7,17 +7,17 @@ import subprocess
 import sys
 import time
 from collection_cache import locked, write_json
-from individual_jobs import ROOT, resolve_run, record, log
+from individual_jobs import ROOT, resolve_run, record, log, submit_replacement
 from prepare_migration import prepare
 
 
 def job_fields(job_id):
     result = subprocess.run(['scontrol','show','job',job_id,'-o'],capture_output=True,text=True)
     if result.returncode == 0:
-        return dict(token.split('=',1) for token in result.stdout.split() if '=' in token)
+        return dict(token.split('=',1) for token in result.stdout.split() if '=' in token) | {'scheduler_live': True}
     result = subprocess.run(['sacct','-n','-X','-j',job_id,'-o','State','-P'],capture_output=True,text=True,check=True)
     state=result.stdout.strip().splitlines()
-    return {'JobState':state[0].split('|')[0] if state else 'UNKNOWN'}
+    return {'JobState':state[0].split('|')[0] if state else 'UNKNOWN', 'scheduler_live': False}
 
 
 def recover(name, item):
@@ -62,11 +62,12 @@ def recover(name, item):
     for source,selected in plan['m4'].items():
         if selected==name:plan['m4'][source]=new
     write_json(plan_path,plan)
-    subprocess.run(['scontrol','update','JobId='+item['job_id'],'JobName='+new],check=True)
+    if fields.get('scheduler_live', True):
+        subprocess.run(['scontrol','update','JobId='+item['job_id'],'JobName='+new],capture_output=True,text=True)
     requeue_pending(new, item)
     # Requeue has a short automatic delay; this eligibility update is best-effort.
     subprocess.run(['scontrol','update','JobId='+item['job_id'],'StartTime=now'],capture_output=True,text=True)
-    log(f'Automatic timeout/preemption continuation {name}→{new} at{manifest["step"]}; same job{item["job_id"]}.')
+    log(f'Automatic continuation {name}→{new} at{manifest["step"]}; scheduler allocation recorded in individual ledger.')
     return True
 
 
@@ -79,7 +80,15 @@ def requeue_pending(name, item):
         return
     if state not in ('TIMEOUT','PREEMPTED','NODE_FAIL','FAILED'):
         raise RuntimeError(f'Recovery requires scheduler reconciliation: {state}')
-    subprocess.run(['scontrol','requeue',item['job_id']],check=True)
+    if not fields.get('scheduler_live', True):
+        submit_replacement(name)
+        return
+    result = subprocess.run(['scontrol','requeue',item['job_id']],capture_output=True,text=True)
+    if result.returncode:
+        if 'Invalid job id' in result.stderr:
+            submit_replacement(name)
+            return
+        raise subprocess.CalledProcessError(result.returncode, result.args, result.stdout, result.stderr)
     record(name,state='submitted')
 
 
@@ -100,10 +109,13 @@ def tick():
     # Main comparisons are considered first; ordinary Slurm fair-share priority remains unchanged.
     for name,item in sorted(data.items(),key=lambda x:(not x[0].startswith('m4-') or 'fourier' in x[0],x[0])):
         if item.get('state')=='superseded' or (ROOT/'runs'/name/'DONE').exists():continue
-        if item.get('state')=='requeue_pending':
-            requeue_pending(name,item)
-        else:
-            recover(name,item)
+        try:
+            if item.get('state')=='requeue_pending':
+                requeue_pending(name,item)
+            else:
+                recover(name,item)
+        except Exception as error:
+            log(f'Recovery attention for {name}: {type(error).__name__}: {error}')
     plan=json.loads((ROOT/'.local/final-results-plan.json').read_text())
     publication=ROOT/'.local/final-publication-state.json'
     published=json.loads(publication.read_text()).get('published',False) if publication.exists() else False
@@ -122,15 +134,35 @@ def tick():
         published_state=json.loads(publication.read_text())
         if published_state.get('published'):
             notify_once('The requested five-run report and per-run NPZ files were published: '+published_state['commit']+'. Report the completed findings; preserve other jobs.', ROOT/'.local/final-publication-notified')
+    from publish_completed import publish
+    publish(publish=True)
     # Keep recovering the other scientific jobs after the main report is published.
     selected={resolve_run(job['run']) for job in json.loads((ROOT/'.local/individual-launch-plan.json').read_text())}
     return all((ROOT/'runs'/name/'DONE').exists() for name in selected)
+
+
+def reserve_successor():
+    """A pending afterany job survives even if this service is killed unexpectedly."""
+    path=ROOT/'.local/completion-service-job.json'
+    info=json.loads(path.read_text())
+    current=os.environ['SLURM_JOB_ID']
+    if info.get('predecessor_job_id')==current and info.get('job_id')!=current:
+        return info['job_id']
+    result=subprocess.run(['sbatch','--parsable','--dependency=afterany:'+current,info['launcher']],
+                          capture_output=True,text=True,check=True,timeout=45)
+    successor=result.stdout.strip().split(';')[0]
+    if not successor.isdigit():raise ValueError('Unrecognized service successor job ID')
+    info.update(job_id=successor,predecessor_job_id=current)
+    write_json(path,info)
+    log(f'Completion service {current} reserved independent afterany successor {successor}.')
+    return successor
 
 
 if __name__=='__main__':
     parser=argparse.ArgumentParser();parser.add_argument('--once',action='store_true');args=parser.parse_args()
     os.environ['JAX_PLATFORMS']='cpu'
     launched=time.monotonic();last_error=None
+    successor=reserve_successor() if not args.once else None
     while True:
         try:
             with locked(ROOT/'.local/completion-service.lock'):
@@ -138,17 +170,16 @@ if __name__=='__main__':
             last_error=None
             write_json(ROOT/'.local/completion-service-status.json',{'checked_at':time.time(),'all_remaining_complete':complete})
             print('Completion service checked; all remaining complete='+str(complete),flush=True)
-            if complete or args.once:break
+            if complete or args.once:
+                if complete and successor:
+                    subprocess.run(['scancel',successor],check=True)
+                break
         except Exception as error:
             message=f'{type(error).__name__}: {error}'
             if message!=last_error:log('Completion service retry: '+message)
             last_error=message
             if args.once:raise
         if time.monotonic()-launched>46*3600:
-            info=json.loads((ROOT/'.local/completion-service-job.json').read_text())
-            result=subprocess.run(['sbatch','--parsable','--dependency=afterany:'+os.environ['SLURM_JOB_ID'],info['launcher']],
-                                  capture_output=True,text=True,check=True)
-            info['job_id']=result.stdout.strip().split(';')[0];write_json(ROOT/'.local/completion-service-job.json',info)
-            log('Handed durable completion service to successor job'+info['job_id'])
+            log('Service yielding to reserved successor '+str(successor))
             break
         time.sleep(60)

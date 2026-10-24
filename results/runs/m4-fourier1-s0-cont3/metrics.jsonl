@@ -1,0 +1,2 @@
+{"step": 600001, "seconds": 84.50403943099082, "collection": 2048, "training/flow_loss": 0.018902214244008064, "training/action_mse": 0.030800677835941315, "validation/flow_loss": 0.016363926231861115, "validation/action_mse": 0.01544550433754921}
+{"step": 601000, "seconds": 158.53884464595467, "collection": 2048, "training/flow_loss": 0.016426488757133484, "training/action_mse": 0.01643330790102482, "validation/flow_loss": 0.015771938487887383, "validation/action_mse": 0.014643533155322075}

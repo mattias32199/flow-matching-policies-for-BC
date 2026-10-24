@@ -1,10 +1,10 @@
-# Mystery 1 and 4: completed five-run results
+# Mystery 1 and 4: completed experiments
 
-The requested **M1 double-10K seed-0 run and four main M4 conditions have all completed 2,000,000 updates**, including final 500-episode rollout evaluations. Fourier variants and other M1 runs are separate experiments; see the live catalog below.
+**7 of 10 experiments have completed 2,000,000 updates and final 500-episode evaluations.** The four main M4 conditions are complete. Additional completed M1 results, plots and per-experiment NPZ files are included below; unfinished experiments are excluded from final comparisons.
 
 ## Run configuration
 
-All five runs use **state-based `block-double-task1-v0`**, seed 0, and **2M optimizer updates**. The policy is OCBench flow behavioral cloning: an 8-layer residual MLP with 4,096 units per layer and layer normalization, float32 computation, Adam at learning rate `1e-4`, and batch size 1,024. It predicts 25-action chunks using 10 flow integration steps. Robot success is measured over 500 rollout episodes per evaluation.
+The original five-run comparison uses **state-based `block-double-task1-v0`**, seed 0, and **2M optimizer updates**. Additional M1 runs use the same model/optimizer settings; their task, demonstration count and seed are listed below. The policy is OCBench flow behavioral cloning: an 8-layer residual MLP with 4,096 units per layer and layer normalization, float32 computation, Adam at learning rate `1e-4`, and batch size 1,024. It predicts 25-action chunks using 10 flow integration steps. Robot success is measured over 500 rollout episodes per evaluation.
 
 - **M1:** reuse one fixed dataset of nominally 10,000 demonstration episodes.
 - **M4:** generate fresh batches of nominally 1,000 demonstration episodes, using each training starting point at most once per collection. Compare handcrafted state inputs, frozen z-score standardization, and standardized XYZ coordinates multiplied by 0.1 or 10.
@@ -19,6 +19,23 @@ All five runs use **state-based `block-double-task1-v0`**, seed 0, and **2M opti
 Final robot success: **25.8%**. Validation flow loss reached its minimum **0.01752 at 182,000 updates**, then rose to **0.05617 at 2M** (3.21×). Final training flow loss was 0.00337; validation action MSE was 0.01460.
 
 This completed run supports the observation that worsening validation flow loss need not mean worsening robot control. It does not prove that overfitting causes better control or establish robustness across training seeds. The single-task dataset-size comparison is a separate question.
+
+<!-- COMPLETED_EXTRAS_START -->
+### Additional completed M1 experiments
+
+![Double-task training seeds](results/mystery1_double_seeds.png)
+
+![Single-task completed experiments](results/mystery1_single.png)
+
+| Task | Nominal demonstrations | Seed | Final success | Train flow | Val flow | Val action MSE |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Double | 10,000 | 0 | 25.8% | 0.00337 | 0.05617 | 0.01460 |
+| Double | 10,000 | 1 | 27.4% | 0.00329 | 0.09256 | 0.04761 |
+| Single | 10,000 | 0 | 89.2% | 0.00132 | 0.06189 | 0.01467 |
+
+Every row has completed 2M updates and a final 500-episode rollout. Double-task seeds 0 and 1 use different demonstration seeds as well as training seeds; they are not a controlled training-seed-only comparison. Single-task and double-task success are different tasks. A 10K-versus-50K comparison is reported only after both single-task runs finish. Continuations follow checkpoint ancestry and exclude discarded post-checkpoint updates.
+
+<!-- COMPLETED_EXTRAS_END -->
 
 ## Mystery 4: scaling affects behavior much more than the training scores suggest
 
@@ -41,30 +58,47 @@ The observed final success spread is **50.0 percentage points**: handcrafted is 
 
 ![Fixed-set validation](results/mystery4_validation_fixed.png)
 
-Validation scores use the same seed-defined held-out dataset for every condition and checkpoint, averaging 32 batches of 1,024 transitions. The validation figure shows measured saved checkpoints; training and robot-success curves cover the full run through 2M. Training-loss curves show raw measurements and 50K-update means. Each NPZ includes both full logged histories (`history__*`) and fixed-set validation measurements (`audit__*`).
+Validation scores use the same seed-defined held-out dataset for every condition and checkpoint, averaging 32 batches of 1,024 transitions. The validation figure shows measured saved checkpoints; training and robot-success curves cover the full run through 2M. Training-loss curves show raw measurements and 50K-update means. Each M4 NPZ includes full logged histories (`history__*`), ready-to-plot fixed-set validation arrays (`fixed_validation__*`), and the complete audit (`audit__*`). The plotted fixed-set series has no validation-set switch at resume.
 
 ## Download the complete original plot measurements
 
-Each NPZ is **compressed, lossless and pickle-free**: numeric arrays, every unsmoothed scalar record, configuration, and explicit segment/branch metadata. These are the full measurements used for plotting, not simulated robot demonstrations or model checkpoints. Each file provides one ready-to-plot history from the original early steps to 2M; detailed provenance is retained as additional metadata.
+Each completed experiment has a compressed, pickle-free NPZ with full unsmoothed training/success histories, configuration, and checkpoint ancestry. Historical measurements remain lossless.
 
 | Experiment | Complete NPZ | Compressed size |
 | --- | --- | ---: |
 | m1-double-n10000-s0 | [Download](results/plot-data/m1-double-n10000-s0.npz) | 422.8 KiB |
-| m4-handcrafted-s0 | [Download](results/plot-data/m4-handcrafted-s0.npz) | 669.7 KiB |
-| m4-standardized-s0 | [Download](results/plot-data/m4-standardized-s0.npz) | 674.8 KiB |
-| m4-xyz0.1-s0 | [Download](results/plot-data/m4-xyz0.1-s0.npz) | 668.7 KiB |
-| m4-xyz10-s0 | [Download](results/plot-data/m4-xyz10-s0.npz) | 668.5 KiB |
+| m4-handcrafted-s0 | [Download](results/plot-data/m4-handcrafted-s0.npz) | 672.3 KiB |
+| m4-standardized-s0 | [Download](results/plot-data/m4-standardized-s0.npz) | 677.4 KiB |
+| m4-xyz0.1-s0 | [Download](results/plot-data/m4-xyz0.1-s0.npz) | 671.3 KiB |
+| m4-xyz10-s0 | [Download](results/plot-data/m4-xyz10-s0.npz) | 671.1 KiB |
+| m1-double-n10000-s1 | [Download](results/plot-data/m1-double-n10000-s1.npz) | 424.5 KiB |
+| m1-single-n10000-s0 | [Download](results/plot-data/m1-single-n10000-s0.npz) | 435.7 KiB |
 
-Combined size: **3104.6 KiB**. [SHA-256 hashes and file manifest](results/plot-data/manifest.json).
+Combined size: **3975.3 KiB**. [SHA-256 manifest](results/plot-data/manifest.json).
 
-Recreate the figures from only those five NPZ files (from the repository root):
+Recreate the figures using only the published NPZ files:
 
 ```bash
 source scripts/env.sh
 .venv/bin/python scripts/plot_from_npz.py --data results/plot-data --output .local/recreated-plots
 ```
 
-For direct NumPy access, use `d = np.load(filename, allow_pickle=False)`. Plot `d["history__metrics__step"]` against `d["history__metrics__training__flow_loss"]` (or `history__metrics__validation__flow_loss`, `history__metrics__training__action_mse`, `history__metrics__validation__action_mse`). Robot success is `history__eval__success` against `history__eval__step`. These arrays already combine the complete selected history in increasing step order; no manual segment stitching is needed. For the fixed-set validation figure, select `audit__validation_set == "original2500"` and plot `audit__flow_loss` or `audit__action_mse` against `audit__checkpoint_step`. `history__metrics__jsonl` and `history__eval__jsonl` preserve the full unsmoothed records. [Archive reader/exporter](scripts/plot_data.py) documents the schema.
+**For the four main M4 conditions, use `fixed_validation__*`, which is exactly what the corrected validation figure plots.** Every point uses one shared regenerated held-out dataset (index 0, parallel 2500); only retained checkpoints were reevaluated. These are measured points, with no interpolation or rescaling. The dense historical validation cannot be repaired exactly because the old held-out arrays and intermediate checkpoints were not retained.
+
+```python
+import numpy as np
+with np.load("results/plot-data/m4-handcrafted-s0.npz", allow_pickle=False) as d:
+    validation_steps = d["fixed_validation__step"]
+    validation_flow = d["fixed_validation__flow_loss"]
+    validation_mse = d["fixed_validation__action_mse"]
+    validation_se = d["fixed_validation__flow_loss_batch_se"]
+    training_steps = d["history__metrics__step"]
+    training_flow = d["history__metrics__training__flow_loss"]
+    success_steps = d["history__eval__step"]
+    success = d["history__eval__success"]
+```
+
+`history__metrics__validation__*` preserves the original logged scores, including the held-out-set change at resume; it is not the corrected validation figure. `audit__*` retains all three diagnostic datasets. M1 validation uses its original `history__metrics__validation__*` arrays. [Validation audit and limitations](results/validation/M4_VALIDATION_AUDIT.md) · [Archive schema](scripts/plot_data.py).
 
 ## Reproduction limits and validation
 
@@ -83,10 +117,20 @@ Pilot runs validate execution only. Reproduction runs target 2,000,000 updates; 
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
 | [m1-double-n10000-s0](results/runs/m1-double-n10000-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb7d868146415f56201) | 2000000 | 0.0034 | 0.0562 | 0.0146 | 0.2580 | 2000000 | yes |
 | [m1-double-n10000-s1](results/runs/m1-double-n10000-s1/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocbe40e2aea73f9d4663) | 2000000 | 0.0033 | 0.0926 | 0.0476 | 0.2740 | 2000000 | yes |
-| [m1-single-n10000-s0](results/runs/m1-single-n10000-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocbc917128d7081f944a) | 989000 | 0.0031 | 0.0458 | 0.0130 | 0.8760 | 950000 | no |
-| [m1-single-n50000-s0](results/runs/m1-single-n50000-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb85c79ff83a5c3d368) | 902000 | 0.0089 | 0.0248 | 0.0172 | 0.7500 | 900000 | no |
-| [m4-fourier1-s0](results/runs/m4-fourier1-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb9ed5754b980da256e) | 532000 | 0.0139 | 0.0141 | 0.0122 | 0.0460 | 500000 | no |
-| [m4-fourier4-s0](results/runs/m4-fourier4-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb628936cae54ff280c) | 532000 | 0.0137 | 0.0141 | 0.0119 | 0.0340 | 500000 | no |
+| [m1-single-n10000-s0](results/runs/m1-single-n10000-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocbc917128d7081f944a) | 1118000 | 0.0033 | 0.0640 | 0.0124 | 0.8880 | 1100000 | no |
+| [m1-single-n10000-s0-cont1](results/runs/m1-single-n10000-s0-cont1/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb45bf280c7ad3312b8) | 2000000 | 0.0013 | 0.0619 | 0.0147 | 0.8920 | 2000000 | yes |
+| [m1-single-n50000-s0](results/runs/m1-single-n50000-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb85c79ff83a5c3d368) | 1021000 | 0.0067 | 0.0240 | 0.0140 | 0.8140 | 1000000 | no |
+| [m1-single-n50000-s0-cont1](results/runs/m1-single-n50000-s0-cont1/README.md) | pending upload | 0 | — | — | — | — | — | no |
+| [m1-single-n50000-s0-cont2](results/runs/m1-single-n50000-s0-cont2/README.md) | pending upload | 0 | — | — | — | — | — | no |
+| [m1-single-n50000-s0-cont3](results/runs/m1-single-n50000-s0-cont3/README.md) | pending upload | 1003000 | 0.0083 | 0.0199 | 0.0122 | — | — | no |
+| [m4-fourier1-s0](results/runs/m4-fourier1-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb9ed5754b980da256e) | 601000 | 0.0181 | 0.0133 | 0.0125 | 0.0480 | 600000 | no |
+| [m4-fourier1-s0-cont1](results/runs/m4-fourier1-s0-cont1/README.md) | pending upload | 0 | — | — | — | — | — | no |
+| [m4-fourier1-s0-cont2](results/runs/m4-fourier1-s0-cont2/README.md) | pending upload | 0 | — | — | — | — | — | no |
+| [m4-fourier1-s0-cont3](results/runs/m4-fourier1-s0-cont3/README.md) | pending upload | 601000 | 0.0164 | 0.0158 | 0.0146 | — | — | no |
+| [m4-fourier4-s0](results/runs/m4-fourier4-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb628936cae54ff280c) | 602000 | 0.0137 | 0.0161 | 0.0125 | 0.0740 | 600000 | no |
+| [m4-fourier4-s0-cont1](results/runs/m4-fourier4-s0-cont1/README.md) | pending upload | 0 | — | — | — | — | — | no |
+| [m4-fourier4-s0-cont2](results/runs/m4-fourier4-s0-cont2/README.md) | pending upload | 0 | — | — | — | — | — | no |
+| [m4-fourier4-s0-cont3](results/runs/m4-fourier4-s0-cont3/README.md) | pending upload | 601000 | 0.0154 | 0.0160 | 0.0140 | — | — | no |
 | [m4-handcrafted-s0](results/runs/m4-handcrafted-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb6555c1eef3e7c6a5b) | 1468000 | 0.0118 | 0.0162 | 0.0170 | 0.5760 | 1450000 | no |
 | [m4-handcrafted-s0-cont1](results/runs/m4-handcrafted-s0-cont1/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb89ddace69a79a65f6) | 1160000 | 0.0132 | 0.0140 | 0.0150 | 0.5660 | 1150000 | no |
 | [m4-handcrafted-s0-cont2](results/runs/m4-handcrafted-s0-cont2/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb84f0a7faf0b586cf8) | 2000000 | 0.0135 | 0.0159 | 0.0192 | 0.5640 | 2000000 | yes |

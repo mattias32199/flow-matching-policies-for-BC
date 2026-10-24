@@ -65,3 +65,21 @@ class ReplacementTests(unittest.TestCase):
             (root / '.local/individual-replacements.json').write_text(json.dumps({'a': 'b', 'b': 'a'}))
             with self.assertRaises(ValueError):
                 individual_jobs.resolve_run('a', root)
+
+
+class WorkerEnvironmentTests(unittest.TestCase):
+    def test_gpu_worker_clears_cpu_selector_inherited_from_supervisor(self):
+        import os
+        import subprocess
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);(root/'.local').mkdir()
+            prepared=root/'.local/prepared.json'
+            prepared.write_text(json.dumps([{'run':'case','command':['python','train.py']}]))
+            with patch.object(individual_jobs,'ROOT',root),patch.object(individual_jobs,'PREPARED',prepared), \
+                 patch.object(individual_jobs,'record'),patch.object(individual_jobs,'log'), \
+                 patch.dict(os.environ,{'JAX_PLATFORMS':'cpu','JAX_PLATFORM_NAME':'cpu'}), \
+                 patch.object(individual_jobs.subprocess,'run',return_value=subprocess.CompletedProcess([],1)) as run:
+                individual_jobs.run('case')
+                env=run.call_args.kwargs['env']
+                self.assertNotIn('JAX_PLATFORMS',env)
+                self.assertNotIn('JAX_PLATFORM_NAME',env)

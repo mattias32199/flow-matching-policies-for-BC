@@ -63,7 +63,7 @@ def prepare():
                  f'#SBATCH --chdir={directory}', f'#SBATCH --output={directory / "o"}',
                  f'#SBATCH --error={directory / "e"}',
                  'set -euo pipefail', 'umask 0077', 'cd ' + shlex.quote(str(ROOT)),
-                 'source scripts/env.sh',
+                 'source scripts/env.sh', 'unset JAX_PLATFORMS JAX_PLATFORM_NAME',
                  'exec .venv/bin/python -u scripts/individual_jobs.py run --name ' + shlex.quote(name)]
         launcher.write_text('\n'.join(lines) + '\n')
         launcher.chmod(0o700)
@@ -114,6 +114,56 @@ def submit_all():
             print(f"{job['run']} {job_id}", flush=True)
 
 
+def submit_replacement(name):
+    """Submit a new allocation when an expired Slurm job can no longer be requeued."""
+    with locked(ROOT / '.local/individual-submit.lock'):
+        ledger = json.loads(LEDGER.read_text())
+        if ledger[name].get('state') == 'submission_uncertain':
+            raise RuntimeError('Reconcile uncertain replacement submission before retrying: ' + name)
+        jobs = json.loads(PREPARED.read_text())
+        job = next(job for job in jobs if job['run'] == name)
+        directory = ROOT.parent / '.private-jobs' / secrets.token_hex(16)
+        directory.mkdir(mode=0o700)
+        launcher = directory / (name + '.sbatch')
+        lines = ['#!/bin/bash', '#SBATCH --job-name=' + name,
+                 '#SBATCH --requeue', '#SBATCH --partition=deepaklong',
+                 '#SBATCH --constraint=A6000|A5000|rtx6000', '#SBATCH --gres=gpu:1',
+                 '#SBATCH --ntasks=1', '#SBATCH --cpus-per-task=8',
+                 '#SBATCH --mem=' + job.get('memory', '48G'), '#SBATCH --time=2-00:00:00',
+                 '#SBATCH --exclude=grogu-3-20,grogu-2-35',
+                 '#SBATCH --chdir=' + str(directory), '#SBATCH --output=' + str(directory/'o'),
+                 '#SBATCH --error=' + str(directory/'e'),
+                 'set -euo pipefail', 'umask 0077', 'cd ' + shlex.quote(str(ROOT)),
+                 'source scripts/env.sh', 'unset JAX_PLATFORMS JAX_PLATFORM_NAME',
+                 'exec .venv/bin/python -u scripts/individual_jobs.py run --name ' + shlex.quote(name)]
+        launcher.write_text('\n'.join(lines) + '\n'); launcher.chmod(0o700)
+        subprocess.run(['/bin/bash', '-n', str(launcher)], check=True)
+        job.update(launcher=str(launcher), descriptive_launcher=str(launcher),
+                   private_directory=str(directory), partition='deepaklong',
+                   gpu_constraint='A6000|A5000|rtx6000', time_limit='2-00:00:00')
+        job.pop('time_min', None)
+        write_json(PREPARED, jobs)
+        record(name, state='submitting')
+        try:
+            result = subprocess.run(['sbatch', '--parsable', str(launcher)],
+                capture_output=True, text=True, check=True, timeout=45)
+            job_id = result.stdout.strip().split(';')[0]
+            if not job_id.isdigit():
+                raise ValueError('Invalid replacement scheduler acknowledgement')
+        except Exception as error:
+            record(name, state='submission_uncertain', error=type(error).__name__)
+            log('Replacement submission requires reconciliation for ' + name + ': ' + str(error))
+            raise
+        with locked(LEDGER.with_suffix('.lock')):
+            data = json.loads(LEDGER.read_text()); item = data[name]
+            item['previous_job_id'] = item.get('job_id')
+            item['job_id'] = job_id
+            if item.get('state') == 'submitting': item['state'] = 'submitted'
+            write_json(LEDGER, data)
+        log(f'Submitted fresh recovery allocation {job_id} for {name}; 48h deepaklong, preserved checkpoint bundle.')
+        return job_id
+
+
 def resolve_run(name, root=ROOT):
     path = root / '.local/individual-replacements.json'
     replacements = json.loads(path.read_text()) if path.exists() else {}
@@ -142,7 +192,10 @@ def run(name):
             return 1
         record(name, state='running', job_id=os.environ.get('SLURM_JOB_ID'))
         log(f'Individual worker started {name}. Shared-cache disk prefetch enabled; no extra GPU allocation.')
-        result = subprocess.run(job['command'], cwd=ROOT)
+        training_env = os.environ.copy()
+        training_env.pop('JAX_PLATFORMS', None)
+        training_env.pop('JAX_PLATFORM_NAME', None)
+        result = subprocess.run(job['command'], cwd=ROOT, env=training_env)
         state = 'completed' if result.returncode == 0 and (directory / 'DONE').exists() else 'failed'
         record(name, state=state, exit_code=result.returncode)
         log(f'Individual worker {name} exited{result.returncode}; state={state}.')

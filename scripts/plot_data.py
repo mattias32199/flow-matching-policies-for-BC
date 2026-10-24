@@ -88,6 +88,19 @@ def export(root=ROOT, plan=None, output=None, require_complete=False):
                         arrays['audit__'+key] = np.asarray(values, dtype=np.float64)
                     elif all(isinstance(v, str) for v in values):
                         arrays['audit__'+key] = np.asarray(values, dtype=np.str_)
+        if 'audit__validation_set' in arrays:
+            fixed = sorted([row for row in audit if row['validation_set'] == 'original2500'],
+                           key=lambda row: row['checkpoint_step'])
+            if fixed:
+                metadata['recommended_validation_prefix'] = 'fixed_validation'
+                metadata['fixed_validation_policy'] = ('Measured retained checkpoints on ONE regenerated '
+                    'index-0/parallel-2500 dataset. No interpolation or offset correction. '
+                    'Historical validation logs remain unchanged under history__metrics__validation__*.')
+                arrays['fixed_validation__step'] = np.asarray([r['checkpoint_step'] for r in fixed], dtype=np.int64)
+                arrays['fixed_validation__jsonl'] = np.asarray([json.dumps(r, sort_keys=True) for r in fixed], dtype=np.str_)
+                for key in ['flow_loss', 'action_mse', 'flow_loss_batch_se', 'action_mse_batch_se']:
+                    if all(key in r for r in fixed):
+                        arrays['fixed_validation__'+key] = np.asarray([r[key] for r in fixed], dtype=np.float64)
         arrays['manifest_json'] = np.asarray(json.dumps(metadata, sort_keys=True))
         path = output / (source + '.npz')
         np.savez_compressed(path, **arrays)

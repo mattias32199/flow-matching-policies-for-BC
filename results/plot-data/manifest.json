@@ -13,8 +13,8 @@
     },
     "m4-handcrafted-s0": {
       "file": "m4-handcrafted-s0.npz",
-      "bytes": 685764,
-      "sha256": "80c6ab3fe116d3d6df5fce33af4397908feccc52fb93ac1ad50b4ceb54149f17",
+      "bytes": 688423,
+      "sha256": "c4221c860a179bd1c07a8627e6fec2f9ab5f68bdd3f3b67f5c85cf07541bb876",
       "selected_segment": "m4-handcrafted-s0-cont2",
       "segments": [
         "m4-handcrafted-s0",
@@ -24,8 +24,8 @@
     },
     "m4-standardized-s0": {
       "file": "m4-standardized-s0.npz",
-      "bytes": 691003,
-      "sha256": "a12b106ea3d104575fd870a1a792c6ef440e353739b2d75928789650338272a1",
+      "bytes": 693685,
+      "sha256": "e2ef4e32171e415157099f74a19b8bd7ed6b85e7ebd8b0625e17297f958c9bd0",
       "selected_segment": "m4-standardized-s0-cont2",
       "segments": [
         "m4-standardized-s0",
@@ -35,8 +35,8 @@
     },
     "m4-xyz0.1-s0": {
       "file": "m4-xyz0.1-s0.npz",
-      "bytes": 684778,
-      "sha256": "fcbf35861a067736e6dbcc7bc8cd3e4113988d199ca5fe9a11f3734cd19f7d8a",
+      "bytes": 687452,
+      "sha256": "d167745063f58dee7dead2c2df435ab6e3e1856840cba932c6b403b821f323dd",
       "selected_segment": "m4-xyz0.1-s0-cont2",
       "segments": [
         "m4-xyz0.1-s0",
@@ -46,13 +46,32 @@
     },
     "m4-xyz10-s0": {
       "file": "m4-xyz10-s0.npz",
-      "bytes": 684584,
-      "sha256": "6fac366274abfee9fc5e1d383a90b868c4453fd1e0286575bdc552791816b5d0",
+      "bytes": 687250,
+      "sha256": "bc5e72a9a99a93f5230f14a8acd6bb9e285ac6337725f3b5ebbfbebad74d0125",
       "selected_segment": "m4-xyz10-s0-cont2",
       "segments": [
         "m4-xyz10-s0",
         "m4-xyz10-s0-cont1",
         "m4-xyz10-s0-cont2"
+      ]
+    },
+    "m1-double-n10000-s1": {
+      "file": "m1-double-n10000-s1.npz",
+      "bytes": 434688,
+      "sha256": "e66d0210715139016d96c577f13883db02e2b000305b68fb44a5d5b0a5080a44",
+      "selected_segment": "m1-double-n10000-s1",
+      "segments": [
+        "m1-double-n10000-s1"
+      ]
+    },
+    "m1-single-n10000-s0": {
+      "file": "m1-single-n10000-s0.npz",
+      "bytes": 446195,
+      "sha256": "e393cb97821abf468fb9a1837a9873a97a29364806bddf7876066d64fbace2d2",
+      "selected_segment": "m1-single-n10000-s0-cont1",
+      "segments": [
+        "m1-single-n10000-s0",
+        "m1-single-n10000-s0-cont1"
       ]
     }
   }

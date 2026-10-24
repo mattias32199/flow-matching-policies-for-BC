@@ -1,6 +1,6 @@
 # Mystery 1 and 4: completed experiments
 
-**7 of 10 experiments have completed 2,000,000 updates and final 500-episode evaluations.** The four main M4 conditions are complete. Additional completed M1 results, plots and per-experiment NPZ files are included below; unfinished experiments are excluded from final comparisons.
+**8 of 10 experiments have completed 2,000,000 updates and final 500-episode evaluations.** The four main M4 conditions are complete. Additional completed M1 results, plots and per-experiment NPZ files are included below; unfinished experiments are excluded from final comparisons.
 
 ## Run configuration
 
@@ -32,6 +32,7 @@ This completed run supports the observation that worsening validation flow loss 
 | Double | 10,000 | 0 | 25.8% | 0.00337 | 0.05617 | 0.01460 |
 | Double | 10,000 | 1 | 27.4% | 0.00329 | 0.09256 | 0.04761 |
 | Single | 10,000 | 0 | 89.2% | 0.00132 | 0.06189 | 0.01467 |
+| Single | 50,000 | 0 | 82.6% | 0.00337 | 0.03335 | 0.02161 |
 
 Every row has completed 2M updates and a final 500-episode rollout. Double-task seeds 0 and 1 use different demonstration seeds as well as training seeds; they are not a controlled training-seed-only comparison. Single-task and double-task success are different tasks. A 10K-versus-50K comparison is reported only after both single-task runs finish. Continuations follow checkpoint ancestry and exclude discarded post-checkpoint updates.
 
@@ -73,8 +74,9 @@ Each completed experiment has a compressed, pickle-free NPZ with full unsmoothed
 | m4-xyz10-s0 | [Download](results/plot-data/m4-xyz10-s0.npz) | 671.1 KiB |
 | m1-double-n10000-s1 | [Download](results/plot-data/m1-double-n10000-s1.npz) | 424.5 KiB |
 | m1-single-n10000-s0 | [Download](results/plot-data/m1-single-n10000-s0.npz) | 435.7 KiB |
+| m1-single-n50000-s0 | [Download](results/plot-data/m1-single-n50000-s0.npz) | 439.3 KiB |
 
-Combined size: **3975.3 KiB**. [SHA-256 manifest](results/plot-data/manifest.json).
+Combined size: **4414.6 KiB**. [SHA-256 manifest](results/plot-data/manifest.json).
 
 Recreate the figures using only the published NPZ files:
 
@@ -122,15 +124,15 @@ Pilot runs validate execution only. Reproduction runs target 2,000,000 updates; 
 | [m1-single-n50000-s0](results/runs/m1-single-n50000-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb85c79ff83a5c3d368) | 1021000 | 0.0067 | 0.0240 | 0.0140 | 0.8140 | 1000000 | no |
 | [m1-single-n50000-s0-cont1](results/runs/m1-single-n50000-s0-cont1/README.md) | pending upload | 0 | — | — | — | — | — | no |
 | [m1-single-n50000-s0-cont2](results/runs/m1-single-n50000-s0-cont2/README.md) | pending upload | 0 | — | — | — | — | — | no |
-| [m1-single-n50000-s0-cont3](results/runs/m1-single-n50000-s0-cont3/README.md) | pending upload | 1003000 | 0.0083 | 0.0199 | 0.0122 | — | — | no |
+| [m1-single-n50000-s0-cont3](results/runs/m1-single-n50000-s0-cont3/README.md) | pending upload | 2000000 | 0.0034 | 0.0334 | 0.0216 | 0.8260 | 2000000 | yes |
 | [m4-fourier1-s0](results/runs/m4-fourier1-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb9ed5754b980da256e) | 601000 | 0.0181 | 0.0133 | 0.0125 | 0.0480 | 600000 | no |
 | [m4-fourier1-s0-cont1](results/runs/m4-fourier1-s0-cont1/README.md) | pending upload | 0 | — | — | — | — | — | no |
 | [m4-fourier1-s0-cont2](results/runs/m4-fourier1-s0-cont2/README.md) | pending upload | 0 | — | — | — | — | — | no |
-| [m4-fourier1-s0-cont3](results/runs/m4-fourier1-s0-cont3/README.md) | pending upload | 601000 | 0.0164 | 0.0158 | 0.0146 | — | — | no |
+| [m4-fourier1-s0-cont3](results/runs/m4-fourier1-s0-cont3/README.md) | pending upload | 1169000 | 0.0116 | 0.0131 | 0.0125 | 0.3180 | 1150000 | no |
 | [m4-fourier4-s0](results/runs/m4-fourier4-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb628936cae54ff280c) | 602000 | 0.0137 | 0.0161 | 0.0125 | 0.0740 | 600000 | no |
 | [m4-fourier4-s0-cont1](results/runs/m4-fourier4-s0-cont1/README.md) | pending upload | 0 | — | — | — | — | — | no |
 | [m4-fourier4-s0-cont2](results/runs/m4-fourier4-s0-cont2/README.md) | pending upload | 0 | — | — | — | — | — | no |
-| [m4-fourier4-s0-cont3](results/runs/m4-fourier4-s0-cont3/README.md) | pending upload | 601000 | 0.0154 | 0.0160 | 0.0140 | — | — | no |
+| [m4-fourier4-s0-cont3](results/runs/m4-fourier4-s0-cont3/README.md) | pending upload | 1169000 | 0.0119 | 0.0134 | 0.0140 | 0.3060 | 1150000 | no |
 | [m4-handcrafted-s0](results/runs/m4-handcrafted-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb6555c1eef3e7c6a5b) | 1468000 | 0.0118 | 0.0162 | 0.0170 | 0.5760 | 1450000 | no |
 | [m4-handcrafted-s0-cont1](results/runs/m4-handcrafted-s0-cont1/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb89ddace69a79a65f6) | 1160000 | 0.0132 | 0.0140 | 0.0150 | 0.5660 | 1150000 | no |
 | [m4-handcrafted-s0-cont2](results/runs/m4-handcrafted-s0-cont2/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb84f0a7faf0b586cf8) | 2000000 | 0.0135 | 0.0159 | 0.0192 | 0.5640 | 2000000 | yes |

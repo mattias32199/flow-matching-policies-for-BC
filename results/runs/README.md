@@ -15,7 +15,7 @@ Full runs, queued conditions, and diagnostic runs are separate entries. Evaluati
 | m1-single-n50000-s0 | inactive | [Config and logs](m1-single-n50000-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb85c79ff83a5c3d368) |
 | m1-single-n50000-s0-cont1 | inactive | [Config and logs](m1-single-n50000-s0-cont1/README.md) | not uploaded |
 | m1-single-n50000-s0-cont2 | inactive | [Config and logs](m1-single-n50000-s0-cont2/README.md) | not uploaded |
-| m1-single-n50000-s0-cont3 | training | [Config and logs](m1-single-n50000-s0-cont3/README.md) | not uploaded |
+| m1-single-n50000-s0-cont3 | completed | [Config and logs](m1-single-n50000-s0-cont3/README.md) | not uploaded |
 | m4-fourier1-s0 | inactive | [Config and logs](m4-fourier1-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb9ed5754b980da256e) |
 | m4-fourier1-s0-cont1 | inactive | [Config and logs](m4-fourier1-s0-cont1/README.md) | not uploaded |
 | m4-fourier1-s0-cont2 | inactive | [Config and logs](m4-fourier1-s0-cont2/README.md) | not uploaded |

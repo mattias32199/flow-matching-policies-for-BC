@@ -73,6 +73,18 @@
         "m1-single-n10000-s0",
         "m1-single-n10000-s0-cont1"
       ]
+    },
+    "m1-single-n50000-s0": {
+      "file": "m1-single-n50000-s0.npz",
+      "bytes": 449863,
+      "sha256": "ed4fa4d44f3a045299c414725ef8386cb1c3823768a3e002a484827591712ea4",
+      "selected_segment": "m1-single-n50000-s0-cont3",
+      "segments": [
+        "m1-single-n50000-s0",
+        "m1-single-n50000-s0-cont1",
+        "m1-single-n50000-s0-cont2",
+        "m1-single-n50000-s0-cont3"
+      ]
     }
   }
 }

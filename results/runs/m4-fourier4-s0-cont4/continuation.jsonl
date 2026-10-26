@@ -1,0 +1,1 @@
+{"resume_source_run": "m4-fourier4-s0-cont3", "resume_step": 1800000, "resume_checkpoint_sha256": "bb727c33afc9baa03e0e277a0505a15cf0223f61b5d468389e3a4ce2d05f22d2", "resume_stream_index": 3094, "resume_kind": "agent_optimizer_rng_fresh_stream", "validation_reset": false}

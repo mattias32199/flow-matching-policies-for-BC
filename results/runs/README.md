@@ -19,11 +19,13 @@ Full runs, queued conditions, and diagnostic runs are separate entries. Evaluati
 | m4-fourier1-s0 | inactive | [Config and logs](m4-fourier1-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb9ed5754b980da256e) |
 | m4-fourier1-s0-cont1 | inactive | [Config and logs](m4-fourier1-s0-cont1/README.md) | not uploaded |
 | m4-fourier1-s0-cont2 | inactive | [Config and logs](m4-fourier1-s0-cont2/README.md) | not uploaded |
-| m4-fourier1-s0-cont3 | training | [Config and logs](m4-fourier1-s0-cont3/README.md) | not uploaded |
+| m4-fourier1-s0-cont3 | inactive | [Config and logs](m4-fourier1-s0-cont3/README.md) | not uploaded |
+| m4-fourier1-s0-cont4 | completed | [Config and logs](m4-fourier1-s0-cont4/README.md) | not uploaded |
 | m4-fourier4-s0 | inactive | [Config and logs](m4-fourier4-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb628936cae54ff280c) |
 | m4-fourier4-s0-cont1 | inactive | [Config and logs](m4-fourier4-s0-cont1/README.md) | not uploaded |
 | m4-fourier4-s0-cont2 | inactive | [Config and logs](m4-fourier4-s0-cont2/README.md) | not uploaded |
-| m4-fourier4-s0-cont3 | training | [Config and logs](m4-fourier4-s0-cont3/README.md) | not uploaded |
+| m4-fourier4-s0-cont3 | inactive | [Config and logs](m4-fourier4-s0-cont3/README.md) | not uploaded |
+| m4-fourier4-s0-cont4 | completed | [Config and logs](m4-fourier4-s0-cont4/README.md) | not uploaded |
 | m4-handcrafted-s0 | inactive | [Config and logs](m4-handcrafted-s0/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb6555c1eef3e7c6a5b) |
 | m4-handcrafted-s0-cont1 | inactive | [Config and logs](m4-handcrafted-s0-cont1/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb89ddace69a79a65f6) |
 | m4-handcrafted-s0-cont2 | completed | [Config and logs](m4-handcrafted-s0-cont2/README.md) | [Charts](https://forge.coreweave.com/wandb/yzchhr/ocbench-bc-mysteries-1-4/runs/ocb84f0a7faf0b586cf8) |

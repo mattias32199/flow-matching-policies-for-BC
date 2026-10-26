@@ -85,6 +85,32 @@
         "m1-single-n50000-s0-cont2",
         "m1-single-n50000-s0-cont3"
       ]
+    },
+    "m4-fourier1-s0": {
+      "file": "m4-fourier1-s0.npz",
+      "bytes": 789107,
+      "sha256": "e351440900d006125f6ec001a76792964698548bd306df9d6fe4942867a911b9",
+      "selected_segment": "m4-fourier1-s0-cont4",
+      "segments": [
+        "m4-fourier1-s0",
+        "m4-fourier1-s0-cont1",
+        "m4-fourier1-s0-cont2",
+        "m4-fourier1-s0-cont3",
+        "m4-fourier1-s0-cont4"
+      ]
+    },
+    "m4-fourier4-s0": {
+      "file": "m4-fourier4-s0.npz",
+      "bytes": 789224,
+      "sha256": "ebc5a79120497e3de1400dec047f5f330e070038e26009f1fda24b7aeb4077ad",
+      "selected_segment": "m4-fourier4-s0-cont4",
+      "segments": [
+        "m4-fourier4-s0",
+        "m4-fourier4-s0-cont1",
+        "m4-fourier4-s0-cont2",
+        "m4-fourier4-s0-cont3",
+        "m4-fourier4-s0-cont4"
+      ]
     }
   }
 }

@@ -1,6 +1,6 @@
 # m4-fourier1-s0-cont3
 
-Status: **training**.
+Status: **inactive**.
 
 [Results](../../../RESULTS.md) · [Run catalog](../README.md)
 
@@ -25,6 +25,20 @@ These JSONL records are the complete portable scalar logs, not sampled chart exp
 | 1050000 | 0.316 | 500 | [JSONL line 9](eval.jsonl#L9) | pending upload |
 | 1100000 | 0.298 | 500 | [JSONL line 10](eval.jsonl#L10) | pending upload |
 | 1150000 | 0.318 | 500 | [JSONL line 11](eval.jsonl#L11) | pending upload |
+| 1200000 | 0.352 | 500 | [JSONL line 12](eval.jsonl#L12) | pending upload |
+| 1250000 | 0.396 | 500 | [JSONL line 13](eval.jsonl#L13) | pending upload |
+| 1300000 | 0.324 | 500 | [JSONL line 14](eval.jsonl#L14) | pending upload |
+| 1350000 | 0.38 | 500 | [JSONL line 15](eval.jsonl#L15) | pending upload |
+| 1400000 | 0.386 | 500 | [JSONL line 16](eval.jsonl#L16) | pending upload |
+| 1450000 | 0.454 | 500 | [JSONL line 17](eval.jsonl#L17) | pending upload |
+| 1500000 | 0.468 | 500 | [JSONL line 18](eval.jsonl#L18) | pending upload |
+| 1550000 | 0.43 | 500 | [JSONL line 19](eval.jsonl#L19) | pending upload |
+| 1600000 | 0.498 | 500 | [JSONL line 20](eval.jsonl#L20) | pending upload |
+| 1650000 | 0.48 | 500 | [JSONL line 21](eval.jsonl#L21) | pending upload |
+| 1700000 | 0.476 | 500 | [JSONL line 22](eval.jsonl#L22) | pending upload |
+| 1750000 | 0.528 | 500 | [JSONL line 23](eval.jsonl#L23) | pending upload |
+| 1800000 | 0.516 | 500 | [JSONL line 24](eval.jsonl#L24) | pending upload |
+| 1850000 | 0.486 | 500 | [JSONL line 25](eval.jsonl#L25) | pending upload |
 
 ## Continuation boundary
 

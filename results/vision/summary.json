@@ -1,0 +1,1301 @@
+{
+ "single": [
+  {
+   "group": "State (privileged)",
+   "label": "state: handcrafted",
+   "run": "v-state-single-n10000-int25-s0",
+   "final": 0.8493333333333334,
+   "best": 0.868,
+   "last_step": 500000,
+   "done": true
+  },
+  {
+   "group": "State (privileged)",
+   "label": "state: standardized",
+   "run": "v-state-single-standardized-n10000-int25-s0",
+   "final": 0.846,
+   "best": 0.89,
+   "last_step": 500000,
+   "done": true
+  },
+  {
+   "group": "State (privileged)",
+   "label": "state: xyz x0.1",
+   "run": "v-state-single-xyz0.1-n10000-int25-s0",
+   "final": 0.8226666666666667,
+   "best": 0.85,
+   "last_step": 500000,
+   "done": true
+  },
+  {
+   "group": "State (privileged)",
+   "label": "state: xyz x10",
+   "run": "v-state-single-xyz10-n10000-int25-s0",
+   "final": 0.8673333333333333,
+   "best": 0.904,
+   "last_step": 500000,
+   "done": true
+  },
+  {
+   "group": "State (privileged)",
+   "label": "state: Fourier",
+   "run": "v-state-single-fourier4-n10000-int25-s0",
+   "final": 0.8553333333333333,
+   "best": 0.878,
+   "last_step": 500000,
+   "done": true
+  },
+  {
+   "group": "Frozen generic encoder (CLS)",
+   "label": "random ViT-S",
+   "run": "v-B-random_vit_s-s0",
+   "final": 0.005555555555555556,
+   "best": 0.01,
+   "last_step": 300000,
+   "done": true
+  },
+  {
+   "group": "Frozen generic encoder (CLS)",
+   "label": "SimCLR R50",
+   "run": "v-B-simclr_r50-s0",
+   "final": 0.34222222222222226,
+   "best": 0.37,
+   "last_step": 300000,
+   "done": true
+  },
+  {
+   "group": "Frozen generic encoder (CLS)",
+   "label": "DINOv2-S",
+   "run": "v-B-dinov2_s-s0",
+   "final": 0.6466666666666666,
+   "best": 0.6766666666666666,
+   "last_step": 300000,
+   "done": true
+  },
+  {
+   "group": "Frozen generic encoder (CLS)",
+   "label": "ResNet-50 (IN cls)",
+   "run": "v-B-resnet50_ce-s0",
+   "final": 0.6544444444444445,
+   "best": 0.6733333333333333,
+   "last_step": 300000,
+   "done": true
+  },
+  {
+   "group": "Frozen generic encoder (CLS)",
+   "label": "DINOv2-B",
+   "run": "v-B-dinov2_b-s0",
+   "final": 0.7144444444444445,
+   "best": 0.75,
+   "last_step": 300000,
+   "done": true
+  },
+  {
+   "group": "Frozen generic encoder (CLS)",
+   "label": "MAE ViT-B",
+   "run": "v-B-mae_b16-s0",
+   "final": 0.7322222222222221,
+   "best": 0.76,
+   "last_step": 300000,
+   "done": true
+  },
+  {
+   "group": "Frozen generic encoder (CLS)",
+   "label": "CLIP B/16",
+   "run": "v-B-clip_b16-s0",
+   "final": 0.7611111111111111,
+   "best": 0.79,
+   "last_step": 300000,
+   "done": true
+  },
+  {
+   "group": "Frozen, spatial pooling",
+   "label": "DINOv2-S patches 2x2",
+   "run": "v-C-dinov2_s_p2-s0",
+   "final": 0.831111111111111,
+   "best": 0.88,
+   "last_step": 300000,
+   "done": true
+  },
+  {
+   "group": "Frozen, spatial pooling",
+   "label": "DINOv2-S patches 4x4",
+   "run": "v-C-dinov2_s_p4-s0",
+   "final": 0.9022222222222221,
+   "best": 0.9166666666666666,
+   "last_step": 300000,
+   "done": true
+  },
+  {
+   "group": "End-to-end",
+   "label": "Impala (scratch)",
+   "run": "v-D-impala-scratch-s0",
+   "final": 0.8588888888888889,
+   "best": 0.89,
+   "last_step": 200000,
+   "done": true
+  },
+  {
+   "group": "End-to-end",
+   "label": "ResNet-18 fine-tune",
+   "run": "v-D-resnet18-ft-s0",
+   "final": 0.9011111111111111,
+   "best": 0.9266666666666666,
+   "last_step": 200000,
+   "done": true
+  },
+  {
+   "group": "End-to-end",
+   "label": "DINOv2-S fine-tune",
+   "run": "v-D-dinov2_s-ft-s0",
+   "final": 0.8766666666666666,
+   "best": 0.9533333333333334,
+   "last_step": 200000,
+   "done": true
+  },
+  {
+   "group": "Frozen, sim-pretrained (ours)",
+   "label": "ResNet-18, sim DR",
+   "run": "v-F-bc-enc-dr-resnet18-s0",
+   "final": 0.9466666666666667,
+   "best": 0.96,
+   "last_step": 300000,
+   "done": true
+  },
+  {
+   "group": "Frozen, sim-pretrained (ours)",
+   "label": "DINOv2-S, sim DR",
+   "run": "v-F-bc-enc-dr-dinov2s-s0",
+   "final": 0.9677777777777777,
+   "best": 0.9733333333333334,
+   "last_step": 300000,
+   "done": true
+  },
+  {
+   "group": "Frozen, sim-pretrained (ours)",
+   "label": "DINOv2-S, sim no-DR",
+   "run": "v-F-bc-enc-nodr-dinov2s-s0",
+   "final": 0.9666666666666667,
+   "best": 0.9733333333333334,
+   "last_step": 300000,
+   "done": true
+  }
+ ],
+ "probe": [
+  {
+   "encoder": "random_vit_s",
+   "run": "v-B-random_vit_s-s0",
+   "label": "random ViT-S",
+   "group": "Frozen generic encoder (CLS)",
+   "cube_r2": 0.49741268157958984,
+   "mean_r2": 0.47903064886728924,
+   "success": 0.005555555555555556
+  },
+  {
+   "encoder": "simclr_r50",
+   "run": "v-B-simclr_r50-s0",
+   "label": "SimCLR R50",
+   "group": "Frozen generic encoder (CLS)",
+   "cube_r2": 0.9326030611991882,
+   "mean_r2": 0.8734910488128662,
+   "success": 0.34222222222222226
+  },
+  {
+   "encoder": "dinov2_s",
+   "run": "v-B-dinov2_s-s0",
+   "label": "DINOv2-S",
+   "group": "Frozen generic encoder (CLS)",
+   "cube_r2": 0.8899195790290833,
+   "mean_r2": 0.8507715066274008,
+   "success": 0.6466666666666666
+  },
+  {
+   "encoder": "resnet50_ce",
+   "run": "v-B-resnet50_ce-s0",
+   "label": "ResNet-50 (IN cls)",
+   "group": "Frozen generic encoder (CLS)",
+   "cube_r2": 0.9472193121910095,
+   "mean_r2": 0.8790862162907919,
+   "success": 0.6544444444444445
+  },
+  {
+   "encoder": "dinov2_b",
+   "run": "v-B-dinov2_b-s0",
+   "label": "DINOv2-B",
+   "group": "Frozen generic encoder (CLS)",
+   "cube_r2": 0.9279866218566895,
+   "mean_r2": 0.8798200090726217,
+   "success": 0.7144444444444445
+  },
+  {
+   "encoder": "mae_b16",
+   "run": "v-B-mae_b16-s0",
+   "label": "MAE ViT-B",
+   "group": "Frozen generic encoder (CLS)",
+   "cube_r2": 0.9488744139671326,
+   "mean_r2": 0.9059918721516927,
+   "success": 0.7322222222222221
+  },
+  {
+   "encoder": "clip_b16",
+   "run": "v-B-clip_b16-s0",
+   "label": "CLIP B/16",
+   "group": "Frozen generic encoder (CLS)",
+   "cube_r2": 0.9259798526763916,
+   "mean_r2": 0.8531877199808756,
+   "success": 0.7611111111111111
+  },
+  {
+   "encoder": "dinov2_s_p2",
+   "run": "v-C-dinov2_s_p2-s0",
+   "label": "DINOv2-S patches 2x2",
+   "group": "Frozen, spatial pooling",
+   "cube_r2": 0.9764366149902344,
+   "mean_r2": 0.9093719720840454,
+   "success": 0.831111111111111
+  },
+  {
+   "encoder": "dinov2_s_p4",
+   "run": "v-C-dinov2_s_p4-s0",
+   "label": "DINOv2-S patches 4x4",
+   "group": "Frozen, spatial pooling",
+   "cube_r2": 0.9871082305908203,
+   "mean_r2": 0.9370331764221191,
+   "success": 0.9022222222222221
+  },
+  {
+   "encoder": "pre:v-F-enc-nodr-dinov2s",
+   "run": "v-F-bc-enc-nodr-dinov2s-s0",
+   "label": "DINOv2-S, sim no-DR",
+   "group": "Frozen, sim-pretrained (ours)",
+   "cube_r2": 0.9977717995643616,
+   "mean_r2": 0.9454266627629598,
+   "success": 0.9666666666666667
+  },
+  {
+   "encoder": "pre:v-F-enc-dr-dinov2s",
+   "run": "v-F-bc-enc-dr-dinov2s-s0",
+   "label": "DINOv2-S, sim DR",
+   "group": "Frozen, sim-pretrained (ours)",
+   "cube_r2": 0.9964284896850586,
+   "mean_r2": 0.9418524702390035,
+   "success": 0.9677777777777777
+  },
+  {
+   "encoder": "pre:v-F-enc-dr-resnet18",
+   "run": "v-F-bc-enc-dr-resnet18-s0",
+   "label": "ResNet-18, sim DR",
+   "group": "Frozen, sim-pretrained (ours)",
+   "cube_r2": 0.9922100901603699,
+   "mean_r2": 0.9308158159255981,
+   "success": 0.9466666666666667
+  }
+ ],
+ "double_visual": [
+  {
+   "label": "state, 10K demos, every 25th step (1M upd.)",
+   "run": "v-state-double-n10000-int25-s0",
+   "final": 0.13733333333333334,
+   "best": 0.166,
+   "last_step": 1000000,
+   "done": true
+  },
+  {
+   "label": "frozen DINOv2-S CLS",
+   "run": "v-dbl-dinov2_s-s0",
+   "final": 0.25,
+   "best": 0.26,
+   "last_step": 300000,
+   "done": true
+  },
+  {
+   "label": "frozen DINOv2-S 2x2 patches",
+   "run": "v-dbl-dinov2_s_p2-s0",
+   "final": 0.4444444444444445,
+   "best": 0.47333333333333333,
+   "last_step": 300000,
+   "done": true
+  },
+  {
+   "label": "frozen DINOv2-S 4x4 patches",
+   "run": "v-dbl-dinov2_s_p4-s0",
+   "final": null,
+   "best": null,
+   "last_step": null,
+   "done": false
+  },
+  {
+   "label": "frozen DINOv2-B CLS",
+   "run": "v-dbl-dinov2_b-s0",
+   "final": null,
+   "best": null,
+   "last_step": null,
+   "done": false
+  },
+  {
+   "label": "frozen CLIP B/16",
+   "run": "v-dbl-clip_b16-s0",
+   "final": null,
+   "best": null,
+   "last_step": null,
+   "done": false
+  },
+  {
+   "label": "frozen ResNet-50",
+   "run": "v-dbl-resnet50_ce-s0",
+   "final": null,
+   "best": null,
+   "last_step": null,
+   "done": false
+  },
+  {
+   "label": "frozen random ViT-S",
+   "run": "v-dbl-random_vit_s-s0",
+   "final": null,
+   "best": null,
+   "last_step": null,
+   "done": false
+  },
+  {
+   "label": "frozen DINOv2-S, sim-pretrained (no DR)",
+   "run": "v-dbl-F-bc-enc-nodr-dinov2s-s0",
+   "final": null,
+   "best": null,
+   "last_step": null,
+   "done": false
+  }
+ ],
+ "double_regime": [
+  {
+   "base": 100000,
+   "start_interval": 1,
+   "refresh_every": 0,
+   "episodes_seen_k": 100,
+   "chunk_starts": 124992949,
+   "s450_600k": 0.30600000000000005,
+   "s850k_1m": 0.5665,
+   "run": "r-fixed-n100k",
+   "final": 0.5686666666666667,
+   "best": 0.62,
+   "last_step": 1000000,
+   "done": true
+  },
+  {
+   "base": 100000,
+   "start_interval": 25,
+   "refresh_every": 0,
+   "episodes_seen_k": 100,
+   "chunk_starts": 5037520,
+   "s450_600k": 0.40800000000000003,
+   "s850k_1m": 0.5539999999999999,
+   "run": "r-fixed-n100k-int25",
+   "final": 0.5539999999999999,
+   "best": 0.632,
+   "last_step": 950000,
+   "done": false
+  },
+  {
+   "base": 100000,
+   "start_interval": 5,
+   "refresh_every": 0,
+   "episodes_seen_k": 100,
+   "chunk_starts": 25030136,
+   "s450_600k": 0.2305,
+   "s850k_1m": 0.4805,
+   "run": "r-fixed-n100k-int5",
+   "final": 0.45599999999999996,
+   "best": 0.554,
+   "last_step": 1000000,
+   "done": true
+  },
+  {
+   "base": 10000,
+   "start_interval": 1,
+   "refresh_every": 0,
+   "episodes_seen_k": 10,
+   "chunk_starts": 12467979,
+   "s450_600k": 0.247,
+   "s850k_1m": 0.3075,
+   "run": "r-fixed-n10k",
+   "final": 0.31266666666666665,
+   "best": 0.322,
+   "last_step": 1000000,
+   "done": true
+  },
+  {
+   "base": 10000,
+   "start_interval": 5,
+   "refresh_every": 0,
+   "episodes_seen_k": 10,
+   "chunk_starts": 2496744,
+   "s450_600k": 0.1775,
+   "s850k_1m": 0.222,
+   "run": "r-fixed-n10k-int5",
+   "final": 0.20666666666666667,
+   "best": 0.268,
+   "last_step": 1000000,
+   "done": true
+  },
+  {
+   "base": 1000,
+   "start_interval": 1,
+   "refresh_every": 0,
+   "episodes_seen_k": 1,
+   "chunk_starts": 1267966,
+   "s450_600k": 0.013,
+   "s850k_1m": 0.010000000000000002,
+   "run": "r-fixed-n1k",
+   "final": 0.008,
+   "best": 0.016,
+   "last_step": 1000000,
+   "done": true
+  },
+  {
+   "base": 30000,
+   "start_interval": 1,
+   "refresh_every": 0,
+   "episodes_seen_k": 30,
+   "chunk_starts": 37373031,
+   "s450_600k": 0.236,
+   "s850k_1m": 0.428,
+   "run": "r-fixed-n30k",
+   "final": 0.41933333333333334,
+   "best": 0.488,
+   "last_step": 1000000,
+   "done": true
+  },
+  {
+   "base": 30000,
+   "start_interval": 25,
+   "refresh_every": 0,
+   "episodes_seen_k": 30,
+   "chunk_starts": 1506277,
+   "s450_600k": 0.27349999999999997,
+   "s850k_1m": 0.41,
+   "run": "r-fixed-n30k-int25",
+   "final": 0.42,
+   "best": 0.446,
+   "last_step": 1000000,
+   "done": true
+  },
+  {
+   "base": 30000,
+   "start_interval": 5,
+   "refresh_every": 0,
+   "episodes_seen_k": 30,
+   "chunk_starts": 7484076,
+   "s450_600k": 0.226,
+   "s850k_1m": 0.45649999999999996,
+   "run": "r-fixed-n30k-int5",
+   "final": 0.4706666666666666,
+   "best": 0.478,
+   "last_step": 1000000,
+   "done": true
+  },
+  {
+   "base": 3000,
+   "start_interval": 1,
+   "refresh_every": 0,
+   "episodes_seen_k": 3,
+   "chunk_starts": 3726712,
+   "s450_600k": 0.0335,
+   "s850k_1m": 0.0345,
+   "run": "r-fixed-n3k",
+   "final": 0.037333333333333336,
+   "best": 0.05,
+   "last_step": 1000000,
+   "done": true
+  },
+  {
+   "base": 10000,
+   "start_interval": 1,
+   "refresh_every": 10000,
+   "episodes_seen_k": 110,
+   "chunk_starts": 12450780,
+   "s450_600k": 0.336,
+   "s850k_1m": 0.5630000000000001,
+   "run": "r-replay-b10k-r10k",
+   "final": 0.5760000000000001,
+   "best": 0.636,
+   "last_step": 1000000,
+   "done": true
+  },
+  {
+   "base": 10000,
+   "start_interval": 1,
+   "refresh_every": 2000,
+   "episodes_seen_k": 318,
+   "chunk_starts": 12386889,
+   "s450_600k": 0.39399999999999996,
+   "s850k_1m": null,
+   "run": "r-replay-b10k-r2k",
+   "final": 0.42,
+   "best": 0.448,
+   "last_step": 600000,
+   "done": false
+  },
+  {
+   "base": 30000,
+   "start_interval": 25,
+   "refresh_every": 5000,
+   "episodes_seen_k": 186,
+   "chunk_starts": 1512639,
+   "s450_600k": 0.3345,
+   "s850k_1m": null,
+   "run": "r-replay-b30k-r5k-int25",
+   "final": 0.428,
+   "best": 0.484,
+   "last_step": 750000,
+   "done": false
+  }
+ ],
+ "takeover": [
+  {
+   "env": "block-double-task1-v0",
+   "student": "none",
+   "checkpoint": null,
+   "k": 0,
+   "episodes": 1000,
+   "expert_mistake_prob": 0.1,
+   "tag": "",
+   "seconds": 100.6,
+   "student_success_by_k": 0.0,
+   "final_success": 0.798,
+   "alive_unsolved_at_k": 1.0,
+   "expert_rescue": 0.798
+  },
+  {
+   "env": "block-double-task1-v0",
+   "student": "none",
+   "checkpoint": null,
+   "k": 0,
+   "episodes": 1000,
+   "expert_mistake_prob": 0.0,
+   "tag": "",
+   "seconds": 205.6,
+   "student_success_by_k": 0.0,
+   "final_success": 0.907,
+   "alive_unsolved_at_k": 1.0,
+   "expert_rescue": 0.907
+  },
+  {
+   "env": "block-double-task1-v0",
+   "student": "m4-handcrafted-s0-cont2",
+   "checkpoint": "/grogu/datasets/tuner/bcm/flow-matching-policies-for-BC/runs/m4-handcrafted-s0-cont2/checkpoints/params_2000000.pkl",
+   "k": 0,
+   "episodes": 500,
+   "expert_mistake_prob": 0.1,
+   "tag": "",
+   "seconds": 55.0,
+   "student_success_by_k": 0.0,
+   "final_success": 0.81,
+   "alive_unsolved_at_k": 1.0,
+   "expert_rescue": 0.81
+  },
+  {
+   "env": "block-double-task1-v0",
+   "student": "m4-handcrafted-s0-cont2",
+   "checkpoint": "/grogu/datasets/tuner/bcm/flow-matching-policies-for-BC/runs/m4-handcrafted-s0-cont2/checkpoints/params_2000000.pkl",
+   "k": 125,
+   "episodes": 500,
+   "expert_mistake_prob": 0.1,
+   "tag": "",
+   "seconds": 55.7,
+   "student_success_by_k": 0.0,
+   "final_success": 0.8,
+   "alive_unsolved_at_k": 1.0,
+   "expert_rescue": 0.8
+  },
+  {
+   "env": "block-double-task1-v0",
+   "student": "m4-handcrafted-s0-cont2",
+   "checkpoint": "/grogu/datasets/tuner/bcm/flow-matching-policies-for-BC/runs/m4-handcrafted-s0-cont2/checkpoints/params_2000000.pkl",
+   "k": 250,
+   "episodes": 500,
+   "expert_mistake_prob": 0.1,
+   "tag": "",
+   "seconds": 54.1,
+   "student_success_by_k": 0.0,
+   "final_success": 0.78,
+   "alive_unsolved_at_k": 1.0,
+   "expert_rescue": 0.78
+  },
+  {
+   "env": "block-double-task1-v0",
+   "student": "m4-handcrafted-s0-cont2",
+   "checkpoint": "/grogu/datasets/tuner/bcm/flow-matching-policies-for-BC/runs/m4-handcrafted-s0-cont2/checkpoints/params_2000000.pkl",
+   "k": 500,
+   "episodes": 500,
+   "expert_mistake_prob": 0.1,
+   "tag": "",
+   "seconds": 54.2,
+   "student_success_by_k": 0.0,
+   "final_success": 0.706,
+   "alive_unsolved_at_k": 1.0,
+   "expert_rescue": 0.706
+  },
+  {
+   "env": "block-double-task1-v0",
+   "student": "m4-handcrafted-s0-cont2",
+   "checkpoint": "/grogu/datasets/tuner/bcm/flow-matching-policies-for-BC/runs/m4-handcrafted-s0-cont2/checkpoints/params_2000000.pkl",
+   "k": 750,
+   "episodes": 500,
+   "expert_mistake_prob": 0.1,
+   "tag": "",
+   "seconds": 55.2,
+   "student_success_by_k": 0.006,
+   "final_success": 0.598,
+   "alive_unsolved_at_k": 0.994,
+   "expert_rescue": 0.5955734406438632
+  },
+  {
+   "env": "block-double-task1-v0",
+   "student": "m4-handcrafted-s0-cont2",
+   "checkpoint": "/grogu/datasets/tuner/bcm/flow-matching-policies-for-BC/runs/m4-handcrafted-s0-cont2/checkpoints/params_2000000.pkl",
+   "k": 1000,
+   "episodes": 500,
+   "expert_mistake_prob": 0.1,
+   "tag": "",
+   "seconds": 55.3,
+   "student_success_by_k": 0.01,
+   "final_success": 0.66,
+   "alive_unsolved_at_k": 0.99,
+   "expert_rescue": 0.6565656565656566
+  },
+  {
+   "env": "block-double-task1-v0",
+   "student": "m4-handcrafted-s0-cont2",
+   "checkpoint": "/grogu/datasets/tuner/bcm/flow-matching-policies-for-BC/runs/m4-handcrafted-s0-cont2/checkpoints/params_2000000.pkl",
+   "k": 1250,
+   "episodes": 500,
+   "expert_mistake_prob": 0.1,
+   "tag": "",
+   "seconds": 56.1,
+   "student_success_by_k": 0.03,
+   "final_success": 0.716,
+   "alive_unsolved_at_k": 0.97,
+   "expert_rescue": 0.7072164948453609
+  },
+  {
+   "env": "block-double-task1-v0",
+   "student": "m4-handcrafted-s0-cont2",
+   "checkpoint": "/grogu/datasets/tuner/bcm/flow-matching-policies-for-BC/runs/m4-handcrafted-s0-cont2/checkpoints/params_2000000.pkl",
+   "k": 1500,
+   "episodes": 500,
+   "expert_mistake_prob": 0.1,
+   "tag": "",
+   "seconds": 56.8,
+   "student_success_by_k": 0.076,
+   "final_success": 0.678,
+   "alive_unsolved_at_k": 0.924,
+   "expert_rescue": 0.6515151515151515
+  },
+  {
+   "env": "block-double-task1-v0",
+   "student": "m4-handcrafted-s0-cont2",
+   "checkpoint": "/grogu/datasets/tuner/bcm/flow-matching-policies-for-BC/runs/m4-handcrafted-s0-cont2/checkpoints/params_2000000.pkl",
+   "k": 1750,
+   "episodes": 500,
+   "expert_mistake_prob": 0.1,
+   "tag": "",
+   "seconds": 59.2,
+   "student_success_by_k": 0.198,
+   "final_success": 0.618,
+   "alive_unsolved_at_k": 0.802,
+   "expert_rescue": 0.5236907730673317
+  },
+  {
+   "env": "block-double-task1-v0",
+   "student": "m4-handcrafted-s0-cont2",
+   "checkpoint": "/grogu/datasets/tuner/bcm/flow-matching-policies-for-BC/runs/m4-handcrafted-s0-cont2/checkpoints/params_2000000.pkl",
+   "k": 2000,
+   "episodes": 500,
+   "expert_mistake_prob": 0.1,
+   "tag": "",
+   "seconds": 60.1,
+   "student_success_by_k": 0.338,
+   "final_success": 0.518,
+   "alive_unsolved_at_k": 0.662,
+   "expert_rescue": 0.2719033232628399
+  },
+  {
+   "env": "block-double-task1-v0",
+   "student": "m4-handcrafted-s0-cont2",
+   "checkpoint": "/grogu/datasets/tuner/bcm/flow-matching-policies-for-BC/runs/m4-handcrafted-s0-cont2/checkpoints/params_2000000.pkl",
+   "k": 2500,
+   "episodes": 500,
+   "expert_mistake_prob": 0.1,
+   "tag": "",
+   "seconds": 64.7,
+   "student_success_by_k": 0.624,
+   "final_success": 0.624,
+   "alive_unsolved_at_k": 0.0,
+   "expert_rescue": 0.0
+  },
+  {
+   "env": "block-double-task1-v0",
+   "student": "m1-double-n10000-s0",
+   "checkpoint": "/grogu/datasets/tuner/bcm/flow-matching-policies-for-BC/runs/m1-double-n10000-s0/checkpoints/params_2000000.pkl",
+   "k": 0,
+   "episodes": 500,
+   "expert_mistake_prob": 0.1,
+   "tag": "",
+   "seconds": 52.1,
+   "student_success_by_k": 0.0,
+   "final_success": 0.812,
+   "alive_unsolved_at_k": 1.0,
+   "expert_rescue": 0.812
+  },
+  {
+   "env": "block-double-task1-v0",
+   "student": "m1-double-n10000-s0",
+   "checkpoint": "/grogu/datasets/tuner/bcm/flow-matching-policies-for-BC/runs/m1-double-n10000-s0/checkpoints/params_2000000.pkl",
+   "k": 125,
+   "episodes": 500,
+   "expert_mistake_prob": 0.1,
+   "tag": "",
+   "seconds": 52.7,
+   "student_success_by_k": 0.0,
+   "final_success": 0.804,
+   "alive_unsolved_at_k": 1.0,
+   "expert_rescue": 0.804
+  },
+  {
+   "env": "block-double-task1-v0",
+   "student": "m1-double-n10000-s0",
+   "checkpoint": "/grogu/datasets/tuner/bcm/flow-matching-policies-for-BC/runs/m1-double-n10000-s0/checkpoints/params_2000000.pkl",
+   "k": 250,
+   "episodes": 500,
+   "expert_mistake_prob": 0.1,
+   "tag": "",
+   "seconds": 51.7,
+   "student_success_by_k": 0.0,
+   "final_success": 0.79,
+   "alive_unsolved_at_k": 1.0,
+   "expert_rescue": 0.79
+  },
+  {
+   "env": "block-double-task1-v0",
+   "student": "m1-double-n10000-s0",
+   "checkpoint": "/grogu/datasets/tuner/bcm/flow-matching-policies-for-BC/runs/m1-double-n10000-s0/checkpoints/params_2000000.pkl",
+   "k": 500,
+   "episodes": 500,
+   "expert_mistake_prob": 0.1,
+   "tag": "",
+   "seconds": 52.5,
+   "student_success_by_k": 0.0,
+   "final_success": 0.7,
+   "alive_unsolved_at_k": 1.0,
+   "expert_rescue": 0.7
+  },
+  {
+   "env": "block-double-task1-v0",
+   "student": "m1-double-n10000-s0",
+   "checkpoint": "/grogu/datasets/tuner/bcm/flow-matching-policies-for-BC/runs/m1-double-n10000-s0/checkpoints/params_2000000.pkl",
+   "k": 750,
+   "episodes": 500,
+   "expert_mistake_prob": 0.1,
+   "tag": "",
+   "seconds": 55.1,
+   "student_success_by_k": 0.002,
+   "final_success": 0.566,
+   "alive_unsolved_at_k": 0.998,
+   "expert_rescue": 0.5651302605210421
+  },
+  {
+   "env": "block-double-task1-v0",
+   "student": "m1-double-n10000-s0",
+   "checkpoint": "/grogu/datasets/tuner/bcm/flow-matching-policies-for-BC/runs/m1-double-n10000-s0/checkpoints/params_2000000.pkl",
+   "k": 1000,
+   "episodes": 500,
+   "expert_mistake_prob": 0.1,
+   "tag": "",
+   "seconds": 55.5,
+   "student_success_by_k": 0.014,
+   "final_success": 0.506,
+   "alive_unsolved_at_k": 0.986,
+   "expert_rescue": 0.49898580121703856
+  },
+  {
+   "env": "block-double-task1-v0",
+   "student": "m1-double-n10000-s0",
+   "checkpoint": "/grogu/datasets/tuner/bcm/flow-matching-policies-for-BC/runs/m1-double-n10000-s0/checkpoints/params_2000000.pkl",
+   "k": 1250,
+   "episodes": 500,
+   "expert_mistake_prob": 0.1,
+   "tag": "",
+   "seconds": 56.1,
+   "student_success_by_k": 0.018,
+   "final_success": 0.428,
+   "alive_unsolved_at_k": 0.982,
+   "expert_rescue": 0.4175152749490835
+  },
+  {
+   "env": "block-double-task1-v0",
+   "student": "m1-double-n10000-s0",
+   "checkpoint": "/grogu/datasets/tuner/bcm/flow-matching-policies-for-BC/runs/m1-double-n10000-s0/checkpoints/params_2000000.pkl",
+   "k": 1500,
+   "episodes": 500,
+   "expert_mistake_prob": 0.1,
+   "tag": "",
+   "seconds": 57.2,
+   "student_success_by_k": 0.042,
+   "final_success": 0.378,
+   "alive_unsolved_at_k": 0.958,
+   "expert_rescue": 0.35073068893528186
+  },
+  {
+   "env": "block-double-task1-v0",
+   "student": "m1-double-n10000-s0",
+   "checkpoint": "/grogu/datasets/tuner/bcm/flow-matching-policies-for-BC/runs/m1-double-n10000-s0/checkpoints/params_2000000.pkl",
+   "k": 1750,
+   "episodes": 500,
+   "expert_mistake_prob": 0.1,
+   "tag": "",
+   "seconds": 58.3,
+   "student_success_by_k": 0.112,
+   "final_success": 0.348,
+   "alive_unsolved_at_k": 0.888,
+   "expert_rescue": 0.26576576576576577
+  },
+  {
+   "env": "block-double-task1-v0",
+   "student": "m1-double-n10000-s0",
+   "checkpoint": "/grogu/datasets/tuner/bcm/flow-matching-policies-for-BC/runs/m1-double-n10000-s0/checkpoints/params_2000000.pkl",
+   "k": 2000,
+   "episodes": 500,
+   "expert_mistake_prob": 0.1,
+   "tag": "",
+   "seconds": 59.0,
+   "student_success_by_k": 0.14,
+   "final_success": 0.244,
+   "alive_unsolved_at_k": 0.86,
+   "expert_rescue": 0.12093023255813953
+  },
+  {
+   "env": "block-double-task1-v0",
+   "student": "m1-double-n10000-s0",
+   "checkpoint": "/grogu/datasets/tuner/bcm/flow-matching-policies-for-BC/runs/m1-double-n10000-s0/checkpoints/params_2000000.pkl",
+   "k": 2500,
+   "episodes": 500,
+   "expert_mistake_prob": 0.1,
+   "tag": "",
+   "seconds": 60.8,
+   "student_success_by_k": 0.274,
+   "final_success": 0.274,
+   "alive_unsolved_at_k": 0.0,
+   "expert_rescue": 0.0
+  },
+  {
+   "env": "block-double-task1-v0",
+   "student": "v-state-double-n10000-int25-s0",
+   "checkpoint": "/grogu/datasets/tuner/bcm/flow-matching-policies-for-BC/runs/v-state-double-n10000-int25-s0/checkpoints/params_1000000.pkl",
+   "k": 0,
+   "episodes": 500,
+   "expert_mistake_prob": 0.1,
+   "tag": "",
+   "seconds": 51.2,
+   "student_success_by_k": 0.0,
+   "final_success": 0.818,
+   "alive_unsolved_at_k": 1.0,
+   "expert_rescue": 0.818
+  },
+  {
+   "env": "block-double-task1-v0",
+   "student": "v-state-double-n10000-int25-s0",
+   "checkpoint": "/grogu/datasets/tuner/bcm/flow-matching-policies-for-BC/runs/v-state-double-n10000-int25-s0/checkpoints/params_1000000.pkl",
+   "k": 125,
+   "episodes": 500,
+   "expert_mistake_prob": 0.1,
+   "tag": "",
+   "seconds": 52.5,
+   "student_success_by_k": 0.0,
+   "final_success": 0.796,
+   "alive_unsolved_at_k": 1.0,
+   "expert_rescue": 0.796
+  },
+  {
+   "env": "block-double-task1-v0",
+   "student": "v-state-double-n10000-int25-s0",
+   "checkpoint": "/grogu/datasets/tuner/bcm/flow-matching-policies-for-BC/runs/v-state-double-n10000-int25-s0/checkpoints/params_1000000.pkl",
+   "k": 250,
+   "episodes": 500,
+   "expert_mistake_prob": 0.1,
+   "tag": "",
+   "seconds": 51.3,
+   "student_success_by_k": 0.0,
+   "final_success": 0.782,
+   "alive_unsolved_at_k": 1.0,
+   "expert_rescue": 0.782
+  },
+  {
+   "env": "block-double-task1-v0",
+   "student": "v-state-double-n10000-int25-s0",
+   "checkpoint": "/grogu/datasets/tuner/bcm/flow-matching-policies-for-BC/runs/v-state-double-n10000-int25-s0/checkpoints/params_1000000.pkl",
+   "k": 500,
+   "episodes": 500,
+   "expert_mistake_prob": 0.1,
+   "tag": "",
+   "seconds": 51.7,
+   "student_success_by_k": 0.0,
+   "final_success": 0.702,
+   "alive_unsolved_at_k": 1.0,
+   "expert_rescue": 0.702
+  },
+  {
+   "env": "block-double-task1-v0",
+   "student": "v-state-double-n10000-int25-s0",
+   "checkpoint": "/grogu/datasets/tuner/bcm/flow-matching-policies-for-BC/runs/v-state-double-n10000-int25-s0/checkpoints/params_1000000.pkl",
+   "k": 750,
+   "episodes": 500,
+   "expert_mistake_prob": 0.1,
+   "tag": "",
+   "seconds": 52.4,
+   "student_success_by_k": 0.0,
+   "final_success": 0.59,
+   "alive_unsolved_at_k": 1.0,
+   "expert_rescue": 0.59
+  },
+  {
+   "env": "block-double-task1-v0",
+   "student": "v-state-double-n10000-int25-s0",
+   "checkpoint": "/grogu/datasets/tuner/bcm/flow-matching-policies-for-BC/runs/v-state-double-n10000-int25-s0/checkpoints/params_1000000.pkl",
+   "k": 1000,
+   "episodes": 500,
+   "expert_mistake_prob": 0.1,
+   "tag": "",
+   "seconds": 52.8,
+   "student_success_by_k": 0.0,
+   "final_success": 0.458,
+   "alive_unsolved_at_k": 1.0,
+   "expert_rescue": 0.458
+  },
+  {
+   "env": "block-double-task1-v0",
+   "student": "v-state-double-n10000-int25-s0",
+   "checkpoint": "/grogu/datasets/tuner/bcm/flow-matching-policies-for-BC/runs/v-state-double-n10000-int25-s0/checkpoints/params_1000000.pkl",
+   "k": 1250,
+   "episodes": 500,
+   "expert_mistake_prob": 0.1,
+   "tag": "",
+   "seconds": 55.2,
+   "student_success_by_k": 0.012,
+   "final_success": 0.356,
+   "alive_unsolved_at_k": 0.988,
+   "expert_rescue": 0.3481781376518219
+  },
+  {
+   "env": "block-double-task1-v0",
+   "student": "v-state-double-n10000-int25-s0",
+   "checkpoint": "/grogu/datasets/tuner/bcm/flow-matching-policies-for-BC/runs/v-state-double-n10000-int25-s0/checkpoints/params_1000000.pkl",
+   "k": 1500,
+   "episodes": 500,
+   "expert_mistake_prob": 0.1,
+   "tag": "",
+   "seconds": 55.4,
+   "student_success_by_k": 0.026,
+   "final_success": 0.29,
+   "alive_unsolved_at_k": 0.974,
+   "expert_rescue": 0.27104722792607805
+  },
+  {
+   "env": "block-double-task1-v0",
+   "student": "v-state-double-n10000-int25-s0",
+   "checkpoint": "/grogu/datasets/tuner/bcm/flow-matching-policies-for-BC/runs/v-state-double-n10000-int25-s0/checkpoints/params_1000000.pkl",
+   "k": 1750,
+   "episodes": 500,
+   "expert_mistake_prob": 0.1,
+   "tag": "",
+   "seconds": 55.7,
+   "student_success_by_k": 0.046,
+   "final_success": 0.234,
+   "alive_unsolved_at_k": 0.954,
+   "expert_rescue": 0.1970649895178197
+  },
+  {
+   "env": "block-double-task1-v0",
+   "student": "v-state-double-n10000-int25-s0",
+   "checkpoint": "/grogu/datasets/tuner/bcm/flow-matching-policies-for-BC/runs/v-state-double-n10000-int25-s0/checkpoints/params_1000000.pkl",
+   "k": 2000,
+   "episodes": 500,
+   "expert_mistake_prob": 0.1,
+   "tag": "",
+   "seconds": 56.2,
+   "student_success_by_k": 0.08,
+   "final_success": 0.18,
+   "alive_unsolved_at_k": 0.92,
+   "expert_rescue": 0.10869565217391304
+  },
+  {
+   "env": "block-double-task1-v0",
+   "student": "v-state-double-n10000-int25-s0",
+   "checkpoint": "/grogu/datasets/tuner/bcm/flow-matching-policies-for-BC/runs/v-state-double-n10000-int25-s0/checkpoints/params_1000000.pkl",
+   "k": 2500,
+   "episodes": 500,
+   "expert_mistake_prob": 0.1,
+   "tag": "",
+   "seconds": 58.3,
+   "student_success_by_k": 0.15,
+   "final_success": 0.15,
+   "alive_unsolved_at_k": 0.0,
+   "expert_rescue": 0.0
+  }
+ ],
+ "saliency_cube_ratio": {
+  "v-B-clip_b16-s0": {
+   "front": 1.25,
+   "side": 1.08,
+   "wrist": 1.08
+  },
+  "v-B-dinov2_b-s0": {
+   "front": 1.25,
+   "side": 1.31,
+   "wrist": 0.84
+  },
+  "v-B-dinov2_s-s0": {
+   "front": 1.25,
+   "side": 1.34,
+   "wrist": 1.03
+  },
+  "v-B-mae_b16-s0": {
+   "front": 1.05,
+   "side": 0.97,
+   "wrist": 0.98
+  },
+  "v-B-random_vit_s-s0": {
+   "front": 1.43,
+   "side": 1.43,
+   "wrist": 1.5
+  },
+  "v-B-resnet50_ce-s0": {
+   "front": 0.79,
+   "side": 0.74,
+   "wrist": 1.29
+  },
+  "v-B-simclr_r50-s0": {
+   "front": 0.37,
+   "side": 0.46,
+   "wrist": 0.46
+  },
+  "v-C-dinov2_b-raw-s0": {
+   "front": 1.29,
+   "side": 1.37,
+   "wrist": 0.88
+  },
+  "v-C-dinov2_b-x0.1-s0": {
+   "front": 1.26,
+   "side": 1.34,
+   "wrist": 0.88
+  },
+  "v-C-dinov2_b-x10-s0": {
+   "front": 1.24,
+   "side": 1.23,
+   "wrist": 0.83
+  },
+  "v-C-dinov2_s_p2-s0": {
+   "front": 0.52,
+   "side": 0.48,
+   "wrist": 0.58
+  },
+  "v-C-dinov2_s_p4-s0": {
+   "front": 0.39,
+   "side": 0.36,
+   "wrist": 0.56
+  },
+  "v-D-dinov2_s-ft-s0": {
+   "front": 4.43,
+   "side": 4.63,
+   "wrist": 2.81
+  },
+  "v-D-impala-scratch-s0": {
+   "front": 2.38,
+   "side": 2.45,
+   "wrist": 3.92
+  },
+  "v-D-resnet18-ft-s0": {
+   "front": 1.47,
+   "side": 1.55,
+   "wrist": 1.79
+  },
+  "v-E-dinov2_b-adapter-aux0-s0": {
+   "front": 1.3,
+   "side": 1.36,
+   "wrist": 0.87
+  },
+  "v-E-dinov2_b-adapter-aux0.01-s0": {
+   "front": 1.3,
+   "side": 1.35,
+   "wrist": 0.83
+  },
+  "v-E-dinov2_b-adapter-aux0.1-s0": {
+   "front": 1.27,
+   "side": 1.34,
+   "wrist": 0.85
+  },
+  "v-E-dinov2_b-adapter-aux1-s0": {
+   "front": 1.29,
+   "side": 1.35,
+   "wrist": 0.85
+  },
+  "v-E-impala-aux0.01-s0": {
+   "front": 2.02,
+   "side": 2.06,
+   "wrist": 2.79
+  },
+  "v-E-impala-aux0.1-s0": {
+   "front": 2.43,
+   "side": 2.5,
+   "wrist": 3.02
+  },
+  "v-E-impala-aux1-s0": {
+   "front": 2.59,
+   "side": 2.67,
+   "wrist": 2.67
+  },
+  "v-F-bc-enc-dr-dinov2s-s0": {
+   "front": 1.99,
+   "side": 2.39,
+   "wrist": 2.05
+  },
+  "v-F-bc-enc-dr-resnet18-s0": {
+   "front": 1.01,
+   "side": 1.12,
+   "wrist": 1.19
+  },
+  "v-F-bc-enc-nodr-dinov2s-s0": {
+   "front": 5.69,
+   "side": 5.81,
+   "wrist": 2.34
+  }
+ },
+ "vis_cost": [
+  {
+   "kind": "collect",
+   "env": "block-double-task1-v0",
+   "interval": 1,
+   "episodes": 200,
+   "rep": 0,
+   "seconds": 78.6,
+   "transitions": 358071,
+   "frames": 358271,
+   "sec_per_1k_episodes": 392.9,
+   "frames_per_sec": 4559.6,
+   "host": "grogu-1-30",
+   "job": "4091606",
+   "time": 1794528590.1241186,
+   "gpu": "NVIDIA RTX A6000"
+  },
+  {
+   "kind": "rerender_cpu_egl",
+   "states": 300,
+   "cams": 3,
+   "size": 224,
+   "seconds": 0.66,
+   "states_per_sec_per_process": 456.4,
+   "host": "grogu-2-10",
+   "job": "4091607",
+   "time": 1794528603.3892138,
+   "gpu": "NVIDIA RTX A5000"
+  },
+  {
+   "kind": "embed",
+   "encoder": "dinov2_s",
+   "frames3cam_per_sec": 1091.2,
+   "images_per_sec": 3273.6,
+   "host": "grogu-2-10",
+   "job": "4091607",
+   "time": 1794528614.429262,
+   "gpu": "NVIDIA RTX A5000"
+  },
+  {
+   "kind": "embed",
+   "encoder": "dinov2_s_p4",
+   "frames3cam_per_sec": 1085.7,
+   "images_per_sec": 3257.2,
+   "host": "grogu-2-10",
+   "job": "4091607",
+   "time": 1794528622.2267096,
+   "gpu": "NVIDIA RTX A5000"
+  },
+  {
+   "kind": "collect",
+   "env": "block-double-task1-v0",
+   "interval": 1,
+   "episodes": 200,
+   "rep": 1,
+   "seconds": 46.2,
+   "transitions": 351091,
+   "frames": 351291,
+   "sec_per_1k_episodes": 231.2,
+   "frames_per_sec": 7598.4,
+   "host": "grogu-1-30",
+   "job": "4091606",
+   "time": 1794528636.3910434,
+   "gpu": "NVIDIA RTX A6000"
+  },
+  {
+   "kind": "collect",
+   "env": "visual-block-double-task1-v0",
+   "interval": 25,
+   "episodes": 200,
+   "rep": 0,
+   "seconds": 79.6,
+   "transitions": 356973,
+   "frames": 14549,
+   "sec_per_1k_episodes": 397.9,
+   "frames_per_sec": 182.8,
+   "host": "grogu-1-30",
+   "job": "4091606",
+   "time": 1794528716.0149407,
+   "gpu": "NVIDIA RTX A6000"
+  },
+  {
+   "kind": "collect",
+   "env": "visual-block-double-task1-v0",
+   "interval": 25,
+   "episodes": 200,
+   "rep": 1,
+   "seconds": 78.3,
+   "transitions": 348819,
+   "frames": 14230,
+   "sec_per_1k_episodes": 391.4,
+   "frames_per_sec": 181.8,
+   "host": "grogu-1-30",
+   "job": "4091606",
+   "time": 1794528794.3478446,
+   "gpu": "NVIDIA RTX A6000"
+  },
+  {
+   "kind": "collect",
+   "env": "visual-block-double-task1-v0",
+   "interval": 5,
+   "episodes": 100,
+   "rep": 0,
+   "seconds": 112.8,
+   "transitions": 181400,
+   "frames": 36407,
+   "sec_per_1k_episodes": 1128.4,
+   "frames_per_sec": 322.6,
+   "host": "grogu-1-30",
+   "job": "4091606",
+   "time": 1794528907.2347455,
+   "gpu": "NVIDIA RTX A6000"
+  },
+  {
+   "kind": "collect",
+   "env": "visual-block-double-task1-v0",
+   "interval": 5,
+   "episodes": 100,
+   "rep": 1,
+   "seconds": 112.0,
+   "transitions": 179499,
+   "frames": 36030,
+   "sec_per_1k_episodes": 1119.7,
+   "frames_per_sec": 321.8,
+   "host": "grogu-1-30",
+   "job": "4091606",
+   "time": 1794529019.2671804,
+   "gpu": "NVIDIA RTX A6000"
+  }
+ ]
+}

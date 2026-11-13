@@ -157,6 +157,8 @@ def main():
     parser.add_argument('--eval-episodes', type=int, default=500)
     parser.add_argument('--save-interval', type=int, default=100000)
     parser.add_argument('--keep-checkpoints', type=int, default=2)
+    parser.add_argument('--start-interval', type=int, default=1,
+                        help='Fixed mode: sample chunk starts only at episode steps 0, K, 2K, ... (K=25 matches visual image timesteps).')
     parser.add_argument('--solver-iteration-warnings', action='store_true')
     parser.add_argument('--run', required=True)
     parser.add_argument('--resume-bundle', type=Path)
@@ -257,6 +259,13 @@ def main():
               'resume_stream_index', 'resume_kind', 'validation_reset']})
     print(f'PARAMETERS {sum(x.size for x in jax.tree_util.tree_leaves(agent.network.params))}', flush=True)
     permutation = sampler.permutation(train.size) if args.mode == 'streaming' else None
+    allowed = None
+    if args.start_interval > 1:
+        if args.mode != 'fixed':
+            raise ValueError('--start-interval is only supported in fixed mode.')
+        all_idxs = np.arange(train.size)
+        allowed = all_idxs[(all_idxs - train.episode_offsets[np.searchsorted(train.terminal_locs, all_idxs)]) % args.start_interval == 0]
+        emit(run / 'dataset.jsonl', {'start_interval': args.start_interval, 'allowed_train_starts': int(len(allowed))})
     cursor = 0
     prefetch = None
     if args.mode == 'streaming' and args.collection_cache and args.loader_prefetch:
@@ -284,7 +293,7 @@ def main():
                 cache, identity = cache_request(args, index + 1, args.episodes, 0)
                 prefetch.schedule(index + 1, cache, identity, args.features)
         else:
-            idxs = sampler.integers(train.size, size=args.batch_size)
+            idxs = sampler.integers(train.size, size=args.batch_size) if allowed is None else allowed[sampler.integers(len(allowed), size=args.batch_size)]
         batch = train.sample(args.batch_size, idxs=idxs, keys=('observations', 'actions'))
         batch['observations'] = features(batch['observations'])
         agent, info = agent.update(batch)

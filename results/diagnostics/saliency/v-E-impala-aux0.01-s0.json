@@ -1,0 +1,29 @@
+{
+ "run": "v-E-impala-aux0.01-s0",
+ "encoder": "impala_small",
+ "input": "pixels",
+ "frames": 256,
+ "cameras": {
+  "front": {
+   "cube_ratio": 2.0153186321258545,
+   "cube_mass": 0.04649659991264343,
+   "cube_area": 0.02327525858976403,
+   "frames_with_cube": 256,
+   "share_of_total": 0.2031869888305664
+  },
+  "side": {
+   "cube_ratio": 2.0599098205566406,
+   "cube_mass": 0.04488686844706535,
+   "cube_area": 0.021920963209502552,
+   "frames_with_cube": 256,
+   "share_of_total": 0.2254798710346222
+  },
+  "wrist": {
+   "cube_ratio": 2.7886507511138916,
+   "cube_mass": 0.06527868658304214,
+   "cube_area": 0.023318267524401064,
+   "frames_with_cube": 230,
+   "share_of_total": 0.5713329911231995
+  }
+ }
+}

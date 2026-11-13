@@ -1,0 +1,29 @@
+{
+ "run": "v-B-random_vit_s-s0",
+ "encoder": "random_vit_s",
+ "input": "emb",
+ "frames": 256,
+ "cameras": {
+  "front": {
+   "cube_ratio": 1.4294981956481934,
+   "cube_mass": 0.03318071737885475,
+   "cube_area": 0.02327525858976403,
+   "frames_with_cube": 256,
+   "share_of_total": 0.34524503350257874
+  },
+  "side": {
+   "cube_ratio": 1.4315931797027588,
+   "cube_mass": 0.03130459785461426,
+   "cube_area": 0.021920963209502552,
+   "frames_with_cube": 256,
+   "share_of_total": 0.34750431776046753
+  },
+  "wrist": {
+   "cube_ratio": 1.5028929710388184,
+   "cube_mass": 0.03503791242837906,
+   "cube_area": 0.023318267524401064,
+   "frames_with_cube": 230,
+   "share_of_total": 0.3072504699230194
+  }
+ }
+}

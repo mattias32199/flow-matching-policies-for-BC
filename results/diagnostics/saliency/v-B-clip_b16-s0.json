@@ -1,0 +1,29 @@
+{
+ "run": "v-B-clip_b16-s0",
+ "encoder": "clip_b16",
+ "input": "emb",
+ "frames": 256,
+ "cameras": {
+  "front": {
+   "cube_ratio": 1.2477285861968994,
+   "cube_mass": 0.02889086864888668,
+   "cube_area": 0.02327525858976403,
+   "frames_with_cube": 256,
+   "share_of_total": 0.3687049150466919
+  },
+  "side": {
+   "cube_ratio": 1.082737922668457,
+   "cube_mass": 0.023758243769407272,
+   "cube_area": 0.021920963209502552,
+   "frames_with_cube": 256,
+   "share_of_total": 0.3646180033683777
+  },
+  "wrist": {
+   "cube_ratio": 1.075324296951294,
+   "cube_mass": 0.02509145811200142,
+   "cube_area": 0.023318267524401064,
+   "frames_with_cube": 230,
+   "share_of_total": 0.26667729020118713
+  }
+ }
+}

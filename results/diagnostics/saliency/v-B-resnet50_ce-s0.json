@@ -1,0 +1,29 @@
+{
+ "run": "v-B-resnet50_ce-s0",
+ "encoder": "resnet50_ce",
+ "input": "emb",
+ "frames": 256,
+ "cameras": {
+  "front": {
+   "cube_ratio": 0.7880976796150208,
+   "cube_mass": 0.018321624025702477,
+   "cube_area": 0.02327525858976403,
+   "frames_with_cube": 256,
+   "share_of_total": 0.4273126423358917
+  },
+  "side": {
+   "cube_ratio": 0.7390541434288025,
+   "cube_mass": 0.016206704080104828,
+   "cube_area": 0.021920963209502552,
+   "frames_with_cube": 256,
+   "share_of_total": 0.375374972820282
+  },
+  "wrist": {
+   "cube_ratio": 1.294180154800415,
+   "cube_mass": 0.030034342780709267,
+   "cube_area": 0.023318267524401064,
+   "frames_with_cube": 230,
+   "share_of_total": 0.1973123848438263
+  }
+ }
+}

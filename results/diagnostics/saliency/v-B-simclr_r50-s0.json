@@ -1,0 +1,29 @@
+{
+ "run": "v-B-simclr_r50-s0",
+ "encoder": "simclr_r50",
+ "input": "emb",
+ "frames": 256,
+ "cameras": {
+  "front": {
+   "cube_ratio": 0.37014317512512207,
+   "cube_mass": 0.008717287331819534,
+   "cube_area": 0.02327525858976403,
+   "frames_with_cube": 256,
+   "share_of_total": 0.4801065921783447
+  },
+  "side": {
+   "cube_ratio": 0.4552242159843445,
+   "cube_mass": 0.010008128359913826,
+   "cube_area": 0.021920963209502552,
+   "frames_with_cube": 256,
+   "share_of_total": 0.41157668828964233
+  },
+  "wrist": {
+   "cube_ratio": 0.46191564202308655,
+   "cube_mass": 0.011114970780909061,
+   "cube_area": 0.023318267524401064,
+   "frames_with_cube": 230,
+   "share_of_total": 0.10831678658723831
+  }
+ }
+}

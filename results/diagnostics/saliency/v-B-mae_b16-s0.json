@@ -1,0 +1,29 @@
+{
+ "run": "v-B-mae_b16-s0",
+ "encoder": "mae_b16",
+ "input": "emb",
+ "frames": 256,
+ "cameras": {
+  "front": {
+   "cube_ratio": 1.0497443675994873,
+   "cube_mass": 0.024345699697732925,
+   "cube_area": 0.02327525858976403,
+   "frames_with_cube": 256,
+   "share_of_total": 0.2517238259315491
+  },
+  "side": {
+   "cube_ratio": 0.9740648865699768,
+   "cube_mass": 0.021288488060235977,
+   "cube_area": 0.021920963209502552,
+   "frames_with_cube": 256,
+   "share_of_total": 0.12692786753177643
+  },
+  "wrist": {
+   "cube_ratio": 0.9826344847679138,
+   "cube_mass": 0.02263464219868183,
+   "cube_area": 0.023318267524401064,
+   "frames_with_cube": 230,
+   "share_of_total": 0.6213483810424805
+  }
+ }
+}

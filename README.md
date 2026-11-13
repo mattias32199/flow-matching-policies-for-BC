@@ -2,6 +2,8 @@
 
 Reproduce mysteries 1 (overfitting and dataset size) and 4 (observation scaling with streaming data) from [Behavioral cloning mystery](https://seohong.me/blog/behavioral-cloning-mystery/).
 
+**Visual BC follow-up (Mystery 4 with pixels, block-double data regimes):** see **[VISION_HIGHLIGHTS.md](VISION_HIGHLIGHTS.md)** for the main findings and **[VISION_EXPERIMENTS.md](VISION_EXPERIMENTS.md)** for the full setup, every run and every table.
+
 Start with the [short plain-language experiment guide and job snapshot](EXPERIMENT_GUIDE.md), then the [copyable OCBench/native and wrapper commands](OCBENCH_COMMANDS.md).
 
 ```bash

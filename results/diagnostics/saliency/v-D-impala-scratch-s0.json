@@ -1,0 +1,29 @@
+{
+ "run": "v-D-impala-scratch-s0",
+ "encoder": "impala_small",
+ "input": "pixels",
+ "frames": 256,
+ "cameras": {
+  "front": {
+   "cube_ratio": 2.3776755332946777,
+   "cube_mass": 0.05477365851402283,
+   "cube_area": 0.02327525858976403,
+   "frames_with_cube": 256,
+   "share_of_total": 0.24755676090717316
+  },
+  "side": {
+   "cube_ratio": 2.445141077041626,
+   "cube_mass": 0.05306750535964966,
+   "cube_area": 0.021920963209502552,
+   "frames_with_cube": 256,
+   "share_of_total": 0.28554144501686096
+  },
+  "wrist": {
+   "cube_ratio": 3.9218382835388184,
+   "cube_mass": 0.09099709987640381,
+   "cube_area": 0.023318267524401064,
+   "frames_with_cube": 230,
+   "share_of_total": 0.46690183877944946
+  }
+ }
+}

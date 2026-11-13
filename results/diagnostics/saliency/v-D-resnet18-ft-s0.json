@@ -1,0 +1,29 @@
+{
+ "run": "v-D-resnet18-ft-s0",
+ "encoder": "resnet18",
+ "input": "pixels",
+ "frames": 256,
+ "cameras": {
+  "front": {
+   "cube_ratio": 1.4678425788879395,
+   "cube_mass": 0.03383840247988701,
+   "cube_area": 0.02327525858976403,
+   "frames_with_cube": 256,
+   "share_of_total": 0.2092515081167221
+  },
+  "side": {
+   "cube_ratio": 1.548924446105957,
+   "cube_mass": 0.03356929123401642,
+   "cube_area": 0.021920963209502552,
+   "frames_with_cube": 256,
+   "share_of_total": 0.178777813911438
+  },
+  "wrist": {
+   "cube_ratio": 1.7907195091247559,
+   "cube_mass": 0.04107477888464928,
+   "cube_area": 0.023318267524401064,
+   "frames_with_cube": 230,
+   "share_of_total": 0.6119711399078369
+  }
+ }
+}

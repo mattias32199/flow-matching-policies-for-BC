@@ -1,0 +1,29 @@
+{
+ "run": "v-E-dinov2_b-adapter-aux0-s0",
+ "encoder": "dinov2_b",
+ "input": "emb",
+ "frames": 256,
+ "cameras": {
+  "front": {
+   "cube_ratio": 1.2973874807357788,
+   "cube_mass": 0.029888849705457687,
+   "cube_area": 0.02327525858976403,
+   "frames_with_cube": 256,
+   "share_of_total": 0.31018662452697754
+  },
+  "side": {
+   "cube_ratio": 1.3571462631225586,
+   "cube_mass": 0.029459165409207344,
+   "cube_area": 0.021920963209502552,
+   "frames_with_cube": 256,
+   "share_of_total": 0.3014725148677826
+  },
+  "wrist": {
+   "cube_ratio": 0.8679865002632141,
+   "cube_mass": 0.020360209047794342,
+   "cube_area": 0.023318267524401064,
+   "frames_with_cube": 230,
+   "share_of_total": 0.38834092020988464
+  }
+ }
+}

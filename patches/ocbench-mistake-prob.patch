@@ -1,0 +1,25 @@
+diff --git a/ocbench/mjwarp/controllers/block_kernels.py b/ocbench/mjwarp/controllers/block_kernels.py
+index 6be02a5..e7cea0b 100644
+--- a/ocbench/mjwarp/controllers/block_kernels.py
++++ b/ocbench/mjwarp/controllers/block_kernels.py
+@@ -1,5 +1,11 @@
++import os
++
+ import warp as wp
+ 
++# Scripted-expert deliberate-mistake probability per planned move (upstream default 0.1).
++# Local addition: OCB_MISTAKE_PROB overrides it for expert-only diagnostics.
++MISTAKE_PROB = wp.constant(float(os.environ.get('OCB_MISTAKE_PROB', '0.1')))
++
+ from ocbench.mjwarp.primitives.cube_kernels import (
+     MAX_CUBES,
+     MAX_PHASES,
+@@ -141,7 +147,7 @@ def _choose_subgoal(
+             top_blocks[top_count] = block
+             top_count += 1
+     is_mistake[world_id] = 0
+-    if top_count > 0 and _randf(world_id, seeds, rng_counter) < 0.1:
++    if top_count > 0 and _randf(world_id, seeds, rng_counter) < MISTAKE_PROB:
+         is_mistake[world_id] = 1
+         mistake_idx = _rand_int(world_id, seeds, rng_counter, top_count)
+         mistake_block = top_blocks[mistake_idx]

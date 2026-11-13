@@ -1,0 +1,29 @@
+{
+ "run": "v-F-bc-enc-dr-dinov2s-s0",
+ "encoder": "pre:v-F-enc-dr-dinov2s",
+ "input": "emb",
+ "frames": 256,
+ "cameras": {
+  "front": {
+   "cube_ratio": 1.986626386642456,
+   "cube_mass": 0.04662584513425827,
+   "cube_area": 0.02327525858976403,
+   "frames_with_cube": 256,
+   "share_of_total": 0.29304030537605286
+  },
+  "side": {
+   "cube_ratio": 2.3944525718688965,
+   "cube_mass": 0.052106618881225586,
+   "cube_area": 0.021920963209502552,
+   "frames_with_cube": 256,
+   "share_of_total": 0.2990046441555023
+  },
+  "wrist": {
+   "cube_ratio": 2.0515072345733643,
+   "cube_mass": 0.04740070179104805,
+   "cube_area": 0.023318267524401064,
+   "frames_with_cube": 230,
+   "share_of_total": 0.4079553782939911
+  }
+ }
+}

@@ -70,20 +70,27 @@ Gradient saliency (see [VISION_EXPERIMENTS.md](VISION_EXPERIMENTS.md#saliency)) 
 - Fine-tuned DINOv2-S puts 4.4× on cube pixels.
 - Frozen generic CLS policies stay near 1.0–1.3×, i.e. barely cube-focused.
 
-## 4. block-double: the effect transfers, and is larger
+## 4. block-double: every single-task visual finding transfers, and the gaps get larger
 
-Visual vs. state on the **same OCBench visual-block-double data**: 10K demos, with an image (and, for the state
-run, a chunk start) only every 25 steps:
+Visual vs. state on the **same released visual-block-double data**: 10K demos, with an image (and, for the state
+runs, a chunk start) only every 25 steps.
 
-| Policy | Updates | Success |
+| Policy (visual runs: frozen encoder, 300K updates; state runs: 1M updates) | single | double |
 | --- | ---: | ---: |
-| State (handcrafted) | 1M | 0.14 |
-| State, all chunk starts (25× more starts) | 1M | 0.31 |
-| Frozen DINOv2-S CLS | 300K | 0.25 |
-| **Frozen DINOv2-S 2×2 patches** | **300K** | **0.44** (best 0.47) |
+| State, same data regime | 0.85 | 0.14 |
+| Random ViT-S | 0.01 | 0.00 |
+| ResNet-50 / DINOv2-S / DINOv2-B / CLIP (CLS) | 0.65 / 0.65 / 0.71 / 0.76 | 0.16 / 0.25 / 0.32 / 0.34 |
+| DINOv2-S, 2×2 patches | 0.83 | 0.44 |
+| DINOv2-S, 4×4 patches | 0.90 | **0.70** |
+| **DINOv2-S, sim-pretrained** | **0.97** | **0.80** |
 
-Transfer runs for the other single-task findings are in progress: encoder choice, 4×4 pooling, and sim-pretrained
-encoder. See [VISION_EXPERIMENTS.md](VISION_EXPERIMENTS.md#d3-transfer-runs).
+On block-double:
+- A frozen, sim-pretrained visual policy trained on **10K demos with sparse frames reaches 0.80**. That equals the
+  scripted expert itself (0.798).
+- It beats every state policy we trained, including 100K demos (0.58), a replay buffer that saw 510K episodes
+  (0.59), and Mystery-4 streaming (about 0.6 at 2M updates).
+- The encoder ranking is preserved.
+- Patch pooling matters even more than on single: CLS 0.25 → 4×4 0.70.
 
 ## 5. block-double data regime: count episodes, not frames
 
@@ -115,6 +122,63 @@ State policies, 1M updates, mean success over the evaluations at 850K–1M updat
 - After 1000 student steps the expert rescues 46–66% of still-unsolved episodes, depending on the student. Most
   student-visited states are recoverable, which makes DAgger-style expert relabeling viable.
 - Late takeover (≥ 2000 of 2500 steps) hurts, because the expert's replan does not fit in the remaining time.
+
+## 7. Why does vision beat privileged state? On single: the cube yaw relative to the gripper
+
+![Explanation experiments](results/vision/explain.png)
+
+**Hypothesis.** The sim-pretrained encoder regressed egocentric quantities (cube relative to gripper and cameras).
+A world-frame state vector only implies these.
+
+**Test 1: hand the candidate quantities to the state policy.** Setting: block-single, 10K demos, every 25 steps,
+500K updates; mean over 2 seeds where two are listed.
+
+| State input | Success |
+| --- | ---: |
+| standardized state | 0.85 (0.856 / 0.849) |
+| + cube − gripper offset, world frame (linear) | 0.86 |
+| + random nonlinear features, same width (control) | 0.86 |
+| + offset rotated into the gripper yaw frame (`egopos`) | 0.84 (0.816 / 0.869) |
+| + **cube yaw relative to gripper yaw, as sin/cos(4Δψ)** (`relyaw`) | **0.96 (0.955 / 0.969)** |
+| + both (`ego`) | 0.96 (0.960 / 0.959) |
+| sim-pretrained visual policy | 0.97 |
+
+On single the **entire visual–state gap is explained by one quantity: the cube's yaw relative to the gripper, folded
+by the cube's 90° symmetry.**
+- The raw state contains cube yaw and gripper yaw separately. The policy has to compute their difference modulo 90°,
+  a discontinuous function that the MLP does not learn precisely from 10K demos.
+- Positional egocentric features, linear offsets and random extra features do nothing.
+
+**Test 2: control what the encoder is pretrained on** (then freeze it and run BC):
+
+| Encoder targets | single | double |
+| --- | ---: | ---: |
+| generic CLS encoder (best: CLIP) | 0.76 | 0.34 |
+| world-frame only (cube xyz, pinch xyz, gripper, arm joints) | 0.89 | 0.69 |
+| egocentric only (cube in camera frames, cube in gripper frame, relative yaw) | 0.93 | 0.78 |
+| all targets | 0.97 | 0.80 |
+
+- Any sim-state supervision gives most of the jump over generic encoders, from much more precise localization.
+- Egocentric targets add +0.04 (single) and +0.09 (double) on top.
+- The ordering is identical on both tasks.
+
+**On block-double the state-side explanation only partly transfers.** Setting: handcrafted base, every 25 steps,
+1M updates.
+
+| Demos | state | + ego + cube-pair offset | + rel + cube-pair | + random features |
+| ---: | ---: | ---: | ---: | ---: |
+| 10K | 0.11 | 0.09 | | |
+| 30K | 0.42 | 0.38 | 0.46 | 0.36 |
+| 100K | 0.58 | **0.77** | | |
+
+- With enough data (100K), egocentric features add +0.19, which brings state close to the visual policy.
+- At 10K–30K they do not help. There, the visual policy (0.80 from 10K) must be winning through something else that
+  comes with a sim-pretrained visual representation. The world-target encoder alone already reaches 0.69, against
+  0.11 for state.
+- Candidate explanations to test next: robustness or smoothness from pretraining on 200K perturbed states, and
+  implicit regularization by the high-dimensional frozen features.
+- Note that the z-scored state base collapses on double with fixed data (30K: 0.10 vs handcrafted 0.42), so these
+  tests use the handcrafted base.
 
 ## Negative results (also useful)
 

@@ -80,7 +80,7 @@ def experiments():
         E.append(vbc(f'v-dbl-{enc}-s0', enc, ['finding:encoder-choice']))
     E.append(dict(run='regime-X-embed-p4', group='X', torch=True, time='06:00:00', mem='96G', cpus=16, wandb=False, gpus=ANY_GPUS,
                   cmd=['bash', '-c', f'{TORCH} -u scripts/embed_probe.py --env {VENV} --encoders dinov2_s_p4 && touch runs/regime-X-embed-p4/DONE']))
-    E.append(vbc('v-dbl-dinov2_s_p4-s0', 'dinov2_s_p4', ['finding:patch-pooling'], after=['X-embed-p4']))
+    E.append(vbc('v-dbl-dinov2_s_p4-s0', 'dinov2_s_p4', ['finding:patch-pooling'], after=['X-embed-p4']) | {'gpus': 'A6000'})  # 27 GB of embeddings on GPU
     E.append(dict(run='regime-X-drgen', group='X', torch=True, time='08:00:00', mem='96G', cpus=32, wandb=False,
                   cmd=['bash', '-c', f'{TORCH} -u scripts/dr_gen.py --env {VENV} --n 200000 --workers 30 --variants nodr '
                                      '&& touch runs/regime-X-drgen/DONE']))
@@ -94,6 +94,58 @@ def experiments():
                                      '&& touch runs/regime-X-embed-F/DONE']))
     E.append(vbc('v-dbl-F-bc-enc-nodr-dinov2s-s0', 'pre:v-dbl-F-enc-nodr-dinov2s', ['finding:sim-pretraining'],
                  after=['X-embed-F']))
+    # H: why does the sim-pretrained encoder beat privileged state? Hypothesis: it exposes egocentric quantities
+    # (cube relative to the gripper, relative yaw, cube-cube offsets) that world-frame state only implies.
+    # (1) give those quantities to the STATE policy; (2) pretrain encoders on world-only vs egocentric-only targets.
+    SENV = 'block-single-task1-v0'
+    E.append(dict(run='regime-H-prefill-single', group='H', torch=False, time='02:00:00', mem='48G', cpus=8, wandb=False,
+                  cmd=[JAX, '-u', 'scripts/collections_store.py', '--env', SENV, '--idx', '0-9', '--val']))
+
+    def hstate(run, env, base, k, feat, steps, seed=0, after=()):
+        return dict(run=run, group='H', cmd=[JAX, '-u', 'scripts/train_regime.py', '--run', run, '--env', env, '--base', str(base),
+                                             '--start-interval', str(k), '--features', feat, '--steps', str(steps), '--seed', str(seed),
+                                             '--tags', ','.join(['hypothesis:egocentric', 'input:state', f'features:{feat}', f'base:{base}',
+                                                                 f'start_interval:{k}', f'env:{env}', f'seed:{seed}'])],
+                    torch=False, time='24:00:00', mem='96G' if base >= 30000 else '64G', cpus=12, after=list(after))
+    for feat, seed in (('standardized', 0), ('standardized', 1), ('standardized+rel', 0), ('standardized+ego', 0),
+                       ('standardized+ego', 1), ('standardized+randproj', 0)):
+        E.append(hstate(f'h-single-n10k-int25-{feat.replace("+", "_")}-s{seed}', SENV, 10000, 25, feat, 500000, seed,
+                        after=['H-prefill-single']))
+    for base in (10000, 30000):
+        feats = ('standardized', 'standardized+ego+pair', 'standardized+randproj') + (('standardized+rel+pair',) if base == 30000 else ())
+        for feat in feats:
+            E.append(hstate(f'h-double-n{base // 1000}k-int25-{feat.replace("+", "_")}-s0', 'block-double-task1-v0', base, 25, feat, 1000000))
+    # H2: on block-double with fixed data the z-scored base collapses (30K/int25: 0.10 vs handcrafted 0.41), so repeat the
+    # feature test on the handcrafted base (r-fixed-n{30,100}k-int25 are the matching baselines).
+    for base, feats in ((10000, ('handcrafted', 'handcrafted+ego+pair')),
+                        (30000, ('handcrafted+ego+pair', 'handcrafted+rel+pair', 'handcrafted+randproj')),
+                        (100000, ('handcrafted+ego+pair',))):
+        for feat in feats:
+            E.append(hstate(f'h2-double-n{base // 1000}k-int25-{feat.replace("+", "_")}-s0', 'block-double-task1-v0', base, 25, feat, 1000000)
+                     | {'group': 'H2', 'mem': '160G' if base >= 100000 else '96G'})
+    # H3: which part of 'ego' matters on single: the rotated offset or the relative yaw?
+    for feat in ('standardized+egopos', 'standardized+relyaw'):
+        for seed in (0, 1):
+            E.append(hstate(f'h3-single-n10k-int25-{feat.replace("+", "_")}-s{seed}', SENV, 10000, 25, feat, 500000, seed) | {'group': 'H3'})
+    WORLD, EGO = 'cube_xyz,pinch_xyz,gripper,arm_qpos', 'cube_in_camera,cube_in_gripper,cube_yaw'
+    for env, tag, dep in (('visual-block-single-task1-v0', 'sgl', []), (VENV, 'dbl', ['X-drgen'])):
+        encs = []
+        for name, groups in (('world', WORLD), ('ego', EGO)):
+            enc = f'h-{tag}-enc-nodr-dinov2s-{name}'
+            encs.append(enc)
+            E.append(dict(run=enc, group='H', torch=True, time='12:00:00', mem='96G', cpus=16, after=dep,
+                          cmd=[TORCH, '-u', 'scripts/pretrain_enc.py', '--run', enc, '--env', env, '--data', 'nodr',
+                               '--arch', 'dinov2_s', '--groups', groups, '--group', 'double-data-regime',
+                               '--tags', f'hypothesis:egocentric,stage:encoder,targets:{name},encoder:dinov2_s']))
+        E.append(dict(run=f'regime-H-embed-{tag}', group='H', torch=True, time='06:00:00', mem='96G', cpus=16, wandb=False,
+                      after=encs, cmd=['bash', '-c', f'{TORCH} -u scripts/embed_probe.py --env {env} --encoders '
+                                       + ','.join(f'pre:{e}' for e in encs) + f' && touch runs/regime-H-embed-{tag}/DONE']))
+        for enc in encs:
+            run = f'{enc.replace("-enc-", "-bc-")}-s0'
+            E.append(dict(run=run, group='H', torch=True, time='16:00:00', mem='96G', cpus=12, after=[f'H-embed-{tag}'],
+                          cmd=[TORCH, '-u', 'scripts/train_vis.py', '--run', run, '--env', env, '--group', 'double-data-regime',
+                               '--input', 'emb', '--encoder', f'pre:{enc}', '--scale', 'std', '--steps', '300000',
+                               '--tags', f'hypothesis:egocentric,stage:bc,targets:{enc.rsplit("-", 1)[1]},frozen:true']))
     return E
 
 

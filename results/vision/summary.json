@@ -1,4 +1,46 @@
 {
+ "explain_single_state": {
+  "standardized state": {
+   "mean": 0.8523333333333333,
+   "seeds": [
+    0.856,
+    0.8486666666666666
+   ]
+  },
+  "+ rel (world offset)": {
+   "mean": 0.8646666666666666,
+   "seeds": [
+    0.8646666666666666
+   ]
+  },
+  "+ random features": {
+   "mean": 0.8586666666666667,
+   "seeds": [
+    0.8586666666666667
+   ]
+  },
+  "+ egopos (offset in gripper frame)": {
+   "mean": 0.8426666666666667,
+   "seeds": [
+    0.816,
+    0.8693333333333334
+   ]
+  },
+  "+ relyaw (cube yaw rel. gripper)": {
+   "mean": 0.9623333333333333,
+   "seeds": [
+    0.9553333333333333,
+    0.9693333333333333
+   ]
+  },
+  "+ ego (egopos + relyaw)": {
+   "mean": 0.9593333333333334,
+   "seeds": [
+    0.96,
+    0.9586666666666667
+   ]
+  }
+ },
  "single": [
   {
    "group": "State (privileged)",
@@ -319,50 +361,50 @@
   {
    "label": "frozen DINOv2-S 4x4 patches",
    "run": "v-dbl-dinov2_s_p4-s0",
-   "final": null,
-   "best": null,
-   "last_step": null,
-   "done": false
+   "final": 0.6955555555555555,
+   "best": 0.71,
+   "last_step": 300000,
+   "done": true
   },
   {
    "label": "frozen DINOv2-B CLS",
    "run": "v-dbl-dinov2_b-s0",
-   "final": null,
-   "best": null,
-   "last_step": null,
-   "done": false
+   "final": 0.31666666666666665,
+   "best": 0.35,
+   "last_step": 300000,
+   "done": true
   },
   {
    "label": "frozen CLIP B/16",
    "run": "v-dbl-clip_b16-s0",
-   "final": null,
-   "best": null,
-   "last_step": null,
-   "done": false
+   "final": 0.3444444444444444,
+   "best": 0.36,
+   "last_step": 300000,
+   "done": true
   },
   {
    "label": "frozen ResNet-50",
    "run": "v-dbl-resnet50_ce-s0",
-   "final": null,
-   "best": null,
-   "last_step": null,
-   "done": false
+   "final": 0.16,
+   "best": 0.17666666666666667,
+   "last_step": 300000,
+   "done": true
   },
   {
    "label": "frozen random ViT-S",
    "run": "v-dbl-random_vit_s-s0",
-   "final": null,
-   "best": null,
-   "last_step": null,
-   "done": false
+   "final": 0.0,
+   "best": 0.0,
+   "last_step": 300000,
+   "done": true
   },
   {
    "label": "frozen DINOv2-S, sim-pretrained (no DR)",
    "run": "v-dbl-F-bc-enc-nodr-dinov2s-s0",
-   "final": null,
-   "best": null,
-   "last_step": null,
-   "done": false
+   "final": 0.8022222222222223,
+   "best": 0.8266666666666667,
+   "last_step": 300000,
+   "done": true
   }
  ],
  "double_regime": [
@@ -387,12 +429,12 @@
    "episodes_seen_k": 100,
    "chunk_starts": 5037520,
    "s450_600k": 0.40800000000000003,
-   "s850k_1m": 0.5539999999999999,
+   "s850k_1m": 0.554,
    "run": "r-fixed-n100k-int25",
-   "final": 0.5539999999999999,
+   "final": 0.5780000000000001,
    "best": 0.632,
-   "last_step": 950000,
-   "done": false
+   "last_step": 1000000,
+   "done": true
   },
   {
    "base": 100000,
@@ -524,29 +566,29 @@
    "base": 10000,
    "start_interval": 1,
    "refresh_every": 2000,
-   "episodes_seen_k": 318,
-   "chunk_starts": 12386889,
+   "episodes_seen_k": 510,
+   "chunk_starts": 12483739,
    "s450_600k": 0.39399999999999996,
-   "s850k_1m": null,
+   "s850k_1m": 0.5920000000000001,
    "run": "r-replay-b10k-r2k",
-   "final": 0.42,
-   "best": 0.448,
-   "last_step": 600000,
-   "done": false
+   "final": 0.5933333333333334,
+   "best": 0.628,
+   "last_step": 1000000,
+   "done": true
   },
   {
    "base": 30000,
    "start_interval": 25,
    "refresh_every": 5000,
-   "episodes_seen_k": 186,
-   "chunk_starts": 1512639,
+   "episodes_seen_k": 230,
+   "chunk_starts": 1511424,
    "s450_600k": 0.3345,
-   "s850k_1m": null,
+   "s850k_1m": 0.492,
    "run": "r-replay-b30k-r5k-int25",
-   "final": 0.428,
-   "best": 0.484,
-   "last_step": 750000,
-   "done": false
+   "final": 0.5053333333333333,
+   "best": 0.57,
+   "last_step": 1000000,
+   "done": true
   }
  ],
  "takeover": [

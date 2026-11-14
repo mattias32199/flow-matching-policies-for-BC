@@ -35,7 +35,7 @@ from envs.env_utils import ActionNormalizer  # noqa: E402
 from utils.evaluation_mjwarp import evaluate_mjwarp  # noqa: E402
 
 import collections_store as cs  # noqa: E402
-from train import EvalAgent, Features, dataset, emit, evaluation_record, saved_preprocessing  # noqa: E402
+from train import EvalAgent, Features, dataset, emit, evaluation_record, save_preprocessing, saved_preprocessing  # noqa: E402
 
 REFRESH_BASE = 1000
 STOP = {'flag': False}
@@ -118,8 +118,7 @@ def save(run, agent, state):
 def main():
     p = argparse.ArgumentParser()
     p.add_argument('--env', default='block-double-task1-v0')
-    p.add_argument('--features', default='handcrafted',
-                   choices=['handcrafted', 'standardized', 'xyz0.1', 'xyz10', 'fourier1', 'fourier4'])
+    p.add_argument('--features', default='handcrafted', help='see train.Features (e.g. standardized+ego+pair)')
     p.add_argument('--seed', type=int, default=0)
     p.add_argument('--data-seed', type=int, default=0)
     p.add_argument('--base', type=int, default=10000, help='episodes in the buffer (multiple of 1000)')
@@ -177,10 +176,7 @@ def main():
     del raw_val
     if not resume:
         features = Features(train['observations'], args.features)
-        np.savez(run / 'preprocessing.npz', center=features.center, scale=features.scale,
-                 fourier_frequencies=np.asarray(features.frequencies, dtype=np.float32),
-                 q_low=normalizer.q_low, q_high=normalizer.q_high, clip=normalizer.clip,
-                 gripper_dims=np.flatnonzero(normalizer.gripper_dims))
+        save_preprocessing(run / 'preprocessing.npz', features, normalizer)
     allowed = allowed_starts(train, args.start_interval)
 
     def data_record(step):

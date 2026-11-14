@@ -215,6 +215,67 @@ def fig_takeover():
     return rows
 
 
+def fig_explain():
+    """Explanation experiments: state + hypothesis features, and encoder target ablation."""
+    m = lambda runs: float(np.mean([final(r)['final'] for r in runs]))
+    sv = [('standardized state', ['h-single-n10k-int25-standardized-s0', 'h-single-n10k-int25-standardized-s1']),
+          ('+ rel (world offset)', ['h-single-n10k-int25-standardized_rel-s0']),
+          ('+ random features', ['h-single-n10k-int25-standardized_randproj-s0']),
+          ('+ egopos (offset in gripper frame)', ['h3-single-n10k-int25-standardized_egopos-s0', 'h3-single-n10k-int25-standardized_egopos-s1']),
+          ('+ relyaw (cube yaw rel. gripper)', ['h3-single-n10k-int25-standardized_relyaw-s0', 'h3-single-n10k-int25-standardized_relyaw-s1']),
+          ('+ ego (egopos + relyaw)', ['h-single-n10k-int25-standardized_ego-s0', 'h-single-n10k-int25-standardized_ego-s1'])]
+    fig, axes = plt.subplots(1, 3, figsize=(15, 4.4), gridspec_kw={'width_ratios': [1.35, 1, 1]})
+    ax = axes[0]
+    vals = [(l, m(r), [final(x)['final'] for x in r]) for l, r in sv]
+    cols = [MUTED, C[0], C[0], C[0], C[1], C[1]]
+    y = np.arange(len(vals))[::-1]
+    for yi, (l, v, seeds), c in zip(y, vals, cols):
+        ax.barh(yi, v, height=0.6, color=c, edgecolor='white', linewidth=2)
+        ax.scatter(seeds, [yi] * len(seeds), s=14, color=INK, zorder=3)
+        ax.text(max([v] + seeds) + 0.008, yi, f'{v:.2f}', va='center', fontsize=8.5, color=INK)
+    vis = final('v-F-bc-enc-nodr-dinov2s-s0')['final']
+    ax.axvline(vis, color=C[1], ls='--', lw=1)
+    ax.text(vis - 0.005, y[0] + 0.55, f'sim-pretrained visual {vis:.2f}', color=C[1], fontsize=8, ha='right')
+    ax.set_yticks(y, [l for l, _, _ in vals], fontsize=8.5)
+    ax.set_xlim(0.6, 1.02); ax.grid(axis='y', visible=False)
+    ax.set_xlabel('success (dots = seeds)')
+    ax.set_title('single: state policy + hypothesis features', loc='left', fontsize=10.5, color=INK)
+    ax = axes[1]
+    groups = [('generic CLS\n(best)', {'single': final('v-B-clip_b16-s0')['final'], 'double': final('v-dbl-clip_b16-s0')['final']}),
+              ('world-only\ntargets', {'single': final('h-sgl-bc-nodr-dinov2s-world-s0')['final'], 'double': final('h-dbl-bc-nodr-dinov2s-world-s0')['final']}),
+              ('ego-only\ntargets', {'single': final('h-sgl-bc-nodr-dinov2s-ego-s0')['final'], 'double': final('h-dbl-bc-nodr-dinov2s-ego-s0')['final']}),
+              ('all targets', {'single': final('v-F-bc-enc-nodr-dinov2s-s0')['final'], 'double': final('v-dbl-F-bc-enc-nodr-dinov2s-s0')['final']})]
+    x = np.arange(len(groups))
+    for j, (task, col) in enumerate((('single', C[0]), ('double', C[1]))):
+        v = [g[1][task] for g in groups]
+        ax.bar(x + (j - 0.5) * 0.36, v, width=0.34, color=col, edgecolor='white', linewidth=2, label=task)
+        for xi, vi in zip(x, v):
+            ax.text(xi + (j - 0.5) * 0.36, vi + 0.012, f'{vi:.2f}', ha='center', fontsize=7.5, color=INK)
+    ax.set_xticks(x, [g[0] for g in groups], fontsize=8)
+    ax.set_ylim(0, 1.05); ax.grid(axis='x', visible=False); ax.set_ylabel('success (frozen DINOv2-S)')
+    ax.legend(fontsize=8, frameon=False, loc='upper left')
+    ax.set_title('encoder pretraining targets', loc='left', fontsize=10.5, color=INK)
+    ax = axes[2]
+    base = {10: 'h2-double-n10k-int25-handcrafted-s0', 30: 'r-fixed-n30k-int25', 100: 'r-fixed-n100k-int25'}
+    ego = {10: 'h2-double-n10k-int25-handcrafted_ego_pair-s0', 30: 'h2-double-n30k-int25-handcrafted_ego_pair-s0',
+           100: 'h2-double-n100k-int25-handcrafted_ego_pair-s0'}
+    ns = [10, 30, 100]
+    ax.plot(ns, [final(base[n])['final'] for n in ns], color=MUTED, lw=2, marker='o', label='state (handcrafted)')
+    ax.plot(ns, [final(ego[n])['final'] for n in ns], color=C[1], lw=2, marker='o', label='+ ego + cube-pair')
+    ax.scatter([30], [final('h2-double-n30k-int25-handcrafted_rel_pair-s0')['final']], marker='s', color=C[0], zorder=4, label='+ rel + cube-pair (30K)')
+    ax.scatter([30], [final('h2-double-n30k-int25-handcrafted_randproj-s0')['final']], marker='^', color=C[3], zorder=4, label='+ random features (30K)')
+    ax.scatter([10], [final('v-dbl-F-bc-enc-nodr-dinov2s-s0')['final']], marker='*', s=200, color=C[2], zorder=5, edgecolor='white',
+               label='visual sim-pretrained (10K)')
+    ax.set_xscale('log'); ax.set_xticks(ns, ['10K', '30K', '100K']); ax.set_ylim(0, 0.9)
+    ax.set_xlabel('expert episodes (chunk start / frame every 25 steps)'); ax.set_ylabel('success')
+    ax.legend(fontsize=7.5, frameon=False, loc='lower right')
+    ax.set_title('double: do the state features transfer?', loc='left', fontsize=10.5, color=INK)
+    fig.tight_layout()
+    fig.savefig(OUT / 'explain.png')
+    plt.close(fig)
+    return {l: dict(mean=v, seeds=sd) for l, v, sd in vals}
+
+
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     single = [dict(group=g, label=l, **final(r)) for g, l, r in SINGLE]
@@ -226,6 +287,7 @@ def main():
                 'frozen DINOv2-S, sim-pretrained'], [MUTED, C[0], C[2], C[3], C[1]], xmax=520)
     scaling = fig_double_scaling()
     take = fig_takeover()
+    explain = fig_explain()
     dbl_vis = [dict(label=l, **final(r)) for l, r in [
         ('state, 10K demos, every 25th step (1M upd.)', 'v-state-double-n10000-int25-s0'),
         ('frozen DINOv2-S CLS', 'v-dbl-dinov2_s-s0'), ('frozen DINOv2-S 2x2 patches', 'v-dbl-dinov2_s_p2-s0'),
@@ -249,7 +311,7 @@ def main():
         r = json.loads(p.read_text())
         sal[r['run']] = {c: round(v['cube_ratio'], 2) if v['cube_ratio'] else None for c, v in r['cameras'].items()}
     cost = [json.loads(l) for l in (DIAG / 'vis_cost.jsonl').read_text().splitlines()]
-    summary = dict(single=single, probe=probe, double_visual=dbl_vis, double_regime=regime, takeover=take,
+    summary = dict(explain_single_state=explain, single=single, probe=probe, double_visual=dbl_vis, double_regime=regime, takeover=take,
                    saliency_cube_ratio=sal, vis_cost=cost)
     (OUT / 'summary.json').write_text(json.dumps(summary, indent=1))
     print(json.dumps(dict(single={r['label']: round(r['final'], 3) for r in single},

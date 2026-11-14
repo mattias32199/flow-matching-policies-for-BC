@@ -24,43 +24,107 @@ from utils.flax_utils import save_agent
 from ocbench.dataset_utils import DATASET_KEYS
 
 
+EXTRA_KINDS = ('rel', 'ego', 'egopos', 'relyaw', 'pair', 'randproj')
+
+
+def extra_features(observations, kinds, proj=None):
+    """Hypothesis features computed from the raw upstream block observation (19 proprio dims, then 9 per cube:
+    pos(3, x10 scaled) quat(4) cos/sin yaw). These are the quantities a sim-pretrained visual encoder learned to
+    regress (scripts/dr_gen.py targets); appending them tests whether they explain the visual > state gap.
+      rel       cube - effector, world frame
+      ego       egopos + relyaw
+      egopos    cube - effector rotated into the effector yaw frame
+      relyaw    sin/cos(4 * (cube yaw - effector yaw))
+      pair      cube_j - cube_0 (world) and its norm, for multi-cube tasks
+      randproj  control: tanh of a fixed random projection of the standardized state (same width as ego)
+    """
+    o = observations
+    n = (o.shape[-1] - 19) // 9
+    eff = o[..., 12:15]
+    c, s = o[..., 15:16], o[..., 16:17]
+    eyaw = np.arctan2(s, c)
+    out = []
+    cubes = [o[..., 19 + 9 * i:22 + 9 * i] for i in range(n)]
+    for i in range(n):
+        d = cubes[i] - eff
+        if 'rel' in kinds:
+            out.append(d)
+        if 'ego' in kinds or 'egopos' in kinds:  # offset in the effector yaw frame
+            out.append(np.concatenate([c * d[..., :1] + s * d[..., 1:2], -s * d[..., :1] + c * d[..., 1:2], d[..., 2:3]], -1))
+        if 'ego' in kinds or 'relyaw' in kinds:  # cube yaw relative to the effector, 90-degree symmetric
+            r = 4 * (np.arctan2(o[..., 27 + 9 * i:28 + 9 * i], o[..., 26 + 9 * i:27 + 9 * i]) - eyaw)
+            out.extend([np.sin(r), np.cos(r)])
+    if 'pair' in kinds:
+        for j in range(1, n):
+            d = cubes[j] - cubes[0]
+            out.extend([d, np.linalg.norm(d, axis=-1, keepdims=True)])
+    if 'randproj' in kinds:
+        out.append(np.tanh(o @ proj))
+    return np.concatenate(out, -1).astype(np.float32)
+
+
 class Features:
-    """Fit on initial training data only; apply identically at train and test."""
+    """Fit on initial training data only; apply identically at train and test.
+
+    mode = base[+extra...], base in handcrafted/standardized/xyz0.1/xyz10/fourier1/fourier4 and extras from
+    EXTRA_KINDS (standardized with their own training statistics and appended)."""
     def __init__(self, observations, mode):
         self.mode = mode
-        self.frequencies = {'fourier1': (1.,), 'fourier4': (1., 2., 4., 8.)}.get(mode, ())
+        base, *self.extras = mode.split('+')
+        self.base = base
+        self.frequencies = {'fourier1': (1.,), 'fourier4': (1., 2., 4., 8.)}.get(base, ())
         dim = observations.shape[-1]
         self.center = np.zeros(dim, np.float32)
         self.scale = np.ones(dim, np.float32)
-        if mode != 'handcrafted':
-            # Streaming statistics limit peak memory with large fixed datasets.
-            total = np.zeros(dim, np.float64)
-            square = np.zeros(dim, np.float64)
-            for block in np.array_split(observations, max(1, len(observations) // 100000)):
-                total += block.sum(axis=0, dtype=np.float64)
-                square += np.einsum('ij,ij->j', block.astype(np.float64), block.astype(np.float64))
-            self.center = (total / len(observations)).astype(np.float32)
-            variance = np.maximum(square / len(observations) - self.center.astype(np.float64)**2, 0)
-            self.scale = (1 / np.maximum(np.sqrt(variance), 1e-3)).astype(np.float32)
-            # Upstream block observation: 19 proprio dimensions, then 9 per cube.
-            xyz = list(range(12, 15))
-            for start in range(19, dim, 9):
-                xyz.extend(range(start, start + 3))
-            self.xyz = xyz
+        self.xyz = list(range(12, 15))
+        for start in range(19, dim, 9):
+            self.xyz.extend(range(start, start + 3))
+        if base != 'handcrafted':
+            self.center, self.scale = self._moments(observations)
             multiplier = {'standardized': 1., 'xyz0.1': .1, 'xyz10': 10.,
-                          'fourier1': 1., 'fourier4': 1.}[mode]
-            self.scale[xyz] *= multiplier
+                          'fourier1': 1., 'fourier4': 1.}[base]
+            self.scale[self.xyz] *= multiplier
+        self.proj = None
+        if 'randproj' in self.extras:
+            width = extra_features(observations[:2], ('ego',)).shape[-1]
+            self.proj = (np.random.default_rng(12345).normal(size=(dim, width)) / np.sqrt(dim)).astype(np.float32)
+        self.extra_center = self.extra_scale = None
+        if self.extras:
+            sample = observations[np.linspace(0, len(observations) - 1, min(len(observations), 2_000_000)).astype(np.int64)]
+            self.extra_center, self.extra_scale = self._moments(self._extra(sample))
+
+    @staticmethod
+    def _moments(x):
+        # Streaming statistics limit peak memory with large fixed datasets.
+        dim = x.shape[-1]
+        total = np.zeros(dim, np.float64)
+        square = np.zeros(dim, np.float64)
+        for block in np.array_split(x, max(1, len(x) // 100000)):
+            total += block.sum(axis=0, dtype=np.float64)
+            square += np.einsum('ij,ij->j', block.astype(np.float64), block.astype(np.float64))
+        center = total / len(x)
+        variance = np.maximum(square / len(x) - center**2, 0)
+        return center.astype(np.float32), (1 / np.maximum(np.sqrt(variance), 1e-3)).astype(np.float32)
+
+    def _extra(self, observations):
+        z = (observations - self.center) * self.scale if 'randproj' in self.extras else observations
+        kinds = self.extras
+        if 'randproj' in kinds:  # randproj sees the standardized state; geometric extras see raw units
+            raw = extra_features(observations, [k for k in kinds if k != 'randproj']) if len(kinds) > 1 else None
+            rp = np.tanh(z @ self.proj).astype(np.float32)
+            return rp if raw is None else np.concatenate([raw, rp], -1)
+        return extra_features(observations, kinds)
 
     def __call__(self, observations):
         standardized = (observations - self.center) * self.scale
-        if not self.frequencies:
-            return standardized
+        parts = [standardized]
         # Preserve the complete standardized state; append fixed coordinate features.
-        extra = []
         for frequency in self.frequencies:
             phase = np.float32(2 * np.pi * frequency) * standardized[..., self.xyz]
-            extra.extend((np.sin(phase), np.cos(phase)))
-        return np.concatenate([standardized, *extra], axis=-1)
+            parts.extend((np.sin(phase), np.cos(phase)))
+        if self.extras:
+            parts.append((self._extra(observations) - self.extra_center) * self.extra_scale)
+        return parts[0] if len(parts) == 1 else np.concatenate(parts, axis=-1)
 
 
 class EvalAgent:
@@ -76,13 +140,26 @@ def saved_preprocessing(path, mode):
     with np.load(path, allow_pickle=False) as saved:
         features = Features.__new__(Features)
         features.mode = mode
+        features.base, *features.extras = mode.split('+')
         features.center, features.scale = saved['center'].copy(), saved['scale'].copy()
         features.frequencies = tuple(saved['fourier_frequencies']) if 'fourier_frequencies' in saved else ()
         features.xyz = list(range(12, 15))
         for start in range(19, len(features.center), 9):
             features.xyz.extend(range(start, start + 3))
+        features.proj = saved['proj'].copy() if 'proj' in saved else None
+        features.extra_center = saved['extra_center'].copy() if 'extra_center' in saved else None
+        features.extra_scale = saved['extra_scale'].copy() if 'extra_scale' in saved else None
         normalizer = ActionNormalizer(saved['q_low'], saved['q_high'], saved['clip'], saved['gripper_dims'])
     return features, normalizer
+
+
+def save_preprocessing(path, features, normalizer):
+    extra = {k: v for k, v in dict(proj=features.proj, extra_center=features.extra_center,
+                                    extra_scale=features.extra_scale).items() if v is not None}
+    np.savez(path, center=features.center, scale=features.scale,
+             fourier_frequencies=np.asarray(features.frequencies, dtype=np.float32),
+             q_low=normalizer.q_low, q_high=normalizer.q_high, clip=normalizer.clip,
+             gripper_dims=np.flatnonzero(normalizer.gripper_dims), **extra)
 
 
 def evaluation_record(step, metrics):
@@ -140,7 +217,8 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--env', default='block-double-task1-v0')
     parser.add_argument('--mode', choices=['fixed', 'streaming'], default='streaming')
-    parser.add_argument('--features', choices=['handcrafted', 'standardized', 'xyz0.1', 'xyz10', 'fourier1', 'fourier4'], default='handcrafted')
+    parser.add_argument('--features', default='handcrafted',
+                        help="base (handcrafted|standardized|xyz0.1|xyz10|fourier1|fourier4) optionally +rel/+ego/+pair/+randproj")
     parser.add_argument('--seed', type=int, default=0)
     parser.add_argument('--data-seed', type=int)
     parser.add_argument('--episodes', type=int, default=1000)
@@ -242,10 +320,7 @@ def main():
                                'train_transitions': train.size, 'val_transitions': val.size})
     if not resume:
         features = Features(train['observations'], args.features)
-    np.savez(run / 'preprocessing.npz', center=features.center, scale=features.scale,
-             fourier_frequencies=np.asarray(features.frequencies, dtype=np.float32),
-             q_low=normalizer.q_low, q_high=normalizer.q_high, clip=normalizer.clip,
-             gripper_dims=np.flatnonzero(normalizer.gripper_dims))
+    save_preprocessing(run / 'preprocessing.npz', features, normalizer)
     config = get_config()
     config.actor_hidden_dims = (args.width,) * args.depth
     config.batch_size = args.batch_size

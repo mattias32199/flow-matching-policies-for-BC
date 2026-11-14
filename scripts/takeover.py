@@ -51,8 +51,7 @@ def load_student(run):
         state = pickle.load(f)['agent']
     c = get_config()
     c.actor_hidden_dims = (cfg.get('width', 4096),) * cfg.get('depth', 8)
-    obs_dim = len(features.center) + 2 * len(features.xyz) * len(features.frequencies)
-    agent = FBCAgent.create(0, np.zeros((1, obs_dim), np.float32), np.zeros((1, 25 * 7), np.float32), c)
+    agent = FBCAgent.create(0, features(np.zeros((1, len(features.center)), np.float32)), np.zeros((1, 25 * 7), np.float32), c)
     agent = flax.serialization.from_state_dict(agent, state)
     return EvalAgent(agent, features), normalizer, str(ck)
 

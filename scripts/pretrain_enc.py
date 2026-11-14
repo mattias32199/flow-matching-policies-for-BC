@@ -42,6 +42,7 @@ p.add_argument('--ckpt-interval', type=int, default=2000)
 p.add_argument('--seed', type=int, default=0)
 p.add_argument('--group', default='m4-vision-single')
 p.add_argument('--tags', default='')
+p.add_argument('--groups', default='', help='comma list of target groups to regress (default: all), e.g. cube_xyz,pinch_xyz,gripper,arm_qpos')
 args = p.parse_args()
 
 run = ROOT / 'runs' / args.run
@@ -66,6 +67,12 @@ meta = json.loads((src / 'meta.json').read_text())
 print('loading images', flush=True)
 images = np.fromfile(src / f'{args.data}_img112.u8', dtype=np.uint8).reshape(meta['shape'])
 Y = np.load(src / 'targets.npy').astype(np.float32)
+if args.groups:  # target ablation: regress only the selected groups
+    sel = args.groups.split(',')
+    cols = sorted(i for g in sel for i in meta['groups'][g])
+    Y = Y[:, cols]
+    meta['groups'] = {g: [cols.index(i) for i in meta['groups'][g]] for g in sel}
+    print('target groups', meta['groups'], flush=True)
 n = len(Y)
 n_val = n // 20
 train_rows, val_rows = np.arange(n - n_val), np.arange(n - n_val, n)

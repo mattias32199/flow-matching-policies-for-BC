@@ -209,8 +209,8 @@ average.
 | `r-fixed-n100k-int5` | 100K | 5 | – | 100K | 25M | 0.23 | 0.48 |
 | `r-fixed-n100k-int25` | 100K | 25 | – | 100K | 5.0M | 0.41 | **0.55** |
 | `r-replay-b10k-r10k` | 10K | 1 | 10K | 110K | 12.5M | 0.34 | **0.56** |
-| `r-replay-b10k-r2k` | 10K | 1 | 2K | 510K (planned) | 12.4M | 0.39 | *running* |
-| `r-replay-b30k-r5k-int25` | 30K | 25 | 5K | 230K (planned) | 1.5M | 0.33 | *running* (0.48 at 750–900K) |
+| `r-replay-b10k-r2k` | 10K | 1 | 2K | 510K | 12.4M | 0.39 | **0.59** |
+| `r-replay-b30k-r5k-int25` | 30K | 25 | 5K | 230K | 1.5M | 0.33 | 0.49 |
 | `m4-handcrafted-s0` (Mystery 4) | one-use streaming | 1 | each start used once | ~800K at 1M | – | 0.27 | 0.50 |
 | `m1-double-n10000-s0` (Mystery 1) | 10K (`train.py` data) | 1 | – | 10K | 17.8M | 0.18 | 0.23 |
 
@@ -265,14 +265,20 @@ builds the index only, so frozen-embedding runs do not need the 83 GB 112-px ima
 | `v-dbl-dinov2_s-s0` | DINOv2-S CLS | 0.25 | 0.26 | done |
 | `v-dbl-dinov2_s_p2-s0` | DINOv2-S 2×2 patches | **0.44** | 0.47 | done |
 
-<a id="d3-transfer-runs"></a>Transfer runs submitted 2026-11-13. Each tests whether a single-task finding holds on
-double; all use `scripts/launch_regime.py --only X`.
+<a id="d3-transfer-runs"></a>Transfer runs (`scripts/launch_regime.py --only X`), all on the same data, frozen embeddings,
+300K updates:
 
-| Run | Single-task finding tested |
-| --- | --- |
-| `v-dbl-dinov2_b-s0`, `v-dbl-clip_b16-s0`, `v-dbl-resnet50_ce-s0`, `v-dbl-random_vit_s-s0` | encoder ranking (CLS) |
-| `v-dbl-dinov2_s_p4-s0` | 4×4 patch pooling |
-| `v-dbl-F-enc-nodr-dinov2s` → `v-dbl-F-bc-enc-nodr-dinov2s-s0` | sim-pretrained encoder. `dr_gen.py` now supports N cubes: 2 × 17 per-cube targets + 10 robot targets = 44-d |
+| Run | Encoder | Success | Best |
+| --- | --- | ---: | ---: |
+| `v-dbl-random_vit_s-s0` | random ViT-S | 0.00 | 0.00 |
+| `v-dbl-resnet50_ce-s0` | ResNet-50 | 0.16 | 0.18 |
+| `v-dbl-dinov2_b-s0` | DINOv2-B CLS | 0.32 | 0.35 |
+| `v-dbl-clip_b16-s0` | CLIP B/16 | 0.34 | 0.36 |
+| `v-dbl-dinov2_s_p4-s0` | DINOv2-S 4×4 patches (needs an A6000: 27 GB of embeddings on GPU) | **0.70** | 0.71 |
+| `v-dbl-F-bc-enc-nodr-dinov2s-s0` | DINOv2-S sim-pretrained on 200K two-cube states (no DR, 44-d targets) | **0.80** | 0.83 |
+
+The double encoder's held-out R²: cube-in-camera 0.999, cube-in-gripper 0.998, yaw 0.986, cube xyz 0.999,
+pinch 0.999, gripper 0.995, arm 0.824.
 
 ## B4. Compute and storage cost of going visual (measured, `scripts/bench_vis_cost.py`)
 
@@ -309,6 +315,64 @@ Implications:
 - End-to-end pixel training needs the raw-image cache: about 57 GB for 10K episodes at 112 px.
 
 ---
+
+# Part C: explanation experiments (why does vision beat privileged state?)
+
+![Explanation experiments](results/vision/explain.png)
+
+## C1. State policy + hypothesis features (`train.py` `Features`, mode `base+extra...`)
+
+Extras are computed from the raw observation:
+- 19 proprio dims (effector position at 12:15, effector cos/sin yaw at 15:17), then 9 dims per cube (position,
+  quaternion, cos/sin yaw).
+- Each extra is z-scored on the training data and appended.
+
+| Extra | Definition |
+| --- | --- |
+| `rel` | cube − effector (world frame) |
+| `egopos` | cube − effector rotated into the effector yaw frame |
+| `relyaw` | sin/cos(4·(cube yaw − effector yaw)), i.e. relative yaw under the cube's 90° symmetry |
+| `ego` | `egopos` + `relyaw` |
+| `pair` | cube_j − cube_0 and its norm (double) |
+| `randproj` | control: tanh(W·z), W fixed Gaussian, same width as `ego` |
+
+block-single, collection store (10K episodes, chunk starts every 25 steps), 500K updates (`train_regime.py`):
+
+| Run | Success |
+| --- | ---: |
+| `h-single-n10k-int25-standardized-s0` / `-s1` | 0.856 / 0.849 |
+| `h-single-n10k-int25-standardized_rel-s0` | 0.865 |
+| `h-single-n10k-int25-standardized_randproj-s0` | 0.859 |
+| `h3-single-n10k-int25-standardized_egopos-s0` / `-s1` | 0.816 / 0.869 |
+| `h3-single-n10k-int25-standardized_relyaw-s0` / `-s1` | **0.955 / 0.969** |
+| `h-single-n10k-int25-standardized_ego-s0` / `-s1` | **0.960 / 0.959** |
+
+block-double, chunk starts every 25 steps, 1M updates:
+
+| Run | Success |
+| --- | ---: |
+| `h2-double-n10k-int25-handcrafted-s0` | 0.11 |
+| `h2-double-n10k-int25-handcrafted_ego_pair-s0` | 0.09 |
+| `r-fixed-n30k-int25` (handcrafted baseline) | 0.42 |
+| `h2-double-n30k-int25-handcrafted_ego_pair-s0` | 0.38 |
+| `h2-double-n30k-int25-handcrafted_rel_pair-s0` | 0.46 |
+| `h2-double-n30k-int25-handcrafted_randproj-s0` | 0.36 |
+| `r-fixed-n100k-int25` (handcrafted baseline) | 0.58 |
+| `h2-double-n100k-int25-handcrafted_ego_pair-s0` | **0.77** |
+| `h-double-n{10,30}k-int25-standardized{,_ego_pair,_randproj,_rel_pair}-s0` (z-scored base; collapses on double) | 0.02 – 0.21 |
+
+## C2. Encoder target ablation (`pretrain_enc.py --groups`)
+
+Same data, schedule and BC as F. Only the regressed target groups differ.
+
+| Encoder | Targets | Held-out R² | BC run | Success |
+| --- | --- | --- | --- | ---: |
+| `h-sgl-enc-nodr-dinov2s-world` | cube_xyz, pinch_xyz, gripper, arm_qpos | 0.999 / 0.999 / 0.996 / 0.851 | `h-sgl-bc-nodr-dinov2s-world-s0` | 0.89 |
+| `h-sgl-enc-nodr-dinov2s-ego` | cube_in_camera, cube_in_gripper, cube_yaw | 0.919 / 0.998 / 0.991 | `h-sgl-bc-nodr-dinov2s-ego-s0` | 0.93 |
+| `v-F-enc-nodr-dinov2s` | all | see F | `v-F-bc-enc-nodr-dinov2s-s0` | 0.97 |
+| `h-dbl-enc-nodr-dinov2s-world` | world groups (2 cubes) | 0.999 / 0.999 / 0.996 / 0.802 | `h-dbl-bc-nodr-dinov2s-world-s0` | 0.69 |
+| `h-dbl-enc-nodr-dinov2s-ego` | egocentric groups (2 cubes) | 1.000 / 0.999 / 0.990 | `h-dbl-bc-nodr-dinov2s-ego-s0` | 0.78 |
+| `v-dbl-F-enc-nodr-dinov2s` | all | see B3 | `v-dbl-F-bc-enc-nodr-dinov2s-s0` | 0.80 |
 
 ## Reproduce
 

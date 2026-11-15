@@ -1,0 +1,29 @@
+{
+  "env": "block-double-task1-v0",
+  "features": "handcrafted",
+  "seed": 0,
+  "data_seed": 0,
+  "base": 10000,
+  "refresh_every": 10000,
+  "refresh_collections": 1,
+  "start_interval": 1,
+  "steps": 1000000,
+  "batch_size": 1024,
+  "width": 4096,
+  "depth": 8,
+  "log_interval": 1000,
+  "eval_interval": 50000,
+  "eval_episodes": 500,
+  "save_interval": 25000,
+  "group": "double-data-regime",
+  "tags": [
+    "input:state",
+    "base:10000",
+    "start_interval:1",
+    "refresh_every:10000"
+  ],
+  "run": "r-replay-b10k-r10k",
+  "trainer": "train_regime",
+  "wandb_group": "double-data-regime",
+  "slurm_job": "4091602"
+}

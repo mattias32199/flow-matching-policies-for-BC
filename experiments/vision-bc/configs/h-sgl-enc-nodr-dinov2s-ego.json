@@ -1,0 +1,25 @@
+{
+  "run": "h-sgl-enc-nodr-dinov2s-ego",
+  "data": "nodr",
+  "arch": "dinov2_s",
+  "scratch": false,
+  "env": "visual-block-single-task1-v0",
+  "steps": 40000,
+  "batch": 128,
+  "lr": 0.0003,
+  "enc_lr": 5e-05,
+  "log_interval": 250,
+  "eval_interval": 2000,
+  "ckpt_interval": 2000,
+  "seed": 0,
+  "group": "double-data-regime",
+  "tags": [
+    "hypothesis:egocentric",
+    "stage:encoder",
+    "targets:ego",
+    "encoder:dinov2_s"
+  ],
+  "groups": "cube_in_camera,cube_in_gripper,cube_yaw",
+  "wandb_group": "double-data-regime",
+  "kind": "encoder_pretrain"
+}

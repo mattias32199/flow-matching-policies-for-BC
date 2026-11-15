@@ -1,5 +1,5 @@
 """Figures + summary tables for the visual-BC study (visual-block-single) and the block-double
-data-regime / transfer study. Reads runs/*/eval.jsonl and results/diagnostics/*; writes results/vision/.
+data-regime / transfer study. Reads runs/*/eval.jsonl and results/diagnostics/*; writes experiments/vision-bc/figures/.
 
   .venv/bin/python scripts/report_vision.py
 """
@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / 'results' / 'vision'
+OUT = ROOT / 'experiments' / 'vision-bc' / 'figures'
 DIAG = ROOT / 'results' / 'diagnostics'
 # Categorical slots in fixed order (validated default palette, light mode).
 C = ['#2a78d6', '#eb6834', '#1baf7a', '#eda100', '#e87ba4', '#008300', '#6250d6', '#e34948']

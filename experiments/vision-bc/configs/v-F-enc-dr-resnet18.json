@@ -1,0 +1,25 @@
+{
+  "run": "v-F-enc-dr-resnet18",
+  "data": "dr",
+  "arch": "resnet18",
+  "scratch": true,
+  "env": "visual-block-single-task1-v0",
+  "steps": 40000,
+  "batch": 128,
+  "lr": 0.0003,
+  "enc_lr": 5e-05,
+  "log_interval": 250,
+  "eval_interval": 2000,
+  "ckpt_interval": 2000,
+  "seed": 0,
+  "group": "m4-vision-single",
+  "tags": [
+    "group:F",
+    "stage:encoder",
+    "dr:true",
+    "encoder:resnet18",
+    "init:scratch"
+  ],
+  "wandb_group": "m4-vision-single",
+  "kind": "encoder_pretrain"
+}

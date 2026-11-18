@@ -76,7 +76,7 @@ Setup:
   all successful demos.
 - E = 1K and 8.8K have two seeds, shown as s0 / s1.
 
-Success, 1000-rollout final evaluation (* = unfinished at the time of writing; last 300-rollout evaluation):
+Success, 1000-rollout final evaluation:
 
 | P \ E | 250 | 500 | 1K | 2K | 4K | 8.8K |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
@@ -85,17 +85,17 @@ Success, 1000-rollout final evaluation (* = unfinished at the time of writing; l
 | 6K | 0.542 | 0.776 | 0.889 / 0.862 | 0.939 | 0.953 | 0.951 / 0.972 |
 | 20K | 0.576 | 0.780 | 0.893 / 0.890 | 0.938 | 0.960 | 0.965 / 0.968 |
 | 60K | 0.662 | 0.821 | 0.935 / 0.916 | 0.960 | 0.966 | 0.965 / 0.952 |
-| 190K | 0.680 | 0.822 | 0.908 / 0.921 | 0.937* | 0.962 | 0.958 / 0.964 |
+| 190K | 0.680 | 0.822 | 0.908 / 0.921 | 0.941 | 0.962 | 0.958 / 0.964 |
 
 For reference, ground-truth-state BC on 10K demos reaches 0.85.
 
 Fit on the 40 cells with P > 0 (residual RMSE 0.015, about seed noise):
 
 ```
-failure(P, E) = 0.024 + (0.048 + 0.053 · (P / 10K)^-0.27) · (E / 1K)^-1.01
+failure(P, E) = 0.023 + (0.047 + 0.053 · (P / 10K)^-0.27) · (E / 1K)^-1.01
 ```
 
-- **Failure falls as about 1/E toward a floor of about 2.4%.** Doubling the demos roughly halves the reducible
+- **Failure falls as about 1/E toward a floor of about 2.3%.** Doubling the demos roughly halves the reducible
   failure.
   - The floor is near the evaluation noise of the best runs (0.95–0.97). It may be set by the expert's own
     quality rather than by the policy.

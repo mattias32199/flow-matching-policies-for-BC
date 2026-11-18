@@ -52,6 +52,10 @@ p.add_argument('--keep-every', type=int, default=50000, help='also keep a copy o
 p.add_argument('--group', default='m4v')
 p.add_argument('--tags', default='')
 p.add_argument('--env', default=ENV)
+p.add_argument('--episodes', type=int, default=0, help='train on K demo episodes only (fixed random subset, seed 0; '
+                                                       'nested across K); 0 = all')
+p.add_argument('--final-eval-episodes', type=int, default=0, help='extra large evaluation after the last step')
+p.add_argument('--drop-ckpt', action='store_true', help='delete ckpt.pt when the run is DONE (retention)')
 args = p.parse_args()
 
 run = ROOT / 'runs' / args.run
@@ -83,6 +87,12 @@ normalizer = load_normalizer(args.env)
 
 # ----------------------------------------------------------------------------- data
 idx = {s: load_index(s, args.env) for s in ('train', 'val')}
+sub = None
+if args.episodes:
+    episodes = np.random.default_rng(0).permutation(np.unique(idx['train']['uid']))
+    assert args.episodes <= len(episodes), (args.episodes, len(episodes))
+    sub = np.flatnonzero(np.isin(idx['train']['uid'], episodes[:args.episodes]))
+    idx['train'] = {k: (v[sub] if k != 'keep' else v) for k, v in idx['train'].items()}
 n_train, n_val = len(idx['train']['chunks']), len(idx['val']['chunks'])
 chunks = {s: torch.from_numpy(idx[s]['chunks'].reshape(len(idx[s]['chunks']), -1)).to(dev) for s in idx}
 qpos_mu = idx['train']['qpos'].mean(0)
@@ -99,6 +109,8 @@ if args.aux_frac > 0:
 
 if args.input == 'emb':
     X = {s: torch.from_numpy(load_embeddings(args.encoder, s, idx[s]['keep'], args.env)).to(dev) for s in idx}
+    if sub is not None:
+        X['train'] = X['train'][torch.from_numpy(sub).to(dev)]
     emb_dim = X['train'].shape[1] * X['train'].shape[2]
     flat = X['train'].reshape(n_train, -1)
     mu = torch.zeros(emb_dim, device=dev); sq = torch.zeros(emb_dim, device=dev)
@@ -109,9 +121,11 @@ if args.input == 'emb':
     del flat
 else:
     images = {s: load_images(s, args.env, args.img) for s in idx}
+    assert sub is None, '--episodes is only implemented for --input emb'
     assert len(images['train']) == n_train and len(images['val']) == n_val
 
-emit(run / 'dataset.jsonl', {'train_frames': n_train, 'val_frames': n_val})
+emit(run / 'dataset.jsonl', {'train_frames': n_train, 'val_frames': n_val,
+                             'train_episodes': int(len(np.unique(idx['train']['uid'])))})
 
 
 # ----------------------------------------------------------------------------- model
@@ -311,5 +325,12 @@ while step < args.steps:
         print(f'Signal received; checkpointed at step {step}, exiting for requeue.', flush=True)
         sys.exit(143)
 
+if args.final_eval_episodes and not (run / 'final_eval.jsonl').exists():
+    metrics = VisualEval(args.final_eval_episodes, args.env).run(policy_fn, normalizer, seed=9_000_000)
+    emit(run / 'final_eval.jsonl', {'step': step, **metrics})
+    torch.save({k: v for k, v in model.state_dict().items() if not k.startswith('enc.') or args.finetune},
+               run / f'params_{step}.pt')
 (run / 'DONE').write_text('Training and final evaluation completed.\n')
+if args.drop_ckpt:
+    ckpt_path.unlink(missing_ok=True)
 print('DONE', flush=True)

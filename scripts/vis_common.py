@@ -315,7 +315,7 @@ class VisualEval:
         adim = env.single_action_space.shape[-1]
         raw_low, raw_high = env.single_action_space.low, env.single_action_space.high
         done = np.zeros(n, bool); success = np.zeros(n, bool)
-        steps = np.zeros(n, np.int32)
+        steps = np.zeros(n, np.int32); returns = np.zeros(n, np.float64)
         t0 = time.time()
         while not done.all():
             chunk = np.asarray(policy(obs), np.float32).reshape(n, CHUNK, adim)
@@ -327,7 +327,8 @@ class VisualEval:
                 if not active.any():
                     break
                 action = chunk[:, k].copy(); action[done] = 0.0
-                _, _, terminated, _, info = env.step(action)
+                _, reward, terminated, _, info = env.step(action)
+                returns[active] += np.asarray(reward, np.float64)[active]
                 steps[active] += 1
                 new_done = active & (terminated | (steps >= self.max_steps))
                 success |= new_done & np.asarray(info['success'], bool)
@@ -338,7 +339,7 @@ class VisualEval:
                 done |= new_done
         return {'success': float(success.mean()), 'mean_steps': float(steps.mean()),
                 'mean_success_steps': float(steps[success].mean()) if success.any() else None,
-                'eval_seconds': time.time() - t0, 'episodes': n}
+                'return': float(returns.mean()), 'eval_seconds': time.time() - t0, 'episodes': n}
 
 
 # ----------------------------------------------------------------------------- run bookkeeping

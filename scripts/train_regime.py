@@ -168,11 +168,11 @@ def main():
         raw, _ = win.build(normalizer)
     else:
         raw, normalizer = win.build()
-    train = dataset(raw, normalizer)
+    train = dataset(raw, normalizer, keep_all='bowling' in args.env)
     del raw
     raw_val = cs.load([cs.ensure(args.env, args.data_seed, 'val')])
     raw_val.pop('qpos', None)
-    val = dataset(raw_val, normalizer)
+    val = dataset(raw_val, normalizer, keep_all='bowling' in args.env)
     del raw_val
     if not resume:
         features = Features(train['observations'], args.features)
@@ -210,7 +210,7 @@ def main():
             win.window = (win.window + next_ids(refreshes))[-n_base:]
             del train
             raw, _ = win.build(normalizer)
-            train = dataset(raw, normalizer)
+            train = dataset(raw, normalizer, keep_all='bowling' in args.env)
             del raw
             allowed = allowed_starts(train, args.start_interval)
             win.prefetch(next_ids(refreshes + 1) + next_ids(refreshes + 2))

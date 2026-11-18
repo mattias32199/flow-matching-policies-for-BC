@@ -13,6 +13,7 @@ trainer checkpoints and the job requeues itself; GPU self-check excludes broken 
 """
 import argparse
 import json
+import os
 import secrets
 import shlex
 import subprocess
@@ -162,6 +163,8 @@ def submit(e, deps, partition, dry):
             '--chdir=' + str(d), '--output=' + str(d / 'o'), '--error=' + str(d / 'e')]
     if deps:
         args.append('--dependency=afterok:' + ':'.join(deps))
+    if os.environ.get('SLURM_EXCLUDE'):  # e.g. a node with a broken GPU (see .local/gpu-hold/hold.sh, which holds it)
+        args.append('--exclude=' + os.environ['SLURM_EXCLUDE'])
     if dry:
         print(' '.join(args), '\n   ', shlex.join(e['cmd']))
         return 'DRY'

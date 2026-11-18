@@ -24,9 +24,29 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
 CAMS = ('front', 'side', 'ur5e/wrist')
-def target_layout(ncubes):
-    """Per cube: position in each camera frame (9), in the gripper frame (3), sin/cos(4 yaw) (2), world xyz (3);
-    then pinch xyz (3), gripper opening (1), arm joints (6). ncubes=1 reproduces the single-task layout's groups."""
+def object_kinds(env, m):
+    """Orientation target per free body: 'yaw4' (90-degree symmetric: block cubes, square hanoi disks),
+    'up' (bowling pins: body z axis, standing vs knocked), 'none' (ball)."""
+    import mujoco
+    kinds = []
+    for j in range(m.njnt):
+        if m.jnt_type[j] != mujoco.mjtJoint.mjJNT_FREE:
+            continue
+        name = m.joint(j).name
+        kinds.append('none' if 'ball' in name else 'up' if 'pin' in name else 'yaw4')
+    return kinds
+
+
+def num_pegs(env):
+    return len(getattr(env, '_peg_body_mocap_ids', [])) if 'hanoi' in type(env).__name__.lower() else 0
+
+
+def target_layout(ncubes, kinds=None, npegs=0):
+    """Per object (free body; 'cube' in the group names for compatibility): position in each camera frame (9), in the
+    gripper frame (3), orientation (sin/cos(4 yaw) for 90-degree-symmetric objects, z axis for pins, none for the ball),
+    world xyz (3); per hanoi peg (mocap): world xyz (3), in the gripper frame (3), sin/cos(4 yaw) (2); then pinch xyz
+    (3), gripper opening (1), arm joints (6). Block envs (all 'yaw4', no pegs) keep the original layout."""
+    kinds = kinds or ['yaw4'] * ncubes
     names, groups = [], {}
     def add(group, new):
         groups.setdefault(group, []).extend(range(len(names), len(names) + len(new)))
@@ -35,8 +55,15 @@ def target_layout(ncubes):
         p = f'cube{k}_' if ncubes > 1 else 'cube_'
         add('cube_in_camera', [f'{p}in_{c.split("/")[-1]}_{a}' for c in CAMS for a in 'xyz'])
         add('cube_in_gripper', [f'{p}in_gripper_{a}' for a in 'xyz'])
-        add('cube_yaw', [f'{p}sin4yaw', f'{p}cos4yaw'])
+        if kinds[k] == 'yaw4':
+            add('cube_yaw', [f'{p}sin4yaw', f'{p}cos4yaw'])
+        elif kinds[k] == 'up':
+            add('cube_yaw', [f'{p}up_{a}' for a in 'xyz'])
         add('cube_xyz', [f'{p}{a}' for a in 'xyz'])
+    for k in range(npegs):
+        add('peg_xyz', [f'peg{k}_{a}' for a in 'xyz'])
+        add('peg_in_gripper', [f'peg{k}_in_gripper_{a}' for a in 'xyz'])
+        add('peg_yaw', [f'peg{k}_sin4yaw', f'peg{k}_cos4yaw'])
     add('pinch_xyz', [f'pinch_{a}' for a in 'xyz'])
     add('gripper', ['gripper_open'])
     add('arm_qpos', [f'arm_q{i}' for i in range(6)])
@@ -46,7 +73,8 @@ def target_layout(ncubes):
 def make_env(env_name='visual-block-single-task1-v0'):
     import gymnasium
     import ocbench  # noqa: F401  (registers envs)
-    env = gymnasium.make(env_name.replace('visual-block-', 'visual-block-cpu-'), disable_env_checker=True).unwrapped
+    family, rest = env_name.removeprefix('visual-').split('-', 1)
+    env = gymnasium.make(f'visual-{family}-cpu-{rest}', disable_env_checker=True).unwrapped
     env.reset(seed=0)
     return env
 
@@ -61,7 +89,7 @@ def yaw_quat(yaw):
 
 
 def worker(args):
-    wid, lo, hi, qpos_src, cfg = args
+    wid, lo, hi, qpos_src, peg_src, cfg = args
     os.environ.setdefault('MUJOCO_GL', 'egl')
     import mujoco
     import torch
@@ -73,7 +101,8 @@ def worker(args):
     cam_ids = [mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_CAMERA, c) for c in CAMS]
     pinch = m.site('ur5e/robotiq/pinch').id
     qas = [int(m.jnt_qposadr[j]) for j in range(m.njnt) if m.jnt_type[j] == mujoco.mjtJoint.mjJNT_FREE]
-    names, _ = target_layout(len(qas))
+    kinds, npegs = object_kinds(env, m), num_pegs(env)
+    names, _ = target_layout(len(qas), kinds, npegs)
     arm = np.asarray(env._arm_joint_ids)
     grip = env._gripper_opening_joint_id
     nom = dict(geom_rgba=m.geom_rgba.copy(), mat_rgba=m.mat_rgba.copy(), light_diffuse=m.light_diffuse.copy(),
@@ -120,8 +149,11 @@ def worker(args):
 
     t0 = time.time()
     for i in range(lo, hi):
-        q = qpos_src[rng.integers(len(qpos_src))].astype(np.float64).copy()
-        if rng.random() < 0.5:  # re-place every cube on the table (pairwise >= min_dist apart)
+        src = rng.integers(len(qpos_src))
+        q = qpos_src[src].astype(np.float64).copy()
+        if npegs:
+            env._set_peg_layout(peg_src[src, :, :3], peg_src[src, :, 3])
+        if cfg['replace'] and rng.random() < 0.5:  # re-place every cube on the table (pairwise >= min_dist apart)
             placed = []
             for qa in qas:
                 for _ in range(100):
@@ -152,9 +184,20 @@ def worker(args):
             for c in cam_ids:
                 t.extend(d.cam_xmat[c].reshape(3, 3).T @ (cube - d.cam_xpos[c]))
             t.extend(d.site_xmat[pinch].reshape(3, 3).T @ (cube - d.site_xpos[pinch]))
-            yaw = quat_yaw(d.qpos[qa + 3:qa + 7])
-            t.extend([np.sin(4 * yaw), np.cos(4 * yaw)])
+            if kinds[qas.index(qa)] == 'yaw4':
+                yaw = quat_yaw(d.qpos[qa + 3:qa + 7])
+                t.extend([np.sin(4 * yaw), np.cos(4 * yaw)])
+            elif kinds[qas.index(qa)] == 'up':
+                R = np.zeros(9); mujoco.mju_quat2Mat(R, d.qpos[qa + 3:qa + 7])
+                t.extend(R.reshape(3, 3)[:, 2])
             t.extend(cube)
+        for k in range(npegs):
+            mid = env._peg_body_mocap_ids[k]
+            pos = d.mocap_pos[mid].copy()
+            t.extend(pos)
+            t.extend(d.site_xmat[pinch].reshape(3, 3).T @ (pos - d.site_xpos[pinch]))
+            yaw = quat_yaw(d.mocap_quat[mid])
+            t.extend([np.sin(4 * yaw), np.cos(4 * yaw)])
         t.extend(d.site_xpos[pinch]); t.append(d.qpos[grip] / 0.8); t.extend(d.qpos[arm])
         targets[i - lo] = t
         qpos_out[i - lo] = d.qpos
@@ -173,33 +216,63 @@ def main():
     p.add_argument('--workers', type=int, default=24)
     p.add_argument('--seed', type=int, default=0)
     p.add_argument('--variants', default='nodr,dr')
+    p.add_argument('--source', choices=['vis', 'collections'], default='vis',
+                   help='vis: qpos of data/vis/<env>/train_index.npz (block); collections: state collection store '
+                        '(needed for hanoi, whose peg poses are mocap and only in the state observation)')
+    p.add_argument('--collections', default='0-9')
+    p.add_argument('--max-episodes', type=int, default=0,
+                   help='vis source: sample states only from these K demo episodes (same subset as train_vis.py '
+                        '--episodes K); output goes to data/dr/<env>-e<K>')
+    p.add_argument('--no-replace', action='store_true', help='do not re-place objects on the table (non-block envs)')
     args = p.parse_args()
-    out = ROOT / 'data' / 'dr' / args.env
+    out = ROOT / 'data' / 'dr' / (args.env + (f'-e{args.max_episodes}' if args.max_episodes else ''))
     out.mkdir(parents=True, exist_ok=True)
     if (out / 'DONE').exists():
         print('already generated', flush=True)
         return
-    with np.load(ROOT / 'data' / 'vis' / args.env / 'train_index.npz') as z:
-        qpos_src = z['qpos']
     env = make_env(args.env)
     import mujoco
+    npegs = num_pegs(env)
+    peg_src = None
+    if args.source == 'vis':
+        with np.load(ROOT / 'data' / 'vis' / args.env / 'train_index.npz') as z:
+            qpos_src = z['qpos']
+            if args.max_episodes:
+                chosen = np.random.default_rng(0).permutation(np.unique(z['uid']))[:args.max_episodes]
+                qpos_src = qpos_src[np.isin(z['uid'], chosen)]
+    else:  # every 5th demo state of the state collections (same seeds as the visual demos)
+        a, b = (int(x) for x in args.collections.split('-'))
+        store = ROOT / 'data' / 'collections' / f'{args.env.removeprefix("visual-")}-d0'
+        qs, obs = [], []
+        for i in range(a, b + 1):
+            with np.load(store / f'c{i:05d}.npz') as z:
+                qs.append(z['qpos'][::5].astype(np.float32)); obs.append(z['observations'][::5].astype(np.float32))
+        qpos_src, obs = np.concatenate(qs), np.concatenate(obs)
+        if npegs:  # hanoi state: 19 proprio, 5 per disk (pos*10, cos, sin yaw), 5 per peg (pos*10, cos, sin yaw)
+            ndisk = (obs.shape[1] - 19 - 5 * npegs) // 5
+            base = 19 + 5 * ndisk
+            peg = obs[:, base:base + 5 * npegs].reshape(-1, npegs, 5)
+            pos = peg[..., :3] / 10.0 + np.array([0.425, 0.0, 0.0], np.float32)
+            peg_src = np.concatenate([pos, np.arctan2(peg[..., 4], peg[..., 3])[..., None]], -1)
     qas = [int(env.model.jnt_qposadr[j]) for j in range(env.model.njnt) if env.model.jnt_type[j] == mujoco.mjtJoint.mjJNT_FREE]
     cube = np.concatenate([qpos_src[:, qa:qa + 3] for qa in qas])
     lim = (cube[:, :2].min(0).tolist(), cube[:, :2].max(0).tolist(), float(np.percentile(cube[:, 2], 1)))
-    names, groups = target_layout(len(qas))
-    print(json.dumps(dict(nq=env.model.nq, cube_qpos_adr=qas, cube_lim=lim, ngeom=env.model.ngeom,
+    kinds = object_kinds(env, env.model)
+    names, groups = target_layout(len(qas), kinds, npegs)
+    print(json.dumps(dict(nq=env.model.nq, cube_qpos_adr=qas, kinds=kinds, npegs=npegs, source_states=len(qpos_src), cube_lim=lim, ngeom=env.model.ngeom,
                           nmat=env.model.nmat, nlight=env.model.nlight, targets=len(names))), flush=True)
     del env
     for k in args.variants.split(','):
         np.memmap(out / f'{k}_img112.u8', np.uint8, 'w+', shape=(args.n, 3, 112, 112, 3)).flush()
-    cfg = dict(seed=args.seed, out=out, n=args.n, cube_lim=lim, env=args.env, min_dist=0.08, variants=args.variants.split(','))
+    cfg = dict(seed=args.seed, out=out, n=args.n, cube_lim=lim, env=args.env, min_dist=0.08, variants=args.variants.split(','),
+               replace=not args.no_replace)
     bounds = [int(b) for b in np.linspace(0, args.n, args.workers + 1)]
     targets = np.zeros((args.n, len(names)), np.float32)
     qpos = None
     t0 = time.time()
     with mp.get_context('spawn').Pool(args.workers) as pool:
         # map_async + timeout: a worker killed by a native crash fails the job instead of hanging it.
-        results = pool.map_async(worker, [(w, bounds[w], bounds[w + 1], qpos_src, cfg) for w in range(args.workers)]).get(timeout=4 * 3600)
+        results = pool.map_async(worker, [(w, bounds[w], bounds[w + 1], qpos_src, peg_src, cfg) for w in range(args.workers)]).get(timeout=4 * 3600)
         for lo, t, q in results:
             targets[lo:lo + len(t)] = t
             qpos = np.zeros((args.n, q.shape[1]), np.float32) if qpos is None else qpos

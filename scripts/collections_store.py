@@ -47,7 +47,8 @@ def generate(env, seed, idx, out, episodes=1000, val_episodes=0):
     raw = val if is_val else train
     raw = {k: v for k, v in raw.items() if k in KEYS}
     n_all = int(raw['terminals'].sum())
-    raw = filter_success_trajectories(raw)
+    if 'bowling' not in env:  # bowling has no success flag; its score is the return (0.1 per knocked pin)
+        raw = filter_success_trajectories(raw)
     raw['qpos'] = raw['qpos'].astype(np.float16)
     out = Path(out)
     out.parent.mkdir(parents=True, exist_ok=True)

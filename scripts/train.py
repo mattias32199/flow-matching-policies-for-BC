@@ -206,9 +206,10 @@ def collect(args, index, episodes, val_episodes):
     return generate()
 
 
-def dataset(raw, normalizer):
+def dataset(raw, normalizer, keep_all=False):
+    """keep_all: skip the success filter (bowling has no success flag; its score is the return)."""
     processed, _ = postprocess_datasets(raw, None, normalizer)
-    result = Dataset.create(**filter_success_trajectories(processed))
+    result = Dataset.create(**(processed if keep_all else filter_success_trajectories(processed)))
     result.action_chunk_length = 25
     return result
 

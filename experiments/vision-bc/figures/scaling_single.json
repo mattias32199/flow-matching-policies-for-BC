@@ -1,0 +1,533 @@
+{
+ "model": "fail = c + (a + b (P/1e4)^-beta) (E/1000)^-alpha, P>0 cells",
+ "params": {
+  "c": 0.023533072867876058,
+  "a": 0.04751894674765382,
+  "alpha": 1.0067678070797772,
+  "b": 0.05287527177618418,
+  "beta": 0.2687474404478497
+ },
+ "rmse": 0.015236605480528811,
+ "n": 40,
+ "generic_cls": {
+  "model": "fail = c + a (E/1000)^-alpha",
+  "params": {
+   "c": 6.557536954530807e-14,
+   "a": 0.7270332294866653,
+   "alpha": 0.2786720054571512
+  },
+  "rmse": 0.06598179073665868
+ },
+ "rows": [
+  {
+   "group": "l",
+   "P": 190000,
+   "E": 1000,
+   "seed": 0,
+   "success": 0.87,
+   "episodes": 1000,
+   "step": 300000,
+   "final": true
+  },
+  {
+   "group": "l",
+   "P": 20000,
+   "E": 1000,
+   "seed": 0,
+   "success": 0.919,
+   "episodes": 1000,
+   "step": 300000,
+   "final": true
+  },
+  {
+   "group": "l",
+   "P": 20000,
+   "E": 250,
+   "seed": 0,
+   "success": 0.668,
+   "episodes": 1000,
+   "step": 300000,
+   "final": true
+  },
+  {
+   "group": "s",
+   "P": 0,
+   "E": 1000,
+   "seed": 0,
+   "success": 0.187,
+   "episodes": 1000,
+   "step": 300000,
+   "final": true
+  },
+  {
+   "group": "s",
+   "P": 0,
+   "E": 1000,
+   "seed": 1,
+   "success": 0.197,
+   "episodes": 1000,
+   "step": 300000,
+   "final": true
+  },
+  {
+   "group": "s",
+   "P": 0,
+   "E": 2000,
+   "seed": 0,
+   "success": 0.377,
+   "episodes": 1000,
+   "step": 300000,
+   "final": true
+  },
+  {
+   "group": "s",
+   "P": 0,
+   "E": 250,
+   "seed": 0,
+   "success": 0.029,
+   "episodes": 1000,
+   "step": 300000,
+   "final": true
+  },
+  {
+   "group": "s",
+   "P": 0,
+   "E": 4000,
+   "seed": 0,
+   "success": 0.53,
+   "episodes": 1000,
+   "step": 300000,
+   "final": true
+  },
+  {
+   "group": "s",
+   "P": 0,
+   "E": 500,
+   "seed": 0,
+   "success": 0.075,
+   "episodes": 1000,
+   "step": 300000,
+   "final": true
+  },
+  {
+   "group": "s",
+   "P": 0,
+   "E": 8818,
+   "seed": 0,
+   "success": 0.68,
+   "episodes": 1000,
+   "step": 300000,
+   "final": true
+  },
+  {
+   "group": "s",
+   "P": 0,
+   "E": 8818,
+   "seed": 1,
+   "success": 0.659,
+   "episodes": 1000,
+   "step": 300000,
+   "final": true
+  },
+  {
+   "group": "s",
+   "P": 190000,
+   "E": 1000,
+   "seed": 0,
+   "success": 0.908,
+   "episodes": 1000,
+   "step": 300000,
+   "final": true
+  },
+  {
+   "group": "s",
+   "P": 190000,
+   "E": 1000,
+   "seed": 1,
+   "success": 0.921,
+   "episodes": 1000,
+   "step": 300000,
+   "final": true
+  },
+  {
+   "group": "s",
+   "P": 190000,
+   "E": 2000,
+   "seed": 0,
+   "success": 0.9366666666666666,
+   "episodes": 300,
+   "step": 225000,
+   "final": false
+  },
+  {
+   "group": "s",
+   "P": 190000,
+   "E": 250,
+   "seed": 0,
+   "success": 0.68,
+   "episodes": 1000,
+   "step": 300000,
+   "final": true
+  },
+  {
+   "group": "s",
+   "P": 190000,
+   "E": 4000,
+   "seed": 0,
+   "success": 0.962,
+   "episodes": 1000,
+   "step": 300000,
+   "final": true
+  },
+  {
+   "group": "s",
+   "P": 190000,
+   "E": 500,
+   "seed": 0,
+   "success": 0.822,
+   "episodes": 1000,
+   "step": 300000,
+   "final": true
+  },
+  {
+   "group": "s",
+   "P": 190000,
+   "E": 8818,
+   "seed": 0,
+   "success": 0.958,
+   "episodes": 1000,
+   "step": 300000,
+   "final": true
+  },
+  {
+   "group": "s",
+   "P": 190000,
+   "E": 8818,
+   "seed": 1,
+   "success": 0.964,
+   "episodes": 1000,
+   "step": 300000,
+   "final": true
+  },
+  {
+   "group": "s",
+   "P": 20000,
+   "E": 1000,
+   "seed": 0,
+   "success": 0.893,
+   "episodes": 1000,
+   "step": 300000,
+   "final": true
+  },
+  {
+   "group": "s",
+   "P": 20000,
+   "E": 1000,
+   "seed": 1,
+   "success": 0.89,
+   "episodes": 1000,
+   "step": 300000,
+   "final": true
+  },
+  {
+   "group": "s",
+   "P": 20000,
+   "E": 2000,
+   "seed": 0,
+   "success": 0.938,
+   "episodes": 1000,
+   "step": 300000,
+   "final": true
+  },
+  {
+   "group": "s",
+   "P": 20000,
+   "E": 250,
+   "seed": 0,
+   "success": 0.576,
+   "episodes": 1000,
+   "step": 300000,
+   "final": true
+  },
+  {
+   "group": "s",
+   "P": 20000,
+   "E": 4000,
+   "seed": 0,
+   "success": 0.96,
+   "episodes": 1000,
+   "step": 300000,
+   "final": true
+  },
+  {
+   "group": "s",
+   "P": 20000,
+   "E": 500,
+   "seed": 0,
+   "success": 0.78,
+   "episodes": 1000,
+   "step": 300000,
+   "final": true
+  },
+  {
+   "group": "s",
+   "P": 20000,
+   "E": 8818,
+   "seed": 0,
+   "success": 0.965,
+   "episodes": 1000,
+   "step": 300000,
+   "final": true
+  },
+  {
+   "group": "s",
+   "P": 20000,
+   "E": 8818,
+   "seed": 1,
+   "success": 0.968,
+   "episodes": 1000,
+   "step": 300000,
+   "final": true
+  },
+  {
+   "group": "s",
+   "P": 2000,
+   "E": 1000,
+   "seed": 0,
+   "success": 0.826,
+   "episodes": 1000,
+   "step": 300000,
+   "final": true
+  },
+  {
+   "group": "s",
+   "P": 2000,
+   "E": 1000,
+   "seed": 1,
+   "success": 0.815,
+   "episodes": 1000,
+   "step": 300000,
+   "final": true
+  },
+  {
+   "group": "s",
+   "P": 2000,
+   "E": 2000,
+   "seed": 0,
+   "success": 0.908,
+   "episodes": 1000,
+   "step": 300000,
+   "final": true
+  },
+  {
+   "group": "s",
+   "P": 2000,
+   "E": 250,
+   "seed": 0,
+   "success": 0.478,
+   "episodes": 1000,
+   "step": 300000,
+   "final": true
+  },
+  {
+   "group": "s",
+   "P": 2000,
+   "E": 4000,
+   "seed": 0,
+   "success": 0.928,
+   "episodes": 1000,
+   "step": 300000,
+   "final": true
+  },
+  {
+   "group": "s",
+   "P": 2000,
+   "E": 500,
+   "seed": 0,
+   "success": 0.697,
+   "episodes": 1000,
+   "step": 300000,
+   "final": true
+  },
+  {
+   "group": "s",
+   "P": 2000,
+   "E": 8818,
+   "seed": 0,
+   "success": 0.944,
+   "episodes": 1000,
+   "step": 300000,
+   "final": true
+  },
+  {
+   "group": "s",
+   "P": 2000,
+   "E": 8818,
+   "seed": 1,
+   "success": 0.95,
+   "episodes": 1000,
+   "step": 300000,
+   "final": true
+  },
+  {
+   "group": "s",
+   "P": 60000,
+   "E": 1000,
+   "seed": 0,
+   "success": 0.935,
+   "episodes": 1000,
+   "step": 300000,
+   "final": true
+  },
+  {
+   "group": "s",
+   "P": 60000,
+   "E": 1000,
+   "seed": 1,
+   "success": 0.916,
+   "episodes": 1000,
+   "step": 300000,
+   "final": true
+  },
+  {
+   "group": "s",
+   "P": 60000,
+   "E": 2000,
+   "seed": 0,
+   "success": 0.96,
+   "episodes": 1000,
+   "step": 300000,
+   "final": true
+  },
+  {
+   "group": "s",
+   "P": 60000,
+   "E": 250,
+   "seed": 0,
+   "success": 0.662,
+   "episodes": 1000,
+   "step": 300000,
+   "final": true
+  },
+  {
+   "group": "s",
+   "P": 60000,
+   "E": 4000,
+   "seed": 0,
+   "success": 0.966,
+   "episodes": 1000,
+   "step": 300000,
+   "final": true
+  },
+  {
+   "group": "s",
+   "P": 60000,
+   "E": 500,
+   "seed": 0,
+   "success": 0.821,
+   "episodes": 1000,
+   "step": 300000,
+   "final": true
+  },
+  {
+   "group": "s",
+   "P": 60000,
+   "E": 8818,
+   "seed": 0,
+   "success": 0.965,
+   "episodes": 1000,
+   "step": 300000,
+   "final": true
+  },
+  {
+   "group": "s",
+   "P": 60000,
+   "E": 8818,
+   "seed": 1,
+   "success": 0.952,
+   "episodes": 1000,
+   "step": 300000,
+   "final": true
+  },
+  {
+   "group": "s",
+   "P": 6000,
+   "E": 1000,
+   "seed": 0,
+   "success": 0.889,
+   "episodes": 1000,
+   "step": 300000,
+   "final": true
+  },
+  {
+   "group": "s",
+   "P": 6000,
+   "E": 1000,
+   "seed": 1,
+   "success": 0.862,
+   "episodes": 1000,
+   "step": 300000,
+   "final": true
+  },
+  {
+   "group": "s",
+   "P": 6000,
+   "E": 2000,
+   "seed": 0,
+   "success": 0.939,
+   "episodes": 1000,
+   "step": 300000,
+   "final": true
+  },
+  {
+   "group": "s",
+   "P": 6000,
+   "E": 250,
+   "seed": 0,
+   "success": 0.542,
+   "episodes": 1000,
+   "step": 300000,
+   "final": true
+  },
+  {
+   "group": "s",
+   "P": 6000,
+   "E": 4000,
+   "seed": 0,
+   "success": 0.953,
+   "episodes": 1000,
+   "step": 300000,
+   "final": true
+  },
+  {
+   "group": "s",
+   "P": 6000,
+   "E": 500,
+   "seed": 0,
+   "success": 0.776,
+   "episodes": 1000,
+   "step": 300000,
+   "final": true
+  },
+  {
+   "group": "s",
+   "P": 6000,
+   "E": 8818,
+   "seed": 0,
+   "success": 0.951,
+   "episodes": 1000,
+   "step": 300000,
+   "final": true
+  },
+  {
+   "group": "s",
+   "P": 6000,
+   "E": 8818,
+   "seed": 1,
+   "success": 0.972,
+   "episodes": 1000,
+   "step": 300000,
+   "final": true
+  }
+ ]
+}

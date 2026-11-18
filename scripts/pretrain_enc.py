@@ -43,6 +43,12 @@ p.add_argument('--seed', type=int, default=0)
 p.add_argument('--group', default='m4-vision-single')
 p.add_argument('--tags', default='')
 p.add_argument('--groups', default='', help='comma list of target groups to regress (default: all), e.g. cube_xyz,pinch_xyz,gripper,arm_qpos')
+p.add_argument('--exclude-groups', default='', help='regress all target groups except these, e.g. cube_yaw')
+p.add_argument('--n-pairs', type=int, default=0, help='train on the first N training pairs only (0 = all); the '
+                                                       'held-out set (last 5%% of the file) is the same for every N')
+p.add_argument('--dr-dir', default='', help='data/dr/<this> instead of data/dr/<env>')
+p.add_argument('--select', choices=['last', 'best'], default='last',
+               help='best: export the backbone with the highest held-out mean R^2 (evaluated every --eval-interval)')
 args = p.parse_args()
 
 run = ROOT / 'runs' / args.run
@@ -62,11 +68,13 @@ torch.manual_seed(args.seed)
 torch.backends.cudnn.benchmark = True
 torch.backends.cuda.matmul.allow_tf32 = True
 dev = torch.device('cuda')
-src = ROOT / 'data' / 'dr' / args.env
+src = ROOT / 'data' / 'dr' / (args.dr_dir or args.env)
 meta = json.loads((src / 'meta.json').read_text())
 print('loading images', flush=True)
 images = np.fromfile(src / f'{args.data}_img112.u8', dtype=np.uint8).reshape(meta['shape'])
 Y = np.load(src / 'targets.npy').astype(np.float32)
+if args.exclude_groups:
+    args.groups = ','.join(g for g in meta['groups'] if g not in args.exclude_groups.split(','))
 if args.groups:  # target ablation: regress only the selected groups
     sel = args.groups.split(',')
     cols = sorted(i for g in sel for i in meta['groups'][g])
@@ -76,6 +84,10 @@ if args.groups:  # target ablation: regress only the selected groups
 n = len(Y)
 n_val = n // 20
 train_rows, val_rows = np.arange(n - n_val), np.arange(n - n_val, n)
+if args.n_pairs:
+    assert args.n_pairs <= len(train_rows), (args.n_pairs, len(train_rows))
+    train_rows = train_rows[:args.n_pairs]
+    args.batch = min(args.batch, args.n_pairs)
 y_mu, y_sd = Y[train_rows].mean(0), Y[train_rows].std(0).clip(1e-4)
 Yn = torch.from_numpy((Y - y_mu) / y_sd).to(dev)
 
@@ -142,13 +154,18 @@ def evaluate():
         with torch.autocast('cuda', dtype=dtype):
             preds.append(head(embed(torch.from_numpy(images[ids]).to(dev), False)).float())
     pred = torch.cat(preds); y = Yn[val_rows[0]:]
-    r2 = 1 - ((pred - y) ** 2).sum(0) / ((y - y.mean(0)) ** 2).sum(0).clamp_min(1e-12)
+    var = ((y - y.mean(0)) ** 2).sum(0)
+    r2 = 1 - ((pred - y) ** 2).sum(0) / var.clamp_min(1e-12)
+    live = (var / len(y) > 1e-4).cpu().numpy()  # skip (near-)constant targets, e.g. fixed hanoi-task1 pegs
     backbone.train(); head.train()
-    rec = {f'r2_{g}': float(r2[idx].mean()) for g, idx in meta['groups'].items()}
+    rec = {f'r2_{g}': float(r2[[i for i in idx if live[i]]].mean()) for g, idx in meta['groups'].items()
+           if any(live[i] for i in idx)}
     rec['r2_mean'] = float(np.mean(list(rec.values())))
     return rec
 
 
+best_path = run / 'best_backbone.pt'
+best = json.loads((run / 'best.json').read_text()) if (run / 'best.json').exists() else {'r2_mean': -1e9, 'step': 0}
 backbone.train(); head.train()
 t0, last = time.time(), step
 while step < args.steps:
@@ -167,7 +184,12 @@ while step < args.steps:
             raise RuntimeError(f'Nonfinite loss at step {step}')
         emit(run / 'metrics.jsonl', {'step': step, 'training/target_mse': float(loss), 'seconds': time.time() - t0})
     if step % args.eval_interval == 0 or step == args.steps:
-        emit(run / 'encoder.jsonl', {'step': step, **evaluate()})
+        rec = evaluate()
+        emit(run / 'encoder.jsonl', {'step': step, **rec})
+        if args.select == 'best' and rec['r2_mean'] > best['r2_mean']:
+            best = {'r2_mean': rec['r2_mean'], 'step': step}
+            atomic_save(backbone.state_dict(), best_path)
+            (run / 'best.json').write_text(json.dumps(best))
     if step % args.ckpt_interval == 0 or step == args.steps or stop['flag']:
         save()
     if stop['flag']:
@@ -175,7 +197,12 @@ while step < args.steps:
         sys.exit(143)
 
 meta_out = dict(arch=arch, kwargs=kw, mean=list(cfg['mean']), std=list(cfg['std']), size=112,
-                data=args.data, scratch=args.scratch, target_mean=y_mu.tolist(), target_std=y_sd.tolist())
-atomic_save({'state_dict': backbone.state_dict(), 'meta': json.dumps(meta_out)}, run / 'encoder.pt')
+                data=args.data, scratch=args.scratch, target_mean=y_mu.tolist(), target_std=y_sd.tolist(),
+                select=args.select, selected_step=best['step'] if args.select == 'best' else step,
+                n_pairs=int(len(train_rows)))
+state = torch.load(best_path, map_location='cpu', weights_only=True) if args.select == 'best' else backbone.state_dict()
+atomic_save({'state_dict': state, 'meta': json.dumps(meta_out)}, run / 'encoder.pt')
+best_path.unlink(missing_ok=True)
+ckpt_path.unlink(missing_ok=True)  # retention: only encoder.pt is needed downstream
 (run / 'DONE').write_text('Encoder pretraining completed.\n')
 print('DONE', flush=True)

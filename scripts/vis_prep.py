@@ -50,6 +50,8 @@ for split in ('train', 'val'):
                 d = {k: d[k] for k in ('observations', 'observation_interval', 'terminals', 'rewards', 'actions', 'qpos')}
             steps, eps, final, offsets = frame_meta(d['terminals'], int(d['observation_interval']), len(d['observations']))
             success = np.array([d['rewards'][a:b].max() >= 1 for a, b in zip(offsets[:-1], offsets[1:])])
+            if 'bowling' in args.env:  # return-scored task: keep every expert episode
+                success[:] = True
             keep = success[eps] & ~final
             keep_all.append(keep)
             s = steps[keep]; e = eps[keep]

@@ -7,11 +7,11 @@ Groups
      chunk starts every 25 steps; visual demos (OCBench in-loop rendering), frozen DINOv2-S 4x4 and sim-pretrained
      DINOv2-S visual BC (hanoi-double: state only until a gap is seen)
   S  block-single scaling: encoder pretraining pairs P x demo episodes E, frozen-CLS visual BC to 300K updates
-  L  leak control for S: pairs rendered only from the E training episodes
+  S  low-pairs extension: P = 20 / 60 / 200 / 600 (regenerates the 200K-pair file first, then the same grid)
 Same requeue-safe launcher and submission log as scripts/launch_regime.py; partitions deepaklong,all.
 
   python scripts/launch_gen.py --list
-  python scripts/launch_gen.py --only Q,G,S,L [--dry-run]
+  python scripts/launch_gen.py --only Q,G,S,SL [--dry-run]
 """
 import argparse
 import json
@@ -27,13 +27,18 @@ SENV = 'visual-block-single-task1-v0'
 # Measured 2026-11-17: frozen-embedding BC peaks at ~6 GB GPU memory (2080ti: 9.9 updates/s vs A5000 26, rtx6000 11);
 # JAX state BC peaks at ~6 GB (3080ti 25 updates/s). grogu-3-20 / grogu-3-30 GPUs fail CUDA init; grogu-1-20's broken
 # GPU is held by .local/gpu-hold/hold.sh.
-CHEAP_OK = 'A6000|A5000|rtx6000|rtx3090|A6000Ada|rtx2080ti|3080ti'
+CHEAP_OK = 'A6000|A5000|rtx6000|rtx3090|A6000Ada|rtx2080ti|3080ti|H200|6000Blackwell'  # torch 2.15 has sm_90/sm_120
 os.environ.setdefault('SLURM_EXCLUDE', 'grogu-3-20,grogu-3-30')
 TASKS = {'hanoi-single-task1-v0': dict(tag='hs', steps=500000, visual=True),
          'bowling-task1-v0': dict(tag='bw', steps=500000, visual=True),
          'hanoi-double-task1-v0': dict(tag='hd', steps=1000000, visual=False)}
 PAIRS = (2000, 6000, 20000, 60000, 190000)       # 190K = every training pair of the 200K file (5% held out)
 EPISODES = (250, 500, 1000, 2000, 4000, 8818)    # 8818 = all successful visual-block-single demos
+LOW_PAIRS = (20, 60, 200, 600)                   # push P down until E = 8818 falls to ~0.9 (P = 2K gives 0.95)
+
+
+def pname(P):
+    return f'{P // 1000}k' if P >= 1000 else str(P)
 
 
 def bc(run, env, enc, group, tags, after=(), episodes=0, seed=0, steps=300000):
@@ -45,7 +50,7 @@ def bc(run, env, enc, group, tags, after=(), episodes=0, seed=0, steps=300000):
     if episodes:
         cmd[cmd.index('--steps'):cmd.index('--steps')] = ['--episodes', str(episodes)]
     # frozen-embedding BC measured at ~3 GB RSS, ~1 core, 4-5.5 GB GPU memory
-    return dict(run=run, group=group, torch=True, time='16:00:00', mem='24G', cpus=4, after=list(after), cmd=cmd,
+    return dict(run=run, group=group, torch=True, time='16:00:00', mem='16G', cpus=3, after=list(after), cmd=cmd,
                 gpus=CHEAP_OK)
 
 
@@ -116,24 +121,27 @@ def experiments():
                 run = f's-sgl-bc-p{P // 1000}k-e{ep}-s{seed}'
                 E.append(bc(run, SENV, name, 'S', [f'pairs:{P}'], after=[] if P == 0 else ['S-embed'],
                             episodes=0 if ep == 8818 else ep, seed=seed))
-    # ------------------------------------------------------------------ L (pairs only from the E training episodes)
-    for K, n, Ps in ((1000, 200000, (20000, 190000)), (250, 22000, (20000,))):
-        E.append(job(f'gen-L-drgen-e{K}', 'L', f'{TORCH} -u scripts/dr_gen.py --env {SENV} --n {n} --workers 30 '
-                     f'--variants nodr --max-episodes {K}', time='10:00:00', cpus=32))
-        for P in Ps:
-            name = f'l-sgl-enc-p{P // 1000}k-e{K}'
-            E.append(enc(name, SENV, 'L', [f'pairs:{P}', f'pair_episodes:{K}', 'select:best'], after=[f'L-drgen-e{K}'],
-                         extra=['--n-pairs', str(P), '--select', 'best', '--dr-dir', f'{SENV}-e{K}']))
-            E.append(job(f'gen-L-embed-{name}', 'L', f'{TORCH} -u scripts/embed_probe.py --env {SENV} '
-                         f'--encoders pre:{name} --no-probe', after=[name], gpus=ANY_GPUS))
-            E.append(bc(f'l-sgl-bc-p{P // 1000}k-e{K}-s0', SENV, f'pre:{name}', 'L', [f'pairs:{P}', f'pair_episodes:{K}'],
-                        after=[f'L-embed-{name}'], episodes=K))
+    # ------------------------------------------------------------------ S, low pairs (group SL)
+    E.append(job('gen-SL-drgen', 'SL', f'{TORCH} -u scripts/dr_gen.py --env {SENV} --n 200000 --workers 30 '
+                 '--variants nodr', time='10:00:00', cpus=32))
+    low = []
+    for P in LOW_PAIRS:
+        name = f's-sgl-enc-p{pname(P)}'
+        low.append(name)
+        E.append(enc(name, SENV, 'SL', [f'pairs:{P}', 'select:best'], after=['SL-drgen'],
+                     extra=['--n-pairs', str(P), '--select', 'best']))
+    for P, name in zip(LOW_PAIRS, low):  # one embed job per encoder, so each row's BC starts as soon as it can
+        E.append(job(f'gen-SL-embed-p{pname(P)}', 'SL', f'{TORCH} -u scripts/embed_probe.py --env {SENV} '
+                     f'--encoders pre:{name} --no-probe', after=[name], gpus=ANY_GPUS))
+        for ep in EPISODES:
+            E.append(bc(f's-sgl-bc-p{pname(P)}-e{ep}-s0', SENV, f'pre:{name}', 'SL', [f'pairs:{P}'],
+                        after=[f'SL-embed-p{pname(P)}'], episodes=0 if ep == 8818 else ep))
     return E
 
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument('--only', default='Q,G,S,L')
+    p.add_argument('--only', default='Q,G,S')
     p.add_argument('--runs', default='')
     p.add_argument('--partition', default='deepaklong,all')
     p.add_argument('--list', action='store_true')

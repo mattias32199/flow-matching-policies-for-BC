@@ -5,7 +5,7 @@ Three questions on top of the main study ([README](README.md)):
 - **Q.** Why do sim-pretrained visual features expose `sin/cos(4·(cube yaw − gripper yaw))` when no pretraining target
   contains it?
 - **G.** Does "frozen visual encoder beats privileged state" carry over to other OCBench tasks?
-- **S / L.** How does block-single success scale with encoder-pretraining pairs P and demonstration episodes E?
+- **S.** How does block-single success scale with encoder-pretraining pairs P and demonstration episodes E?
 
 Launcher: `scripts/launch_gen.py` (`--list` shows every job). Figures and fit: `scripts/report_scaling.py`. Visual BC
 here is always the frozen-embedding flow-matching head trained for 300K updates. Every visual number comes from a
@@ -70,78 +70,77 @@ frame every 25 steps). State BC uses handcrafted features, chunk starts every 25
 ![block-single scaling](figures/scaling_single.png)
 
 Setup:
-- **Encoders** `s-sgl-enc-p{2,6,20,60,190}k` are DINOv2-S trained on the first P rendered (image, state) pairs of the
-  200K-pair file, with the checkpoint chosen by held-out R². **P = 0** is generic DINOv2-S (CLS token).
+- **Encoders** `s-sgl-enc-p{20,60,200,600,2k,6k,20k,60k,190k}`: DINOv2-S trained on the first P rendered (image,
+  state) pairs of the 200K-pair file.
+  - The pairs are perturbed simulator states, not the demonstrations themselves: half get a re-placed cube, all get
+    arm and gripper noise.
+  - The checkpoint is chosen by held-out R² (evaluated every 2K steps of 40K). **P = 0** is generic DINOv2-S (CLS
+    token).
 - **BC** trains on the first E successful demos, from a fixed permutation, so the subsets are nested. E = 8818 means
   all successful demos.
-- E = 1K and 8.8K have two seeds, shown as s0 / s1.
+- E = 1K and 8.8K have two seeds for P ≥ 2K, shown as s0 / s1. The low-P rows (P ≤ 600) have one seed.
 
-Success, 1000-rollout final evaluation:
+Success, 1000-rollout final evaluation. The last column is the encoder's held-out R² averaged over all targets:
 
-| P \ E | 250 | 500 | 1K | 2K | 4K | 8.8K |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| 0 (generic CLS) | 0.029 | 0.075 | 0.187 / 0.197 | 0.377 | 0.530 | 0.680 / 0.659 |
-| 2K | 0.478 | 0.697 | 0.826 / 0.815 | 0.908 | 0.928 | 0.944 / 0.950 |
-| 6K | 0.542 | 0.776 | 0.889 / 0.862 | 0.939 | 0.953 | 0.951 / 0.972 |
-| 20K | 0.576 | 0.780 | 0.893 / 0.890 | 0.938 | 0.960 | 0.965 / 0.968 |
-| 60K | 0.662 | 0.821 | 0.935 / 0.916 | 0.960 | 0.966 | 0.965 / 0.952 |
-| 190K | 0.680 | 0.822 | 0.908 / 0.921 | 0.941 | 0.962 | 0.958 / 0.964 |
+| P \ E | 250 | 500 | 1K | 2K | 4K | 8.8K | enc. R² |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 0 (generic CLS) | 0.029 | 0.075 | 0.187 / 0.197 | 0.377 | 0.530 | 0.680 / 0.659 | – |
+| 20 | 0.057 | 0.117 | 0.330 | 0.453 | 0.637 | 0.746 | −0.04 |
+| 60 | 0.101 | 0.180 | 0.341 | 0.586 | 0.692 | 0.835 | 0.21 |
+| 200 | 0.179 | 0.349 | 0.568 | 0.738 | 0.850 | **0.891** | 0.51 |
+| 600 | 0.382 | 0.563 | 0.765 | 0.896 | 0.932 | 0.948 | 0.79 |
+| 2K | 0.478 | 0.697 | 0.826 / 0.815 | 0.908 | 0.928 | 0.944 / 0.950 | 0.90 |
+| 6K | 0.542 | 0.776 | 0.889 / 0.862 | 0.939 | 0.953 | 0.951 / 0.972 | 0.94 |
+| 20K | 0.576 | 0.780 | 0.893 / 0.890 | 0.938 | 0.960 | 0.965 / 0.968 | 0.95 |
+| 60K | 0.662 | 0.821 | 0.935 / 0.916 | 0.960 | 0.966 | 0.965 / 0.952 | 0.96 |
+| 190K | 0.680 | 0.822 | 0.908 / 0.921 | 0.941 | 0.962 | 0.958 / 0.964 | 0.97 |
 
 For reference, ground-truth-state BC on 10K demos reaches 0.85.
 
-Fit on the 40 cells with P > 0 (residual RMSE 0.015, about seed noise):
+**Fit.** Over all 64 cells with P > 0, success is well described by a logit law that is additive in ln E and
+concave in ln P. The residual RMSE is 0.030, largest at the lowest P:
 
 ```
-failure(P, E) = 0.023 + (0.047 + 0.053 · (P / 10K)^-0.27) · (E / 1K)^-1.01
+logit(success) = 2.09 + 1.18 ln(E/1K) + 0.27 ln(P/10K) − 0.042 ln(P/10K)²      (failure floor 0.02)
 ```
 
-- **Failure falls as about 1/E toward a floor of about 2.3%.** Doubling the demos roughly halves the reducible
-  failure.
-  - The floor is near the evaluation noise of the best runs (0.95–0.97). It may be set by the expert's own
-    quality rather than by the policy.
-  - The data-only model, `c + a·E^-α` without P, fits clearly worse (RMSE 0.038).
-- **Pairs multiply the demo term instead of adding a separate term.** An additive model fits worse (RMSE 0.025).
-  - More pairs cut failure most when demos are scarce. At E = 250, going from 2K to 190K pairs raises success from
-    0.48 to 0.68.
-  - With all demos, the same change is worth about 0.01–0.02.
-  - The P exponent is small (0.27): each 10× in pairs removes about 45% of the P-dependent part.
-  - Above about 20K pairs, gains at E ≥ 1K are within seed noise.
-- **Pretraining is worth far more than the pair count.** Any sim-pretrained encoder, even with 2K pairs, beats the
-  generic CLS encoder.
-  - 2K pairs plus 1K demos reaches 0.82, against 0.19 for generic CLS on the same demos.
-  - That beats generic CLS on all 8.8K demos (0.67) and ground-truth state on 10K demos (0.85 vs 0.82, about even).
-  - From 2K demos on, the pretrained policies beat 10K-demo state.
-  - Generic CLS improves slowly; its failure falls only as E^-0.28.
-- **Cost.** Each BC run takes 3–8 GPU-h depending on the GPU (300K updates).
+- The interaction term ln E · ln P comes out at about 0 (it was dropped). In odds, demos and pairs therefore
+  multiply: odds ∝ E^1.18 · g(P).
+- The P slope, 0.27 − 0.084·ln(P/10K), is about 0.8 per e-fold at P = 20 and about 0.02 at P = 190K: strongly
+  diminishing returns.
+- The earlier power law, `fail = 0.023 + (0.047 + 0.053 (P/10K)^-0.27) (E/1K)^-1.01`, fits the P ≥ 2K cells better
+  (RMSE 0.015). It badly overestimates failure below 2K pairs (RMSE 0.13 over all P). Below 2K pairs the E slope of
+  the failure rate flattens, which the logit form captures.
 
-## L. Leak control: pairs rendered only from the training demos
-
-The 200K-pair file perturbs states from all demos. For E < 8818 the encoder has therefore seen states near demos
-the policy never trains on. Control: render pairs only from the E training episodes (`dr_gen --max-episodes E`).
-
-| Encoder pairs | E | All demos (S) | Only the E demos (L) |
-| --- | ---: | ---: | ---: |
-| 20K | 250 | 0.576 | **0.668** |
-| 20K | 1K | 0.893 / 0.890 | **0.919** |
-| 190K | 1K | 0.908 / 0.921 | 0.870 |
-
-There is no sign of leakage. Restricting pairs to the training demos does not hurt and at 20K pairs helps: the
-pairs are denser around the states the policy actually visits. The 190K-from-1K-episodes encoder is slightly worse
-(0.87): 190 perturbations per episode is very redundant. The S results therefore need no extra demos beyond the E
-used for BC.
+Findings:
+- **Even 20 pairs help.** The P = 20 encoder's held-out R² is below 0, yet with all demos its policy beats generic
+  CLS (0.75 vs 0.67). It is above generic CLS at every E.
+- **About 200 pairs give 0.9 with all demos (0.891); about 600 pairs give 0.9 already at 2K demos (0.896).**
+  2K–6K pairs reach 0.94–0.97 with all demos.
+- **Pairs pay most when demos are scarce.** At E = 250, success goes from 0.06 (20 pairs) to 0.38 (600) to 0.68
+  (190K). With all demos, everything from 600 pairs up lies within 0.95 ± 0.02.
+- **Above about 20K pairs, extra pairs are within seed noise for E ≥ 1K.**
+- **Failure falls roughly as 1/E at high P,** toward a floor of about 2–3%. That floor may be set by the scripted
+  expert's own quality.
+- **A sim-pretrained encoder with 600 pairs plus 1K demos (0.77) beats generic CLS on all 8.8K demos
+  (0.67–0.68),** with an eighth of the demos. With 2K pairs and 1K demos it is on par with 10K-demo ground-truth state
+  (0.82 vs 0.85).
+- **Cost.** Each BC run takes 3–8 GPU-h depending on the GPU (300K updates). Low-P encoders pick their best
+  checkpoint at the first evaluation (2K steps); more steps only overfit.
 
 ## Takeaways
 
-1. A sim-pretrained frozen encoder is the main lever. It turns 1K demos into the success that state BC does not
-   reach with 10K.
-2. 2K–20K pairs suffice; beyond that, spend on demos.
-3. Demos still matter. Failure falls as about 1/E down to about 2–3%; 4K demos get within about 0.01 of all 8.8K.
+1. A sim-pretrained frozen encoder is the main lever. Even a few hundred rendered pairs are worth more than a
+   generic encoder, and 2K pairs plus 1K demos matches 10K-demo state BC.
+2. About 200 pairs reach 0.9 with all demos; 2K–20K pairs reach the plateau. Beyond that, spend on demos.
+3. Demos still matter. At high P, failure falls as about 1/E down to about 2–3%; 4K demos get within about 0.01 of
+   all 8.8K.
 4. The visual advantage is task dependent. It is large where state BC must learn a symmetric relative orientation
    (block, hanoi) and absent on bowling.
 
 ## Notes
 
-- **Runs:** `runs/{q,g,s,l}-*`. BC checkpoints are deleted after the final evaluation (`--drop-ckpt`). Fit and raw
+- **Runs:** `runs/{q,g,s}-*`. BC checkpoints are deleted after the final evaluation (`--drop-ckpt`). Fit and raw
   numbers: [figures/scaling_single.json](figures/scaling_single.json).
 - **Compute:** run on `deepaklong` and `all`. Frozen-embedding BC runs on cheap GPUs (2080 Ti at
   9.9 updates/s, RTX 6000 at 11, A5000 at 26).

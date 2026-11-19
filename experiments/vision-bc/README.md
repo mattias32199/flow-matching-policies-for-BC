@@ -11,7 +11,7 @@ and `block-double`? Why does it sometimes win? How much data and compute does vi
 | [single.md](single.md) | Part A, visual-block-single: every encoder / readout / fine-tuning / sim-pretraining run, probes, saliency |
 | [double.md](double.md) | Part B, block-double: data-regime study, expert takeover, visual transfer runs, compute and storage cost |
 | [explanation.md](explanation.md) | Part C: experiments that test *why* vision beats state |
-| [followup.md](followup.md) | Follow-up: why 4·Δyaw is visible (Q), hanoi / bowling (G), block-single scaling with pretraining pairs × demos and leak control (S, L) |
+| [followup.md](followup.md) | Follow-up: why 4·Δyaw is visible (Q), hanoi / bowling (G), block-single scaling with pretraining pairs × demos (S) |
 | [appendix.md](appendix.md) | Exact settings: compute per run, data pipelines (fixed / replay / streaming), feature definitions, encoder recipes (data, loss, lr, schedule), evaluation, and the full run index |
 | [runs.csv](runs.csv), [configs/](configs/) | One row per run (settings, updates, passes, GPU-h, success) and every run's full `config.json` |
 | [figures/](figures/) | All plots and `summary.json` |

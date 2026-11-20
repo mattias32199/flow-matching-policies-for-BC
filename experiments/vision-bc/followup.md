@@ -206,7 +206,22 @@ state BC (README §3). Runs `x4-hs-state-diskyaw-*`, 500K updates, last 500-roll
 
 ### R5. Fine-tuning a low-P encoder end-to-end
 
-PENDING
+`train_vis --input pixels --encoder pre:s-sgl-enc-p{20,200}`: the sim-pretrained DINOv2-S is unfrozen and trained
+with the BC head on all 8818 demos (encoder lr 1e-5, head lr 1e-4, batch 256, 200K updates). Runs `x5-*`. Each run
+took 12–14 h on an A6000-class GPU, versus 3–8 GPU-h for frozen-embedding BC.
+
+| Encoder init | frozen (two runs) | fine-tuned |
+| --- | ---: | ---: |
+| P = 20 (held-out R² ≈ 0) | 0.746 / 0.738 | **0.918** |
+| P = 200 (R² 0.51) | 0.891 / 0.931 | 0.923 |
+| P = 190K, for reference | 0.958 / 0.964 | – |
+
+- **Fine-tuning rescues a weak encoder** (+0.17 at P = 20) but does not improve one that is already useful (P = 200
+  is within its replicate spread).
+- Even fine-tuned, both stay below a frozen encoder pretrained on 2K or more pairs (0.94–0.97), at 2–4× the BC
+  compute. Rendering more pairs is the cheaper lever.
+- The 300-rollout intermediate evaluations swing between 0.79 and 0.95 after 75K updates, so a single fine-tuned run
+  carries more noise than frozen BC.
 
 ### R6. 4×4 patch readout of the sim-pretrained encoder
 
@@ -242,11 +257,12 @@ See the replicate columns in the S table above.
 6. For robustness to appearance change, render the pairs with domain randomization. It costs 0.02 at nominal
    appearance and keeps 0.42–0.84 success under shifts where the other encoders score about 0.
 7. Read the sim-pretrained encoder's CLS token, not its patch tokens.
+8. End-to-end fine-tuning only pays when the encoder is weak; it does not replace pretraining on enough pairs.
 
 ## Notes
 
 - **Runs:** `runs/{q,g,s,x1..x7}-*`. BC checkpoints are deleted after the final evaluation (`--drop-ckpt`), except
-  the three R3 runs. Fit and raw
+  the three R3 runs and the final `params_200000.pt` of the two R5 fine-tunes. Fit and raw
   numbers: [figures/scaling_single.json](figures/scaling_single.json).
 - **Compute:** run on `deepaklong` and `all`. Frozen-embedding BC runs on cheap GPUs (2080 Ti at
   9.9 updates/s, RTX 6000 at 11, A5000 at 26).

@@ -8,6 +8,13 @@ Groups
      DINOv2-S visual BC (hanoi-double: state only until a gap is seen)
   S  block-single scaling: encoder pretraining pairs P x demo episodes E, frozen-CLS visual BC to 300K updates
   S  low-pairs extension: P = 20 / 60 / 200 / 600 (regenerates the 200K-pair file first, then the same grid)
+  X1 pairs from states NOT taken from the demos (dr_gen --states uniform), P = 200 / 2K / 20K, E = 1K / all
+  X2 hanoi-single pairs scaling, P = 200 / 2K / 20K, E = 1K / all (+ P = 190K and generic 4x4 at E = 1K)
+  X3 appearance-shift evaluation (colour / light / camera / all) of nodr- vs dr-pretrained and generic 4x4 encoders
+  X4 hanoi state BC + sin/cos(4 (disk yaw - effector yaw)) (train.py 'diskyaw'), 10K / 30K demos
+  X5 fine-tuning the low-pair encoders end to end (P = 20 / 200, pixels)
+  X6 sim-pretrained encoder with a 4x4 patch readout (pre:<run>@p4): block-single low E, block-double all demos
+  X7 replicate of the low-P rows with a fresh pair sample and seeds (dr_gen --seed 1)
 Same requeue-safe launcher and submission log as scripts/launch_regime.py; partitions deepaklong,all.
 
   python scripts/launch_gen.py --list
@@ -28,7 +35,11 @@ SENV = 'visual-block-single-task1-v0'
 # JAX state BC peaks at ~6 GB (3080ti 25 updates/s). grogu-3-20 / grogu-3-30 GPUs fail CUDA init; grogu-1-20's broken
 # GPU is held by .local/gpu-hold/hold.sh.
 CHEAP_OK = 'A6000|A5000|rtx6000|rtx3090|A6000Ada|rtx2080ti|3080ti|H200|6000Blackwell'  # torch 2.15 has sm_90/sm_120
-os.environ.setdefault('SLURM_EXCLUDE', 'grogu-3-20,grogu-3-30')
+os.environ.setdefault('SLURM_EXCLUDE', 'grogu-3-20,grogu-3-30,grogu-1-10,grogu-3-25,grogu-1-20')  # bad GPUs seen 2026-11-17/18
+FAST = 'A6000|A5000|A6000Ada|rtx3090|3080ti|H200|6000Blackwell'  # jobs > ~2 h: avoid Turing (2080 Ti / rtx6000)
+BIG = 'A6000|A6000Ada|H200|6000Blackwell'                       # >= 48 GB GPU memory (4x4 patch caches on GPU)
+DENV = 'visual-block-double-task1-v0'
+HENV = 'visual-hanoi-single-task1-v0'
 TASKS = {'hanoi-single-task1-v0': dict(tag='hs', steps=500000, visual=True),
          'bowling-task1-v0': dict(tag='bw', steps=500000, visual=True),
          'hanoi-double-task1-v0': dict(tag='hd', steps=1000000, visual=False)}
@@ -62,8 +73,9 @@ def job(run, group, cmd, torch=True, time='06:00:00', mem='96G', cpus=16, after=
     return e
 
 
-def enc(run, env, group, tags, after=(), extra=()):
-    return dict(run=run, group=group, torch=True, time='12:00:00', mem='96G', cpus=16, after=list(after),
+def enc(run, env, group, tags, after=(), extra=(), mem='96G', cpus=16):
+    # pretrain_enc reads the whole pair file into RAM (200K pairs = 22 GB; 25K = 2.8 GB)
+    return dict(run=run, group=group, torch=True, time='12:00:00', mem=mem, cpus=cpus, after=list(after),
                 cmd=[TORCH, '-u', 'scripts/pretrain_enc.py', '--run', run, '--env', env, '--data', 'nodr',
                      '--arch', 'dinov2_s', '--group', GROUP, *extra, '--tags', ','.join(['stage:encoder', *tags])])
 
@@ -136,6 +148,85 @@ def experiments():
         for ep in EPISODES:
             E.append(bc(f's-sgl-bc-p{pname(P)}-e{ep}-s0', SENV, f'pre:{name}', 'SL', [f'pairs:{P}'],
                         after=[f'SL-embed-p{pname(P)}'], episodes=0 if ep == 8818 else ep))
+    # ------------------------------------------------------------------ X (round 3)
+    def drgen(name, grp, extra, env=SENV):
+        return job(name, grp, f'{TORCH} -u scripts/dr_gen.py --env {env} --n 25000 --workers 30 --variants nodr {extra}',
+                   time='04:00:00', cpus=32)
+
+    def embed(name, grp, env, encs, after):  # embeddings are held in RAM: 4x4 caches need ~2x their size
+        big = '@p4' in encs
+        return job(name, grp, f'{TORCH} -u scripts/embed_probe.py --env {env} --encoders {encs} --no-probe',
+                   after=after, gpus=CHEAP_OK, mem='96G' if big else '24G', cpus=16 if big else 6)
+
+    def fast(e, gpus=FAST):
+        return e | {'gpus': gpus}
+
+    # X1: states not from the demos
+    E.append(drgen('gen-X1-drgen', 'X1', '--states uniform --tag uniform'))
+    for P in (200, 2000, 20000):
+        name = f'x1-sgl-enc-uni-p{pname(P)}'
+        E.append(enc(name, SENV, 'X1', [f'pairs:{P}', 'states:uniform'], after=['X1-drgen'], mem='32G', cpus=8,
+                     extra=['--n-pairs', str(P), '--select', 'best', '--dr-dir', f'{SENV}-uniform']))
+        E.append(embed(f'gen-X1-embed-p{pname(P)}', 'X1', SENV, f'pre:{name}', [name]))
+        for ep in (1000, 8818):
+            E.append(fast(bc(f'x1-sgl-bc-uni-p{pname(P)}-e{ep}-s0', SENV, f'pre:{name}', 'X1',
+                             [f'pairs:{P}', 'states:uniform'], after=[f'X1-embed-p{pname(P)}'],
+                             episodes=0 if ep == 8818 else ep)))
+    # X2: hanoi-single pairs scaling
+    E.append(drgen('gen-X2-drgen', 'X2', '--source collections --collections 0-9 --no-replace', env=HENV))
+    for P in (200, 2000, 20000):
+        name = f'x2-hs-enc-p{pname(P)}'
+        E.append(enc(name, HENV, 'X2', [f'pairs:{P}', 'env:hanoi-single'], after=['X2-drgen'], mem='32G', cpus=8,
+                     extra=['--n-pairs', str(P), '--select', 'best', '--exclude-groups', 'peg_xyz,peg_yaw']))
+        E.append(embed(f'gen-X2-embed-p{pname(P)}', 'X2', HENV, f'pre:{name}', [name]))
+        for ep in (1000, 9962):
+            E.append(fast(bc(f'x2-hs-bc-p{pname(P)}-e{ep}-s0', HENV, f'pre:{name}', 'X2', [f'pairs:{P}'],
+                             after=[f'X2-embed-p{pname(P)}'], episodes=0 if ep == 9962 else ep)))
+    E.append(fast(bc('x2-hs-bc-p190k-e1000-s0', HENV, 'pre:g-hs-enc-nodr-dinov2s', 'X2', ['pairs:190000'],
+                     episodes=1000)))
+    E.append(fast(bc('x2-hs-bc-dinov2_s_p4-e1000-s0', HENV, 'dinov2_s_p4', 'X2', ['pairs:0'], episodes=1000)
+                  | {'mem': '48G'}))
+    # X3: appearance shift at evaluation (keeps ckpt.pt and params for later evaluations)
+    for tag, encoder in (('nodr', 'pre:v-F-enc-nodr-dinov2s'), ('dr', 'pre:v-F-enc-dr-dinov2s'), ('p4', 'dinov2_s_p4')):
+        e = fast(bc(f'x3-sgl-bc-{tag}-s0', SENV, encoder, 'X3', [f'pretrain:{tag}']))
+        cmd = [c for c in e['cmd'] if c != '--drop-ckpt'] + ['--shift-eval', 'nominal,color,light,camera,all']
+        E.append(e | {'cmd': cmd, 'mem': '48G' if tag == 'p4' else '24G'})
+    # X4: hanoi state BC + relative disk yaw
+    for n in (10000, 30000):
+        run = f'x4-hs-state-diskyaw-n{n // 1000}k-int25-s0'
+        E.append(dict(run=run, group='X4', torch=False, time='24:00:00', mem='32G', cpus=6, gpus=FAST,
+                      cmd=[JAX, '-u', 'scripts/train_regime.py', '--run', run, '--env', 'hanoi-single-task1-v0',
+                           '--base', str(n), '--start-interval', '25', '--features', 'handcrafted+diskyaw',
+                           '--steps', '500000', '--group', GROUP,
+                           '--tags', f'group:X4,input:state,features:handcrafted+diskyaw,base:{n},start_interval:25']))
+    # X5: fine-tune low-pair encoders end to end (recipe of v-D-dinov2_s-ft-s0: pixels, batch 256, 200K, enc lr 1e-5)
+    for P in (20, 200):
+        run = f'x5-sgl-bc-ft-p{P}-s0'
+        E.append(dict(run=run, group='X5', torch=True, time='24:00:00', mem='64G', cpus=8, gpus=FAST,
+                      cmd=[TORCH, '-u', 'scripts/train_vis.py', '--run', run, '--env', SENV, '--group', GROUP,
+                           '--input', 'pixels', '--encoder', f'pre:s-sgl-enc-p{P}', '--finetune', '--enc-lr', '1e-5',
+                           '--batch', '256', '--steps', '200000', '--seed', '0', '--eval-interval', '25000',
+                           '--keep-every', '200000', '--final-eval-episodes', '1000', '--drop-ckpt',
+                           '--tags', f'group:X5,encoder:pre:s-sgl-enc-p{P},frozen:false,pairs:{P},input:pixels']))
+    # X6: sim-pretrained backbone + 4x4 patch readout
+    E.append(embed('gen-X6-embed-sgl', 'X6', SENV, 'pre:s-sgl-enc-p190k@p4,pre:s-sgl-enc-p2k@p4', []))
+    for P in ('190k', '2k'):
+        for ep in (250, 1000):
+            E.append(fast(bc(f'x6-sgl-bc-p{P}p4-e{ep}-s0', SENV, f'pre:s-sgl-enc-p{P}@p4', 'X6', ['readout:p4'],
+                             after=['X6-embed-sgl'], episodes=ep) | {'mem': '48G'}))
+    E.append(embed('gen-X6-embed-dbl', 'X6', DENV, 'pre:v-dbl-F-enc-nodr-dinov2s@p4', []))
+    E.append(fast(bc('x6-dbl-bc-prep4-s0', DENV, 'pre:v-dbl-F-enc-nodr-dinov2s@p4', 'X6', ['readout:p4'],
+                     after=['X6-embed-dbl']) | {'mem': '96G'}, gpus=BIG))
+    # X7: replicate low-P rows with a new pair sample (same distribution, dr_gen --seed 1) and seed 1
+    E.append(drgen('gen-X7-drgen', 'X7', '--seed 1 --tag seed1'))
+    for P in LOW_PAIRS:
+        name = f's-sgl-enc-p{P}-r1'
+        E.append(enc(name, SENV, 'X7', [f'pairs:{P}', 'replicate:1'], after=['X7-drgen'], mem='32G', cpus=8,
+                     extra=['--n-pairs', str(P), '--select', 'best', '--dr-dir', f'{SENV}-seed1', '--seed', '1']))
+        E.append(embed(f'gen-X7-embed-p{P}', 'X7', SENV, f'pre:{name}', [name]))
+        for ep in (1000, 8818):
+            E.append(fast(bc(f's-sgl-bc-p{P}-r1-e{ep}-s1', SENV, f'pre:{name}', 'X7', [f'pairs:{P}', 'replicate:1'],
+                             after=[f'X7-embed-p{P}'], episodes=0 if ep == 8818 else ep, seed=1)))
     return E
 
 

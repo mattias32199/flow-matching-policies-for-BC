@@ -24,7 +24,7 @@ from utils.flax_utils import save_agent
 from ocbench.dataset_utils import DATASET_KEYS
 
 
-EXTRA_KINDS = ('rel', 'ego', 'egopos', 'relyaw', 'pair', 'randproj')
+EXTRA_KINDS = ('rel', 'ego', 'egopos', 'relyaw', 'pair', 'randproj', 'diskyaw')
 
 
 def extra_features(observations, kinds, proj=None):
@@ -37,8 +37,17 @@ def extra_features(observations, kinds, proj=None):
       relyaw    sin/cos(4 * (cube yaw - effector yaw))
       pair      cube_j - cube_0 (world) and its norm, for multi-cube tasks
       randproj  control: tanh of a fixed random projection of the standardized state (same width as ego)
+      diskyaw   hanoi layout (19 proprio, 5 per disk: pos x10, cos, sin yaw; then 5 per peg for 3 pegs):
+                sin/cos(4 * (disk yaw - effector yaw)) per disk; use alone, e.g. handcrafted+diskyaw
     """
     o = observations
+    if 'diskyaw' in kinds:
+        eyaw = np.arctan2(o[..., 16:17], o[..., 15:16])
+        out = []
+        for i in range((o.shape[-1] - 19 - 15) // 5):
+            r = 4 * (np.arctan2(o[..., 19 + 5 * i + 4:19 + 5 * i + 5], o[..., 19 + 5 * i + 3:19 + 5 * i + 4]) - eyaw)
+            out.extend([np.sin(r), np.cos(r)])
+        return np.concatenate(out, -1).astype(np.float32)
     n = (o.shape[-1] - 19) // 9
     eff = o[..., 12:15]
     c, s = o[..., 15:16], o[..., 16:17]

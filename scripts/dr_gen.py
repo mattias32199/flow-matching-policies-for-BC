@@ -147,6 +147,36 @@ def worker(args):
         x = F.interpolate(x, size=(112, 112), mode='bilinear', antialias=True)
         return x.round().clamp(0, 255).to(torch.uint8).permute(0, 2, 3, 1).numpy()
 
+    arm_lo, arm_hi = np.percentile(qpos_src[:, arm], 1, axis=0), np.percentile(qpos_src[:, arm], 99, axis=0)
+    in_hand = {'flag': False}
+
+    def uniform_state(q):
+        """Arm joints uniform in the demos' per-joint 1-99% range (pinch site kept above the table); cubes uniform on
+        the table with random yaw, or (probability cfg['in_hand']) the first cube at the pinch site, yaw near the
+        gripper's."""
+        for _ in range(100):
+            q[arm] = rng.uniform(arm_lo, arm_hi)
+            d.qpos[:] = q
+            mujoco.mj_kinematics(m, d)
+            if d.site_xpos[pinch][2] > lim[2] + 0.01:
+                break
+        placed = []
+        for qa in qas:
+            for _ in range(100):
+                xy = rng.uniform(lim[0], lim[1])
+                if all(np.linalg.norm(xy - o) >= cfg['min_dist'] for o in placed):
+                    break
+            placed.append(xy)
+            q[qa:qa + 2] = xy
+            q[qa + 2] = lim[2]
+            q[qa + 3:qa + 7] = yaw_quat(rng.uniform(-np.pi, np.pi))
+        in_hand['flag'] = rng.random() < cfg['in_hand']
+        if in_hand['flag']:
+            R = d.site_xmat[pinch].reshape(3, 3)
+            q[qas[0]:qas[0] + 3] = d.site_xpos[pinch]
+            q[qas[0] + 3:qas[0] + 7] = yaw_quat(np.arctan2(R[1, 0], R[0, 0]) + rng.normal(0, 0.1))
+        return q
+
     t0 = time.time()
     for i in range(lo, hi):
         src = rng.integers(len(qpos_src))
@@ -164,9 +194,14 @@ def worker(args):
                 q[qa:qa + 2] = xy
                 q[qa + 2] = lim[2]
                 q[qa + 3:qa + 7] = yaw_quat(rng.uniform(-np.pi, np.pi))
-        q[arm] += rng.normal(0, 0.05, len(arm))
+        if cfg['uniform']:  # states not taken from the demos (see --states)
+            q = uniform_state(q)
+        else:
+            q[arm] += rng.normal(0, 0.05, len(arm))
         d.qpos[:] = q
         d.qpos[grip] = rng.uniform(0, 0.8)
+        if cfg['uniform'] and in_hand['flag']:
+            d.qpos[grip] = rng.uniform(0.3, 0.6)
         d.qvel[:] = 0
         restore()
         mujoco.mj_forward(m, d)
@@ -224,8 +259,14 @@ def main():
                    help='vis source: sample states only from these K demo episodes (same subset as train_vis.py '
                         '--episodes K); output goes to data/dr/<env>-e<K>')
     p.add_argument('--no-replace', action='store_true', help='do not re-place objects on the table (non-block envs)')
+    p.add_argument('--states', choices=['demo', 'uniform'], default='demo',
+                   help='demo: perturbed demo states (default); uniform: states not from the demos (block envs): arm '
+                        'joints uniform in the demo range, cubes uniform on the table or in the gripper')
+    p.add_argument('--in-hand', type=float, default=0.25, help='uniform states: fraction with the first cube in hand')
+    p.add_argument('--tag', default='', help='output to data/dr/<env>[-e<K>]-<tag>')
     args = p.parse_args()
-    out = ROOT / 'data' / 'dr' / (args.env + (f'-e{args.max_episodes}' if args.max_episodes else ''))
+    out = ROOT / 'data' / 'dr' / (args.env + (f'-e{args.max_episodes}' if args.max_episodes else '')
+                                  + (f'-{args.tag}' if args.tag else ''))
     out.mkdir(parents=True, exist_ok=True)
     if (out / 'DONE').exists():
         print('already generated', flush=True)
@@ -265,7 +306,7 @@ def main():
     for k in args.variants.split(','):
         np.memmap(out / f'{k}_img112.u8', np.uint8, 'w+', shape=(args.n, 3, 112, 112, 3)).flush()
     cfg = dict(seed=args.seed, out=out, n=args.n, cube_lim=lim, env=args.env, min_dist=0.08, variants=args.variants.split(','),
-               replace=not args.no_replace)
+               replace=not args.no_replace, uniform=args.states == 'uniform', in_hand=args.in_hand)
     bounds = [int(b) for b in np.linspace(0, args.n, args.workers + 1)]
     targets = np.zeros((args.n, len(names)), np.float32)
     qpos = None

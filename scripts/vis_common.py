@@ -50,6 +50,16 @@ def amp_dtype():
 
 
 # ----------------------------------------------------------------------------- frozen encoders
+def load_pre(run_name):
+    """Backbone exported by scripts/pretrain_enc.py (runs/<run>/encoder.pt) -> (timm model, meta)."""
+    import timm
+    ckpt = torch.load(ROOT / 'runs' / run_name / 'encoder.pt', map_location='cpu', weights_only=True)
+    meta = json.loads(ckpt['meta'])
+    model = timm.create_model(meta['arch'], pretrained=False, num_classes=0, **meta['kwargs'])
+    model.load_state_dict(ckpt['state_dict'])  # strict: no missing / unexpected keys
+    return model, meta
+
+
 class Embedder:
     """uint8 frames (F, cams, H, W, C) -> float16 features (F, cams, D), exactly as cached."""
 
@@ -57,12 +67,10 @@ class Embedder:
         import timm
         dev = dev or device()
         self.name, self.batch, self.dev = name, batch, dev
-        if name.startswith('pre:'):
-            ckpt = torch.load(ROOT / 'runs' / name[4:] / 'encoder.pt', map_location='cpu', weights_only=True)
-            meta = json.loads(ckpt['meta'])
-            model = timm.create_model(meta['arch'], pretrained=False, num_classes=0, **meta['kwargs'])
-            model.load_state_dict(ckpt['state_dict'])
-            mean, std, size, pool = meta['mean'], meta['std'], meta['size'], 'cls'
+        if name.startswith('pre:'):  # pre:<run> (CLS) or pre:<run>@p4 (4x4 average-pooled patch tokens)
+            rname, _, pool = name[4:].partition('@')
+            model, meta = load_pre(rname)
+            mean, std, size, pool = meta['mean'], meta['std'], meta['size'], pool or 'cls'
         else:
             arch, weights, kw, pool = ENC[name]
             if weights == 'random':
@@ -262,11 +270,17 @@ class TimmPixel(nn.Module):
     def __init__(self, arch, img):
         super().__init__()
         import timm
-        kw = dict(img_size=img) if 'vit' in arch else {}
-        self.net = timm.create_model(arch, pretrained=True, num_classes=0, **kw)
-        cfg = timm.data.resolve_data_config({}, model=self.net)
-        self.register_buffer('mean', torch.tensor(cfg['mean']).view(1, 3, 1, 1))
-        self.register_buffer('std', torch.tensor(cfg['std']).view(1, 3, 1, 1))
+        if arch.startswith('pre:'):  # fine-tune a backbone from scripts/pretrain_enc.py
+            self.net, meta = load_pre(arch[4:])
+            assert meta['size'] == img, (meta['size'], img)
+            mean, std = meta['mean'], meta['std']
+        else:
+            kw = dict(img_size=img) if 'vit' in arch else {}
+            self.net = timm.create_model(arch, pretrained=True, num_classes=0, **kw)
+            cfg = timm.data.resolve_data_config({}, model=self.net)
+            mean, std = cfg['mean'], cfg['std']
+        self.register_buffer('mean', torch.tensor(mean).view(1, 3, 1, 1))
+        self.register_buffer('std', torch.tensor(std).view(1, 3, 1, 1))
         self.out_dim = self.net.num_features
         self.norm = nn.LayerNorm(self.out_dim, elementwise_affine=False)
 
@@ -281,6 +295,10 @@ PIXEL_ENC = {
 }
 
 
+def pixel_encoder(name, img):
+    return TimmPixel(name, img) if name.startswith('pre:') else PIXEL_ENC[name](img)
+
+
 def random_shift(x, pad=4):
     """DrQ-style random shift on NCHW float images."""
     n, _, h, w = x.shape
@@ -293,10 +311,77 @@ def random_shift(x, pad=4):
 
 
 # ----------------------------------------------------------------------------- evaluation
-class VisualEval:
-    """Batched MJWarp rollouts with 3-camera 224px images every 25 steps (sparse protocol)."""
+class Appearance:
+    """Per-episode appearance shift of the CPU render model (MJWarp renders through env._cpu_env), with the same
+    ranges as the 'dr' variant of scripts/dr_gen.py. mode: color (geom/material colours), light (scene lights and
+    headlight), camera (pose jitter: 2 cm / 3 deg fixed cameras, 0.5 cm / 1.5 deg wrist), or all."""
+    CAMS = ('front', 'side', 'ur5e/wrist')
 
-    def __init__(self, num_episodes, env_name=ENV):
+    def __init__(self, model, mode):
+        import mujoco
+        assert mode in ('color', 'light', 'camera', 'all'), mode
+        self.m, self.mode = model, mode
+        self.cam_ids = [mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_CAMERA, c) for c in self.CAMS]
+        m = model
+        self.nom = dict(geom_rgba=m.geom_rgba.copy(), mat_rgba=m.mat_rgba.copy(), light_diffuse=m.light_diffuse.copy(),
+                        light_ambient=m.light_ambient.copy(), light_pos=m.light_pos.copy(), cam_pos=m.cam_pos.copy(),
+                        cam_quat=m.cam_quat.copy(), head_amb=m.vis.headlight.ambient.copy(),
+                        head_dif=m.vis.headlight.diffuse.copy())
+        self.worlds = []
+
+    def draw(self, n, seed):
+        import mujoco
+        rng, m, nom = np.random.default_rng(seed), self.m, self.nom
+        self.worlds = []
+        for _ in range(n):
+            w = {}
+            if self.mode in ('color', 'all'):
+                hue, mix = rng.uniform(0, 1, (m.ngeom, 3)), rng.uniform(0.3, 1.0, (m.ngeom, 1))
+                w['geom_rgba'] = nom['geom_rgba'].copy()
+                w['geom_rgba'][:, :3] = np.clip((1 - mix) * nom['geom_rgba'][:, :3] + mix * hue, 0, 1)
+                w['mat_rgba'] = nom['mat_rgba'].copy()
+                if m.nmat:
+                    w['mat_rgba'][:, :3] = np.clip(nom['mat_rgba'][:, :3] * rng.uniform(0.4, 1.6, (m.nmat, 3)), 0, 1)
+            if self.mode in ('light', 'all'):
+                if m.nlight:
+                    w['light_diffuse'] = np.clip(nom['light_diffuse'] * rng.uniform(0.3, 1.5, (m.nlight, 1)), 0, 1)
+                    w['light_ambient'] = np.clip(nom['light_ambient'] + rng.uniform(0, 0.3, (m.nlight, 1)), 0, 1)
+                    w['light_pos'] = nom['light_pos'] + rng.normal(0, 0.5, nom['light_pos'].shape)
+                w['head_amb'], w['head_dif'] = rng.uniform(0.0, 0.5, 3), rng.uniform(0.2, 0.9, 3)
+            if self.mode in ('camera', 'all'):
+                w['cam_pos'], w['cam_quat'] = nom['cam_pos'].copy(), nom['cam_quat'].copy()
+                for c in self.cam_ids:
+                    wrist = c == self.cam_ids[2]
+                    w['cam_pos'][c] = nom['cam_pos'][c] + rng.normal(0, 0.005 if wrist else 0.02, 3)
+                    axis = rng.normal(size=3); axis /= np.linalg.norm(axis)
+                    ang = rng.normal(0, np.deg2rad(1.5 if wrist else 3))
+                    q = np.zeros(4)
+                    mujoco.mju_mulQuat(q, np.concatenate([[np.cos(ang / 2)], np.sin(ang / 2) * axis]), nom['cam_quat'][c])
+                    w['cam_quat'][c] = q
+            self.worlds.append(w)
+
+    def _set(self, vals):
+        m = self.m
+        for k, v in vals.items():
+            if k == 'head_amb':
+                m.vis.headlight.ambient[:] = v
+            elif k == 'head_dif':
+                m.vis.headlight.diffuse[:] = v
+            else:
+                getattr(m, k)[:] = v
+
+    def apply(self, world):
+        self._set(self.worlds[world])
+
+    def restore(self):
+        self._set(self.nom)
+
+
+class VisualEval:
+    """Batched MJWarp rollouts with 3-camera 224px images every 25 steps (sparse protocol).
+    shift: optional Appearance mode applied to the rendered images (constant within an episode)."""
+
+    def __init__(self, num_episodes, env_name=ENV, shift=None):
         import ocbench
         from ocbench.mjwarp import make_env
         family, backend, kwargs, self.max_steps = ocbench.parse_env_spec(env_name)
@@ -304,6 +389,27 @@ class VisualEval:
         kwargs = dict(kwargs, ob_type='states', visualize_info=False)
         self.env = make_env(family, kwargs, num_episodes)
         self.n = num_episodes
+        self.shift_mode, self.shift = shift, None  # the CPU render model exists only after reset
+
+    def draw_shift(self, seed):
+        if self.shift_mode:
+            if self.shift is None:
+                self.shift = Appearance(self.env._cpu_env.model, self.shift_mode)
+            self.shift.draw(self.n, seed)
+
+    def pixels(self, world_ids=None):
+        if self.shift is None:
+            return self.env.get_pixel_observation(world_ids)
+        ids = range(self.n) if world_ids is None else world_ids
+        arrays, out = self.env._get_arrays(), []
+        try:
+            for w in ids:
+                self.shift.apply(int(w))
+                self.env.copy_world_to_cpu_env(int(w), arrays=arrays)  # mj_forward picks up the camera pose
+                out.append(self.env._cpu_env.get_pixel_observation())
+        finally:
+            self.shift.restore()
+        return np.stack(out)
 
     def run(self, policy, normalizer, seed):
         """policy: uint8 (n, 3, 224, 224, 3) -> normalized action chunks (n, 25 * action_dim)."""
@@ -311,7 +417,8 @@ class VisualEval:
         env, n = self.env, self.n
         seeds = np.random.default_rng(seed).integers(0, 2**32, n, dtype=np.uint64).astype(np.uint32)
         env.reset(seeds=seeds)
-        obs = env.get_pixel_observation()
+        self.draw_shift(seed + 1)
+        obs = self.pixels()
         adim = env.single_action_space.shape[-1]
         raw_low, raw_high = env.single_action_space.low, env.single_action_space.high
         done = np.zeros(n, bool); success = np.zeros(n, bool)
@@ -335,7 +442,7 @@ class VisualEval:
                 capture = np.flatnonzero(active & ((steps % CHUNK == 0) | new_done))
                 if len(capture):
                     obs = obs.copy()
-                    obs[capture] = env.get_pixel_observation(capture)
+                    obs[capture] = self.pixels(capture)
                 done |= new_done
         return {'success': float(success.mean()), 'mean_steps': float(steps.mean()),
                 'mean_success_steps': float(steps[success].mean()) if success.any() else None,

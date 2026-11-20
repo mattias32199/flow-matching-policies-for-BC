@@ -146,7 +146,7 @@ State policies, 1M updates:
 | Rescaling the state on block-single | no effect (0.82–0.87) |
 | Z-scored state on block-double with **fixed** data | collapses: 0.10 vs 0.42 handcrafted at 30K. All double state comparisons use the handcrafted base. |
 | Auxiliary state-regression loss | no help (frozen + adapter 0.58–0.61; Impala 0.69–0.82 vs 0.86 without) |
-| Domain randomization in encoder pretraining | no effect (0.97 vs 0.97); evaluation uses the nominal appearance |
+| Domain randomization in encoder pretraining | no effect at nominal appearance (0.97 vs 0.97); under appearance shift it is decisive, see [followup R3](followup.md#r3-appearance-shift-at-evaluation-block-single-all-demos) |
 
 ## Scope and caveats
 

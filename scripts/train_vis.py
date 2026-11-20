@@ -23,7 +23,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from vis_common import (CHUNK, ENV, PIXEL_ENC, ROOT, Embedder, FlowPolicy, VisualEval, amp_dtype,
+from vis_common import (CHUNK, ENV, PIXEL_ENC, ROOT, pixel_encoder, Embedder, FlowPolicy, VisualEval, amp_dtype,
                         atomic_save, emit, job_info, load_embeddings, load_images, load_index,
                         load_normalizer, random_shift, resize_uint8)
 
@@ -55,6 +55,9 @@ p.add_argument('--env', default=ENV)
 p.add_argument('--episodes', type=int, default=0, help='train on K demo episodes only (fixed random subset, seed 0; '
                                                        'nested across K); 0 = all')
 p.add_argument('--final-eval-episodes', type=int, default=0, help='extra large evaluation after the last step')
+p.add_argument('--shift-eval', default='', help='after training, evaluate under appearance shifts, e.g. '
+                                              'nominal,color,light,camera,all (vis_common.Appearance) -> shift_eval.jsonl')
+p.add_argument('--shift-eval-episodes', type=int, default=500)
 p.add_argument('--drop-ckpt', action='store_true', help='delete ckpt.pt when the run is DONE (retention)')
 args = p.parse_args()
 
@@ -149,7 +152,7 @@ class VisualPolicy(nn.Module):
                 self.adapter = mlp(emb_dim, [1024, 1024, 256])
                 obs_dim = 256
         else:
-            self.enc = PIXEL_ENC[args.encoder](args.img)
+            self.enc = pixel_encoder(args.encoder, args.img)
             if not args.finetune:
                 self.enc.requires_grad_(False)
             obs_dim = 3 * self.enc.out_dim
@@ -330,6 +333,16 @@ if args.final_eval_episodes and not (run / 'final_eval.jsonl').exists():
     emit(run / 'final_eval.jsonl', {'step': step, **metrics})
     torch.save({k: v for k, v in model.state_dict().items() if not k.startswith('enc.') or args.finetune},
                run / f'params_{step}.pt')
+if args.shift_eval:
+    done_modes = set()
+    if (run / 'shift_eval.jsonl').exists():
+        done_modes = {json.loads(l)['shift'] for l in (run / 'shift_eval.jsonl').read_text().splitlines()}
+    for mode in args.shift_eval.split(','):
+        if mode in done_modes:
+            continue
+        ev = VisualEval(args.shift_eval_episodes, args.env, shift=None if mode == 'nominal' else mode)
+        emit(run / 'shift_eval.jsonl', {'step': step, 'shift': mode, **ev.run(policy_fn, normalizer, seed=9_500_000)})
+        del ev
 (run / 'DONE').write_text('Training and final evaluation completed.\n')
 if args.drop_ckpt:
     ckpt_path.unlink(missing_ok=True)

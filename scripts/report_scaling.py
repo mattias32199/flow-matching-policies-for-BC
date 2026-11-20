@@ -1,6 +1,6 @@
 """Block-single scaling grid (follow-up group S/L): fit failure(P, E) and plot it.
 
-Reads runs/s-sgl-bc-p{P}-e{E}-s{seed}/final_eval.jsonl (1000 rollouts; falls back to the last eval.jsonl
+Reads runs/s-sgl-bc-p{P}[-r{rep}]-e{E}-s{seed}/ (rep = pair-file/encoder replicate) final_eval.jsonl (1000 rollouts; falls back to the last eval.jsonl
 entry, marked unfinished). Model, fitted on P > 0 cells: a logit law (see model()); the earlier power law is also fitted on P >= 2K.
 Writes experiments/vision-bc/figures/scaling_single.png and scaling_single.json.
   .venv/bin/python scripts/report_scaling.py
@@ -23,14 +23,14 @@ OUT = ROOT / 'experiments' / 'vision-bc' / 'figures'
 def load():
     rows = []
     for d in sorted(glob.glob(str(ROOT / 'runs' / 's-sgl-bc-p*-e*-s*'))):
-        m = re.search(r'/(s)-sgl-bc-p(\d+)(k?)-e(\d+)-s(\d)$', d)
+        m = re.search(r'/(s)-sgl-bc-p(\d+)(k?)(?:-r(\d))?-e(\d+)-s(\d)$', d)
         f = Path(d) / 'final_eval.jsonl'
         final = f.exists()
         f = f if final else Path(d) / 'eval.jsonl'
         if not f.exists():
             continue
         r = json.loads(f.read_text().splitlines()[-1])
-        rows.append(dict(group=m[1], P=int(m[2]) * (1000 if m[3] else 1), E=int(m[4]), seed=int(m[5]), success=r['success'],
+        rows.append(dict(group=m[1], P=int(m[2]) * (1000 if m[3] else 1), rep=int(m[4] or 0), E=int(m[5]), seed=int(m[6]), success=r['success'],
                          episodes=r['episodes'], step=r['step'], final=final))
     return rows
 

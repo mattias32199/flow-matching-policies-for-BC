@@ -2,7 +2,8 @@
 
 Per run: task, study part, trainer, key settings, updates, batch, samples seen, passes over the training starts/frames,
 wall-clock GPU hours (summed over Slurm segments in runs/<run>/launcher.log, 1 GPU per job), GPU models used, final
-success (mean of last 3 evaluations) and best evaluation.
+success (the 1000-rollout final evaluation when the run has one, else the mean of the last 3 evaluations; bowling
+reports the episode return), the final-evaluation rollout count, and the best evaluation.
 
   .venv/bin/python scripts/export_vision_runs.py
 """
@@ -17,7 +18,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'experiments' / 'vision-bc'
 PATTERNS = ['v-state-single-*', 'v-B-*', 'v-C-*', 'v-D-*', 'v-E-*', 'v-F-*', 'h-single-*', 'h3-single-*', 'h-sgl-*',
-            'v-state-double-*', 'r-*', 'h-double-*', 'h2-double-*', 'v-dbl-*', 'h-dbl-*', 'regime-*']
+            'v-state-double-*', 'r-*', 'h-double-*', 'h2-double-*', 'v-dbl-*', 'h-dbl-*', 'regime-*',
+            # follow-up (followup.md, scripts/launch_gen.py): Q, G, S, round-3 X1-X7 and their support jobs
+            'q-*', 'g-*', 's-*', 'x[1-7]-*', 'gen-*']
 # Training frames / chunk starts available to the visual trainers (successful episodes, non-final frames).
 VIS_FRAMES = {'visual-block-single-task1-v0': 235673}
 
@@ -64,11 +67,26 @@ def evals(run_dir):
 
 
 def part(run):
+    if run.startswith(('q-', 'g-', 's-', 'x1-', 'x2-', 'x3-', 'x4-', 'x5-', 'x6-', 'x7-', 'gen-')):
+        return 'D follow-up'
     if run.startswith(('h-', 'h2-', 'h3-')):
         return 'C explanation'
     if run.startswith(('r-', 'v-state-double', 'regime-')) or run.startswith('v-dbl-') or 'dbl' in run:
         return 'B block-double'
     return 'A block-single'
+
+
+def task(run, env):
+    for k in ('hanoi-single', 'hanoi-double', 'bowling'):
+        if k in env:
+            return k
+    if run.startswith(('g-hs', 'x2-hs', 'x4-hs')):
+        return 'hanoi-single'
+    if run.startswith('g-hd'):
+        return 'hanoi-double'
+    if run.startswith('g-bw'):
+        return 'bowling'
+    return 'double' if 'double' in (env + run) or 'dbl' in run or run.startswith('r-') else 'single'
 
 
 def main():
@@ -90,7 +108,7 @@ def main():
         hours, nodes = segments(d)
         e = evals(d)
         trainer = cfg.get('trainer') or cfg.get('kind') or ('train_vis' if 'input' in cfg else 'train.py' if 'features' in cfg else 'job')
-        if run.startswith('regime-'):
+        if run.startswith(('regime-', 'gen-')):
             trainer = 'support job'
         steps = cfg.get('steps')
         batch = cfg.get('batch_size') or cfg.get('batch')
@@ -102,21 +120,28 @@ def main():
         elif 'input' in cfg and steps and batch and env in vis_frames:
             passes = steps * batch / vis_frames[env]
         elif trainer == 'encoder_pretrain' and steps and batch:
-            passes = steps * batch / (200000 * 0.95)
+            passes = steps * batch / ((cfg.get('n_pairs') or 200000) * 0.95)
         elif 'features' in cfg and cfg.get('start_interval') and steps and batch:
             ds = last_metric(d, 'dataset.jsonl')
             if 'allowed_train_starts' in ds:
                 passes = steps * batch / ds['allowed_train_starts']
         settings = {k: cfg[k] for k in ('features', 'base', 'episodes', 'start_interval', 'refresh_every', 'input', 'encoder',
                                          'scale', 'adapter', 'finetune', 'aux_frac', 'lr', 'enc_lr', 'img', 'data', 'arch',
-                                         'groups', 'scratch', 'seed') if k in cfg and cfg[k] not in (None, '', False)}
+                                         'groups', 'exclude_groups', 'n_pairs', 'dr_dir', 'extra', 'shift_eval', 'scratch',
+                                         'seed') if k in cfg and cfg[k] not in (None, '', False)}
+        fe = last_metric(d, 'final_eval.jsonl')
+        if 'bowling' in env:  # no success flag; the score is the episode return
+            e = [(r['step'], r.get('return', r.get('episode.return', 0.0))) for r in map(json.loads, (d / 'eval.jsonl').read_text().splitlines()) if r] \
+                if (d / 'eval.jsonl').exists() else []
         rows.append(dict(
-            run=run, part=part(run), task='double' if 'double' in (env + run) or 'dbl' in run or run.startswith('r-') else 'single',
+            run=run, part=part(run), task=task(run, env),
             trainer=trainer, settings=json.dumps(settings, separators=(',', ':')), updates=steps, batch=batch,
             samples_seen=steps * batch if steps and batch else None,
             passes_over_training_data=round(passes, 2) if passes else None,
             gpu_hours=hours, gpus='/'.join(sorted({gpu.get(n, '?') for n in nodes})), slurm_segments=len(nodes),
-            final_success=round(sum(v for _, v in e[-3:]) / len(e[-3:]), 3) if e else None,
+            final_success=round(fe['return' if 'bowling' in env else 'success'], 3) if fe else
+            round(sum(v for _, v in e[-3:]) / len(e[-3:]), 3) if e else None,
+            final_eval_rollouts=fe.get('episodes'),
             best_success=round(max(v for _, v in e), 3) if e else None, done=(d / 'DONE').exists()))
     with open(OUT / 'runs.csv', 'w', newline='') as f:
         w = csv.DictWriter(f, fieldnames=list(rows[0]))

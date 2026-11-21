@@ -1,0 +1,28 @@
+{
+  "run": "x2-hs-enc-p2k",
+  "data": "nodr",
+  "arch": "dinov2_s",
+  "scratch": false,
+  "env": "visual-hanoi-single-task1-v0",
+  "steps": 40000,
+  "batch": 128,
+  "lr": 0.0003,
+  "enc_lr": 5e-05,
+  "log_interval": 250,
+  "eval_interval": 2000,
+  "ckpt_interval": 2000,
+  "seed": 0,
+  "group": "vision-followup",
+  "tags": [
+    "stage:encoder",
+    "pairs:2000",
+    "env:hanoi-single"
+  ],
+  "groups": "",
+  "exclude_groups": "peg_xyz,peg_yaw",
+  "n_pairs": 2000,
+  "dr_dir": "",
+  "select": "best",
+  "wandb_group": "vision-followup",
+  "kind": "encoder_pretrain"
+}

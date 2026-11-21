@@ -1,0 +1,30 @@
+{
+  "env": "hanoi-single-task1-v0",
+  "features": "handcrafted",
+  "seed": 0,
+  "data_seed": 0,
+  "base": 30000,
+  "refresh_every": 0,
+  "refresh_collections": 1,
+  "start_interval": 25,
+  "steps": 500000,
+  "batch_size": 1024,
+  "width": 4096,
+  "depth": 8,
+  "log_interval": 1000,
+  "eval_interval": 50000,
+  "eval_episodes": 500,
+  "save_interval": 25000,
+  "group": "vision-followup",
+  "tags": [
+    "group:G",
+    "input:state",
+    "env:hanoi-single-task1-v0",
+    "base:30000",
+    "start_interval:25"
+  ],
+  "run": "g-hs-state-n30k-int25-s0",
+  "trainer": "train_regime",
+  "wandb_group": "vision-followup",
+  "slurm_job": "4111589"
+}

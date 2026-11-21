@@ -1,0 +1,28 @@
+{
+  "run": "x1-sgl-enc-uni-p200",
+  "data": "nodr",
+  "arch": "dinov2_s",
+  "scratch": false,
+  "env": "visual-block-single-task1-v0",
+  "steps": 40000,
+  "batch": 128,
+  "lr": 0.0003,
+  "enc_lr": 5e-05,
+  "log_interval": 250,
+  "eval_interval": 2000,
+  "ckpt_interval": 2000,
+  "seed": 0,
+  "group": "vision-followup",
+  "tags": [
+    "stage:encoder",
+    "pairs:200",
+    "states:uniform"
+  ],
+  "groups": "",
+  "exclude_groups": "",
+  "n_pairs": 200,
+  "dr_dir": "visual-block-single-task1-v0-uniform",
+  "select": "best",
+  "wandb_group": "vision-followup",
+  "kind": "encoder_pretrain"
+}

@@ -1,0 +1,28 @@
+{
+  "run": "s-sgl-enc-p60-r1",
+  "data": "nodr",
+  "arch": "dinov2_s",
+  "scratch": false,
+  "env": "visual-block-single-task1-v0",
+  "steps": 40000,
+  "batch": 128,
+  "lr": 0.0003,
+  "enc_lr": 5e-05,
+  "log_interval": 250,
+  "eval_interval": 2000,
+  "ckpt_interval": 2000,
+  "seed": 1,
+  "group": "vision-followup",
+  "tags": [
+    "stage:encoder",
+    "pairs:60",
+    "replicate:1"
+  ],
+  "groups": "",
+  "exclude_groups": "",
+  "n_pairs": 60,
+  "dr_dir": "visual-block-single-task1-v0-seed1",
+  "select": "best",
+  "wandb_group": "vision-followup",
+  "kind": "encoder_pretrain"
+}

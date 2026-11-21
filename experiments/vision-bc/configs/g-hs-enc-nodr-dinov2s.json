@@ -1,0 +1,27 @@
+{
+  "run": "g-hs-enc-nodr-dinov2s",
+  "data": "nodr",
+  "arch": "dinov2_s",
+  "scratch": false,
+  "env": "visual-hanoi-single-task1-v0",
+  "steps": 40000,
+  "batch": 128,
+  "lr": 0.0003,
+  "enc_lr": 5e-05,
+  "log_interval": 250,
+  "eval_interval": 2000,
+  "ckpt_interval": 2000,
+  "seed": 0,
+  "group": "vision-followup",
+  "tags": [
+    "stage:encoder",
+    "env:hanoi-single-task1-v0"
+  ],
+  "groups": "",
+  "exclude_groups": "peg_xyz,peg_yaw",
+  "n_pairs": 0,
+  "dr_dir": "",
+  "select": "best",
+  "wandb_group": "vision-followup",
+  "kind": "encoder_pretrain"
+}
